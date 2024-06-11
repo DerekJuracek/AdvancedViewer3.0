@@ -1,0 +1,41 @@
+{
+  "webmapId": "0ff548ad75644c2fa1e59015155790a5",
+  "image": "https://publicweb-gis.s3.amazonaws.com/Images/MunicipalSeals/Warren_CT.png",
+  "title": "Town of Warren, CT",
+  "tabTitle": "Warren GIS Parcel Viewer",
+  "parcelLayerRestTitle": "CT Warren Adv Viewer Parcels - Parcel Boundaries",
+  "cssHeaderBackground": "#246d86",
+  "cssViewBackground": "#9dbac7",
+  "cssLayerFilterColor": "#9dbac7",
+  "cssLayerFilterTextColor": "#474747",
+  "basemapTitle": "Warren Basemap",
+  "parcelRenderer": "#05FCCF",
+  "condos": "yes",
+  "imageUrl": "https://publicweb-gis.s3.amazonaws.com/Images/Bldg_Photos/Warren_CT/",
+  "welcomeImage": "https://publicweb-gis.s3.amazonaws.com/Images/MunicipalSeals/Warren_CT.png",
+  "accessorName": "- Linda Bertaccini | Assessor  <br>    - Jamie Hatch | Assistant Assessor",
+  "propertyCard": "https://www.propertyrecordcards.com/PropertyResults.aspx?towncode=149",
+  "pdf_Image": "https://publicweb-gis.s3.amazonaws.com/PDFs/CT_Warren",
+  "pdf_demographics": "https://publicweb-gis.s3.amazonaws.com/CT_Town_Profiles/Warren_Demographics_2023.pdf",
+  "tax_bill": "https://www.mytaxbill.org/inet/bill/parcel.do?town=warren",
+  "taxMapUrl": "https://publicweb-gis.s3.amazonaws.com/PDFs/CT_Warren/Tax_Maps/TaxMap_",
+  "parcelMapUrl": "CT_Warren",
+  "housingUrl": "https://publicweb-gis.s3.amazonaws.com/CT_Town_Profiles/Warren_Housing_2022.pdf",
+  "masterTable": "https://services1.arcgis.com/j6iFLXhyiD3XTMyD/ArcGIS/rest/services/CT_Warren_Adv_Viewer_Parcels/FeatureServer/0",
+  "condoLayer": "https://services1.arcgis.com/j6iFLXhyiD3XTMyD/ArcGIS/rest/services/CT_Warren_Adv_Viewer_Parcels/FeatureServer/1",
+  "noCondoLayer": "https://services1.arcgis.com/j6iFLXhyiD3XTMyD/ArcGIS/rest/services/CT_Warren_Adv_Viewer_Parcels/FeatureServer/1",
+  "parcelServiceTitle": "Parcel Boundaries",
+  "zoom": "13",
+  "parcelZoom": 13,
+  "layers": [
+    {
+      "url": "https://services1.arcgis.com/j6iFLXhyiD3XTMyD/ArcGIS/rest/services/CT_Bethany_CAMA_Viewer/FeatureServer/8",
+      "title": "Land Influence",
+      "fieldName": "Influence_Type",
+      "isVisible": false,
+      "orderByField": "OBJECTID",
+      "combobox1": "combo11",
+      "combobox2": "combo12"
+    }
+  ]
+}
