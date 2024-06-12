@@ -1,0 +1,41 @@
+{
+  "webmapId": "d7bd4f729a1d48099e6c8df3b2e734b4",
+  "image": "https://publicweb-gis.s3.amazonaws.com/Images/MunicipalSeals/Haddam_CT.png",
+  "title": "Town of Haddam, CT",
+  "tabTitle": "Haddam GIS Parcel Viewer",
+  "parcelLayerRestTitle": "CT Haddam Adv Viewer Parcels - Parcel Boundaries",
+  "cssHeaderBackground": "#246d86",
+  "cssViewBackground": "#9dbac7",
+  "cssLayerFilterColor": "#9dbac7",
+  "cssLayerFilterTextColor": "#474747",
+  "basemapTitle": "Haddam Basemap",
+  "parcelRenderer": "#05FCCF",
+  "condos": "yes",
+  "imageUrl": "https://publicweb-gis.s3.amazonaws.com/Images/Bldg_Photos/Haddam_CT/",
+  "welcomeImage": "https://publicweb-gis.s3.amazonaws.com/Images/MunicipalSeals/Haddam_CT.png",
+  "accessorName": "- Tammy Anderson – Assessor <br>    - Tracy Thompson - Assistant Assessor",
+  "propertyCard": "https://www.propertyrecordcards.com/PropertyResults.aspx?towncode=061",
+  "pdf_Image": "https://publicweb-gis.s3.amazonaws.com/PDFs/CT_Haddam",
+  "pdf_demographics": "https://publicweb-gis.s3.amazonaws.com/CT_Town_Profiles/Haddam_Demographics_2023.pdf",
+  "tax_bill": "https://www.mytaxbill.org/inet/bill/parcel.do?town=Haddam",
+  "taxMapUrl": "https://publicweb-gis.s3.amazonaws.com/PDFs/CT_Haddam/Tax_Maps/TaxMap_",
+  "parcelMapUrl": "CT_Roxbury",
+  "housingUrl": "https://publicweb-gis.s3.amazonaws.com/CT_Town_Profiles/Haddam_Housing_2022.pdf",
+  "masterTable": "https://services1.arcgis.com/j6iFLXhyiD3XTMyD/ArcGIS/rest/services/CT_Haddam_Adv_Viewer_Parcels/FeatureServer/0",
+  "condoLayer": "https://services1.arcgis.com/j6iFLXhyiD3XTMyD/ArcGIS/rest/services/CT_Haddam_Adv_Viewer_Parcels/FeatureServer/1",
+  "noCondoLayer": "https://services1.arcgis.com/j6iFLXhyiD3XTMyD/ArcGIS/rest/services/CT_Haddam_Adv_Viewer_Parcels/FeatureServer/1",
+  "parcelServiceTitle": "Parcel Boundaries",
+  "zoom": "13",
+  "parcelZoom": 13,
+  "layers": [
+    {
+      "url": "https://services1.arcgis.com/j6iFLXhyiD3XTMyD/ArcGIS/rest/services/CT_Bethany_CAMA_Viewer/FeatureServer/8",
+      "title": "Land Influence",
+      "fieldName": "Influence_Type",
+      "isVisible": false,
+      "orderByField": "OBJECTID",
+      "combobox1": "combo11",
+      "combobox2": "combo12"
+    }
+  ]
+}
