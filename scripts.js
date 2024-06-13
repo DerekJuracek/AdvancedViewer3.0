@@ -612,7 +612,6 @@ require([
               try {
                 handleUsed = "details";
                 DetailsHandle.remove();
-                console.log(handleUsed);
               } catch (error) {
                 console.error("Failed to remove DetailsHandle", error);
               }
@@ -622,7 +621,6 @@ require([
               try {
                 handleUsed = "click";
                 clickHandle.remove();
-                console.log(handleUsed);
               } catch (error) {
                 console.error("Failed to remove DetailsHandle", error);
               }
@@ -1568,14 +1566,6 @@ require([
         $("#total-results").show();
         $("#ResultDiv").show();
         $("#total-results").html(searchResults + " results returned");
-        // if (searchResults.length < 0) {
-        //   $("#select-button").removeClass("btn-warning");
-        // }
-
-        // });
-
-        // createExportList();
-
         $("#backButton").hide();
         $("#detailsButton").hide();
         $("#filterDiv").hide();
@@ -1592,8 +1582,7 @@ require([
         $("#left-arrow-2").show();
         $("#right-arrow-2").hide();
         $("#WelcomeBox").hide();
-        $("#results-div").css("height", "200px");
-        // valueToRemove = 0;
+        // $("#results-div").css("height", "200px");
 
         if (uniqueArray.length < 1) {
           $("#exportSearch").hide();
@@ -2123,7 +2112,7 @@ require([
           $("#select-button").removeClass("btn-warning");
         }
 
-        if (sessionStorage.getItem(key) === "no") {
+        if (sessionStorage.getItem("condos") === "no") {
           noCondosLayer.visible = true;
         } else {
           CondosLayer.visible = true;
@@ -3411,9 +3400,10 @@ require([
         let buffer = value;
         let unit = queryUnits;
         let bufferResults;
+        let targetExtent;
 
-        if (sessionStorage.getItem("condos") == "no") {
-          bufferResults = geometryEngine.buffer(targetExtent, buffer, unit);
+        if (sessionStorage.getItem("condos") === "no") {
+          bufferResults = geometryEngine.buffer(detailsGeometry, buffer, unit);
           // console.log(`no condos buffer run`);
         } else {
           bufferResults = geometryEngine.buffer(detailsGeometry, buffer, unit);
