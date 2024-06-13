@@ -2445,7 +2445,7 @@ require([
         $("#results-div").css("height", "150px");
         $("#backButton-div").css("padding-top", "0px");
 
-        if (sessionStorage.getItem(key) === "no") {
+        if (sessionStorage.getItem("condos") === "no") {
           let query = CondosLayer.createQuery();
           query.geometry = event.mapPoint;
           query.distance = 1;
@@ -2959,16 +2959,16 @@ require([
           const resultsListGroup = document.createElement("ul");
 
           uniqueArray.forEach(function (feature) {
-            let objectID = feature.objectid;
-            let owner = feature.owner;
-            let coOwner = feature.coOwner;
-            let mailingAddress = feature.mailingAddress;
-            let mailingAddress2 = feature.mailingAddress2;
-            let Mailing_City = feature.Mailing_City;
-            let Mail_State = feature.Mail_State;
-            let Mailing_Zip = feature.Mailing_Zip;
+            let objectID = feature.attributes.OBJECTID;
+            let owner = feature.attributes.Owner;
+            let coOwner = feature.attributes.Co_Owner;
+            let mailingAddress = feature.attributes.Mailing_Address_1;
+            let mailingAddress2 = feature.attributes.Mailing_Address_2;
+            let Mailing_City = feature.attributes.Mailing_City;
+            let Mail_State = feature.attributes.Mail_State;
+            let Mailing_Zip = feature.attributes.Mailing_Zip;
             let Location = feature.location;
-            let uniqueid = feature.uniqueId;
+            let uniqueid = feature.attributes.Uniqueid;
 
             const listItem = document.createElement("li");
             listItem.classList.add("abutters-group-list");
@@ -3124,7 +3124,7 @@ require([
         };
         let bufferResults = [];
 
-        if (sessionStorage.getItem(key) === "no") {
+        if (sessionStorage.getItem("condos") === "no") {
           noCondosLayer.queryFeatures(parcelQuery).then((results) => {
             const bufferRes = results.features;
             bufferRes.forEach((parcel) => {
@@ -3173,6 +3173,7 @@ require([
         totalResults = foundLocs.length;
         lastResults = totalResults;
         exportResults = foundLocs;
+        uniqueArray = foundLocs;
         exportCsv = foundLocs;
 
         foundLocs.forEach(function (feature) {
@@ -3413,7 +3414,7 @@ require([
         let unit = queryUnits;
         let bufferResults;
 
-        if (sessionStorage.getItem(key) == "no" && CondoBuffer == false) {
+        if (sessionStorage.getItem("condos") == "no") {
           bufferResults = geometryEngine.buffer(targetExtent, buffer, unit);
           // console.log(`no condos buffer run`);
         } else {
@@ -3432,7 +3433,7 @@ require([
         let unit = queryUnits;
         let bufferResults;
 
-        if (sessionStorage.getItem(key) == "no" && CondoBuffer == false) {
+        if (sessionStorage.getItem("condos") == "no") {
           bufferResults = geometryEngine.buffer(targetExtent, buffer, unit);
         } else {
           bufferResults = geometryEngine.buffer(detailsGeometry, buffer, unit);
@@ -4206,6 +4207,12 @@ require([
           locationGISLINK = detailsChanged.item.attributes.GIS_LINK;
           locationOwner = detailsChanged.item.attributes.Owner;
           locationMBL = detailsChanged.item.attributes.MBL;
+          locationCoOwner = detailsChanged.item.attributes.Co_Owner;
+          locationAddress = detailsChanged.item.attributes.Mailing_Address_1;
+          locationAddress2 = detailsChanged.item.attributes.Mailing_Address_2;
+          locationMailCity = detailsChanged.item.attributes.Mailing_City;
+          locationMailZip = detailsChanged.item.attributes.Mailing_Zip;
+          locationMailState = detailsChanged.item.attributes.Mail_State;
         } else {
           var matchedObject = firstList.find(function (item) {
             return (
@@ -4476,7 +4483,6 @@ require([
         $("#results-div").css("height", "150px");
         $("#backButton-div").css("padding-top", "0px");
         document.getElementById("total-results").style.display = "none";
-        $("#ResultDiv").hide();
         buildDetailsPanel(objectID, itemId);
         $("#total-results").hide();
         $("#ResultDiv").hide();
