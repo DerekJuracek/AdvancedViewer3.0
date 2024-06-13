@@ -3519,7 +3519,7 @@ require([
         let map_pdf = features.Map === undefined ? "" : features.Map;
 
         let objectID2 =
-          features.objectid === undefined ? "" : features.objectid;
+          features.OBJECTID === undefined ? "" : features.OBJECTID;
 
         let Lat = features.Lat === undefined ? "" : features.Lat;
         let Lon = features.Lon === undefined ? "" : features.Lon;
@@ -3593,7 +3593,7 @@ require([
           event.stopPropagation();
           event.preventDefault();
 
-          if (sessionStorage.getItem(key) === "no") {
+          if (sessionStorage.getItem("condos") === "no") {
             // If the key doesn't exist, set it to "none"
             let whereClause = `OBJECTID = ${zoomToObjectID}`;
             let query = noCondosLayer.createQuery();
