@@ -411,7 +411,7 @@ ul {
   width: 350px;
   z-index: 1000;
   overflow-y: hidden;
-  background-color: var(--background-color) !important;
+  background-color: rgba(30, 30, 30, 0.9) !important;
   transition: left 0.5s; /* Animate the 'left' property */
 }
 
@@ -447,7 +447,7 @@ ul {
   left: 250px; /* the width of #sidebar */
   height: 200px;
   width: 55px;
-  background-color: var(--background-color) !important;
+  background-color: rgba(30, 30, 30, 0.9) !important;
   transition: left 0.5s;
   padding: 6px; /* Change this to the color you want */
 }
