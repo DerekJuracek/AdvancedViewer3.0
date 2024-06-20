@@ -481,7 +481,7 @@ ul {
 .list-group-item {
   background-color: var(--background-color) !important;
   outline-color: white;
-  font-size: 10px;
+  font-size: 12px;
   color: white;
   z-index: 1000;
   right: 0;
@@ -498,7 +498,7 @@ ul {
 .abutters-group-item {
   background-color: var(--background-color) !important;
   /* outline-color: white; */
-  font-size: 9px;
+  font-size: 12px;
   color: white;
   /* z-index: 1000; */
   /* right: 0;
