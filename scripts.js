@@ -151,12 +151,6 @@ require([
 
       sessionStorage.setItem(key, configVars.isCondosLayer);
 
-      if (sessionStorage.getItem(key2) === null) {
-        // If the key doesn't exist, set it to "none"
-        sessionStorage.setItem(key2, "yes");
-      } else {
-      }
-
       const searchGraphicsLayers = new GraphicsLayer();
       const sketchGL = new GraphicsLayer();
 
@@ -776,7 +770,7 @@ require([
       view.when(function () {
         let watchLayer;
         // Assuming the icon is initially set to "plus" for all items
-        if (sessionStorage.getItem(key) === "yes") {
+        if (sessionStorage.getItem("condos") === "yes") {
           watchLayer = "condoLayer";
         } else {
           watchLayer = "noCondoLayer";
@@ -825,7 +819,7 @@ require([
       function addLayerToPickList(layer, container) {
         let turnLayerOff;
         // Assuming the icon is initially set to "plus" for all items
-        if (sessionStorage.getItem(key) === "yes") {
+        if (sessionStorage.getItem("condos") === "yes") {
           turnLayerOff = "noCondoLayer";
         } else {
           turnLayerOff = "condoLayer";
@@ -1160,7 +1154,7 @@ require([
         const newUrl = removeQueryParam("uniqueid", currentUrl);
         window.history.pushState({ path: newUrl }, "", newUrl);
         // console.log(e.target.value);
-        if (sessionStorage.getItem(key) === "no") {
+        if (sessionStorage.getItem("condos") === "no") {
           noCondosLayer.visible = true;
         } else {
           CondosLayer.visible = true;
@@ -1274,7 +1268,7 @@ require([
           let capturedEvent = event;
           let ClickEvent = true;
 
-          if (sessionStorage.getItem(key) === "no") {
+          if (sessionStorage.getItem("condos") === "no") {
             let query = CondosLayer.createQuery();
             query.where = `OBJECTID = ${objectID}`;
             query.returnGeometry = true;
@@ -1313,7 +1307,7 @@ require([
           let itemId = targetElement.getAttribute("data-id");
           let objectID = targetElement.getAttribute("object-id");
 
-          if (sessionStorage.getItem(key) === "no") {
+          if (sessionStorage.getItem("condos") === "no") {
             // If the key doesn't exist, set it to "none"
             let whereClause = `OBJECTID = ${objectID}`;
             let query = noCondosLayer.createQuery();
@@ -1426,7 +1420,7 @@ require([
           imageDiv.classList.add("image-div", "col-3");
 
           let listItemHTML;
-          let displayNoGeometry = sessionStorage.getItem(key2) === "yes";
+          let displayNoGeometry = sessionStorage.getItem("condos") === "yes";
 
           if (!locationCoOwner && locationGeom) {
             listItemHTML = ` <div class="listText">UID: ${locationUniqueId} &nbsp; &nbsp; &nbsp; &nbsp;&nbsp; &nbsp;MBL: ${locationMBL} <br> ${locationOwner} ${locationCoOwner} <br> ${locationVal} <br> Property Type: ${propertyType}</div><div class="justZoomBtn"><button type="button" class="btn btn-primary btn-sm justZoom" title="Zoom to Parcel"><calcite-icon icon="magnifying-glass-plus" scale="s"/>Zoom</button><button type="button" class="btn btn-primary btn-sm justRemove" title="Remove from Search List"><calcite-icon icon="minus-circle" scale="s"/>Remove</button></div>`;
@@ -1564,7 +1558,7 @@ require([
 
           $(`li[object-id="${pointGraphic}"]`).remove();
 
-          if (sessionStorage.getItem(key) == "no") {
+          if (sessionStorage.getItem("condos") == "no") {
             firstList = firstList.filter(
               (item) => item.GIS_LINK != pointGisLink
             );
@@ -2094,7 +2088,7 @@ require([
           });
         }
 
-        if (sessionStorage.getItem(key) == "no") {
+        if (sessionStorage.getItem("condos") == "no") {
           runNoCondosQuery();
         } else {
           runCondoQuery();
@@ -2155,7 +2149,7 @@ require([
         clearContents(e, "no");
         sketchGL.removeAll();
 
-        if (sessionStorage.getItem(key) === "no") {
+        if (sessionStorage.getItem("condos") === "no") {
           noCondosLayer.visible = true;
         } else {
           CondosLayer.visible = true;
@@ -2372,7 +2366,7 @@ require([
         });
 
       function queryRelatedRecords(searchTerm, urlSearch) {
-        if (sessionStorage.getItem(key) === "no") {
+        if (sessionStorage.getItem("condos") === "no") {
           noCondosLayer.visible = true;
         } else {
           CondosLayer.visible = true;
@@ -2404,7 +2398,7 @@ require([
 
         let triggerUrl;
 
-        if (sessionStorage.getItem(key) === "no") {
+        if (sessionStorage.getItem("condos") === "no") {
           noCondosLayer.queryFeatures(query).then(function (result) {
             triggerUrl = result.features;
             if (result.features.length >= 1) {
@@ -2581,7 +2575,7 @@ require([
           DetailsHandle = null;
         }
 
-        if (sessionStorage.getItem(key) === "no") {
+        if (sessionStorage.getItem("condos") === "no") {
           let query = CondosLayer.createQuery();
           query.geometry = event.mapPoint;
           query.distance = 1;
@@ -3341,7 +3335,7 @@ require([
 
         exportResults = [];
 
-        if (sessionStorage.getItem(key) === "no") {
+        if (sessionStorage.getItem("condos") === "no") {
           noCondosLayer.queryFeatures(parcelQuery).then((results) => {
             bothResults = [...results.features];
 
@@ -4170,7 +4164,7 @@ require([
         // if "no condos" and GIS_LINK is equal to firstlist(means its searched by GIS_LINK)
         // and GIS_LINK > 1( not searched on one uniqueid w/ no geometry) or will error
         if (
-          sessionStorage.getItem(key) == "no" &&
+          sessionStorage.getItem("condos") == "no" &&
           isGisLink.length == firstList.length &&
           isGisLink.length > 1
         ) {
@@ -4807,7 +4801,7 @@ require([
         .querySelector(".form-inline")
         .addEventListener("submit", function (e) {
           // Check if the key exists in sessionStorage
-          if (sessionStorage.getItem(key) === "no") {
+          if (sessionStorage.getItem("condos") === "no") {
             noCondosLayer.visible = true;
           } else {
             CondosLayer.visible = true;
@@ -4840,7 +4834,7 @@ require([
       let debounceTimer2;
 
       function hitQuery() {
-        if (sessionStorage.getItem(key) === "no") {
+        if (sessionStorage.getItem("condos") === "no") {
           noCondosLayer.visible = true;
         } else {
           CondosLayer.visible = true;
@@ -5068,7 +5062,7 @@ require([
 
           let queryString = queryParts.join(" AND ");
 
-          if (sessionStorage.getItem(key) === "no") {
+          if (sessionStorage.getItem("condos") === "no") {
             let query = noCondosLayer.createQuery();
             query.where = queryString;
             query.returnDistinctValues = false;
