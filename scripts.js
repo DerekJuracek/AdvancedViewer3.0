@@ -48,7 +48,14 @@ require([
   ScaleBar
 ) {
   const urlParams = new URLSearchParams(window.location.search);
-  const configUrl = urlParams.get("viewer") || "cama/washington.json";
+  let configDefaultTown = "cama/washington.json";
+  let configUrl = urlParams.get("viewer");
+
+  if (configUrl != null && configUrl != configDefaultTown) {
+    configUrl = configUrl + ".json";
+  } else {
+    configUrl = configDefaultTown;
+  }
   const configVars = {
     mapId: "",
     condoLayer: "",
