@@ -238,6 +238,16 @@ require([
           templateOptions: {
             scaleEnabled: true,
           },
+          allowedLayouts: [
+            "letter-ansi-a-landscape",
+            "letter-ansi-a-portrait",
+            "tabloid-ansi-b-landscape",
+            "tabloid-ansi-b-portrait",
+            "a3-landscape",
+            "a3-portrait",
+            "a4-landscape",
+            "a4-portrait",
+          ],
         });
       });
 
@@ -3437,6 +3447,7 @@ require([
         $("#detail-content").empty();
         $("#selected-feature").empty();
         $(".center-container").hide();
+        $("#layerListDiv").hide();
         function formatNumber(value) {
           if (value === undefined) return "";
           return new Intl.NumberFormat("en-US").format(value);
