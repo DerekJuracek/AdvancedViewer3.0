@@ -1606,6 +1606,7 @@ require([
         } else {
           $("#exportSearch").show();
         }
+        $("#results-div").css("height", "200px");
         $("#exportButtons").show();
         $("#exportResults").hide();
         $("#csvExportSearch").show();
