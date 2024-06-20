@@ -491,10 +491,12 @@ require([
                 }
 
                 if (DetailsHandle) {
-                  DetailsHandle.remove();
+                  DetailsHandle?.remove();
+                  DetailsHandle = null;
                 }
                 if (clickHandle) {
-                  clickHandle.remove();
+                  clickHandle?.remove();
+                  clickHandle = null;
                 }
 
                 if (
@@ -568,8 +570,8 @@ require([
             if (DetailsHandle) {
               try {
                 handleUsed = "details";
-                DetailsHandle.remove();
-                console.log(handleUsed);
+                DetailsHandle?.remove();
+                DetailsHandle = null;
               } catch (error) {
                 console.error("Failed to remove DetailsHandle", error);
               }
@@ -629,7 +631,8 @@ require([
             if (DetailsHandle) {
               try {
                 handleUsed = "details";
-                DetailsHandle.remove();
+                DetailsHandle?.remove();
+                DetailsHandle = null;
               } catch (error) {
                 console.error("Failed to remove DetailsHandle", error);
               }
@@ -638,7 +641,8 @@ require([
             if (clickHandle) {
               try {
                 handleUsed = "click";
-                clickHandle.remove();
+                clickHandle?.remove();
+                clickHandle = null;
               } catch (error) {
                 console.error("Failed to remove DetailsHandle", error);
               }
@@ -1163,7 +1167,8 @@ require([
         }
         if (DetailsHandle) {
           try {
-            DetailsHandle.remove();
+            DetailsHandle?.remove();
+            DetailsHandle = null;
           } catch (error) {
             console.error("Failed to remove DetailsHandle", error);
           }
@@ -1171,7 +1176,8 @@ require([
 
         if (clickHandle) {
           try {
-            clickHandle.remove();
+            clickHandle?.remove();
+            clickHandle = null;
           } catch (error) {
             console.error("Failed to remove DetailsHandle", error);
           }
@@ -1446,11 +1452,13 @@ require([
             return; // Exit the handler early if a button was clicked
           }
           if (clickHandle) {
-            clickHandle.remove();
+            clickHandle?.remove();
+            clickHandle = null;
           }
 
           if (DetailsHandle) {
-            DetailsHandle.remove();
+            DetailsHandle?.remove();
+            DetailsHandle = null;
           }
           $("#select-button").attr("title", "Select Enabled");
           // Check if the clicked element is an li or a descendant of an li
@@ -1673,11 +1681,13 @@ require([
             return; // Exit the handler early if a button was clicked
           }
           if (clickHandle) {
-            clickHandle.remove();
+            clickHandle?.remove();
+            clickHandle = null;
           }
 
           if (DetailsHandle) {
-            DetailsHandle.remove();
+            DetailsHandle?.remove();
+            DetailsHandle = null;
           }
           $("#select-button").attr("title", "Select Enabled");
           // Check if the clicked element is an li or a descendant of an li
@@ -1932,8 +1942,12 @@ require([
             // const graphicIndex2 = polygonGraphics2.findIndex(
             //   (g) => g.id === bufferGraphicId
             // );
+            if (polygonGraphics.length === 1) {
+              polygonGraphics.splice(0, 1);
+            } else {
+              polygonGraphics.splice(graphicIndex, 1);
+            }
 
-            polygonGraphics.splice(graphicIndex, 1);
             // polygonGraphics2.splice(graphicIndex, 1);
 
             if (polygonGraphics.length === 0) {
@@ -1941,8 +1955,10 @@ require([
                 DetailsHandle = view.on("click", handleDetailsClick);
               }
               if (clickHandle) {
-                clickHandle.remove();
+                clickHandle?.remove();
+                clickHandle = null;
               }
+              clickHandle = view.on("click", handleClick);
             }
 
             // will zoom to extent of adding and deselecting
@@ -2154,10 +2170,12 @@ require([
           highlightLasso(event.graphic.geometry);
           // lasso = true;
           if (DetailsHandle) {
-            DetailsHandle.remove();
+            DetailsHandle?.remove();
+            DetailsHandle = null;
           }
           if (clickHandle) {
-            clickHandle.remove();
+            clickHandle?.remove();
+            clickHandle = null;
           }
 
           clickHandle = view.on("click", handleClick);
@@ -2197,14 +2215,16 @@ require([
         if (select && !lasso) {
           if (clickHandle) {
             try {
-              clickHandle.remove();
+              clickHandle?.remove();
+              clickHandle = null;
             } catch (error) {
               console.error("Failed to remove clickHandle", error);
             }
           }
           if (DetailsHandle) {
             try {
-              DetailsHandle.remove();
+              DetailsHandle?.remove();
+              DetailsHandle = null;
             } catch (error) {
               console.error("Failed to remove DetailsHandle", error);
             }
@@ -2213,23 +2233,27 @@ require([
           clickHandle = view.on("click", handleClick);
         } else if (select && lasso) {
           if (DetailsHandle) {
-            DetailsHandle.remove();
+            DetailsHandle?.remove();
+            DetailsHandle = null;
           }
           if (clickHandle) {
-            clickHandle.remove();
+            clickHandle?.remove();
+            clickHandle = null;
           }
           clickHandle = view.on("click", handleClick);
         } else {
           if (clickHandle) {
             try {
-              clickHandle.remove();
+              clickHandle?.remove();
+              clickHandle = null;
             } catch (error) {
               console.error("Failed to remove clickHandle", error);
             }
           }
           if (DetailsHandle) {
             try {
-              DetailsHandle.remove();
+              DetailsHandle?.remove();
+              DetailsHandle = null;
             } catch (error) {
               console.error("Failed to remove DetailsHandle", error);
             }
@@ -2476,10 +2500,12 @@ require([
           });
         }
         if (clickHandle) {
-          clickHandle.remove();
+          clickHandle?.remove();
+          clickHandle = null;
         }
         if (DetailsHandle) {
-          DetailsHandle.remove();
+          DetailsHandle?.remove();
+          DetailsHandle = null;
         }
         DetailsHandle = view.on("click", handleDetailsClick);
         lasso = false;
@@ -2488,7 +2514,8 @@ require([
 
       function handleDetailsClick(event) {
         if (clickHandle) {
-          clickHandle.remove();
+          clickHandle?.remove();
+          clickHandle = null;
         }
         $("#details-spinner").show();
         $("#featureWid").hide();
@@ -2550,7 +2577,8 @@ require([
 
         isClickEvent = true;
         if (DetailsHandle) {
-          DetailsHandle.remove();
+          DetailsHandle?.remove();
+          DetailsHandle = null;
         }
 
         if (sessionStorage.getItem(key) === "no") {
@@ -2628,15 +2656,18 @@ require([
           if (!lasso && !select) {
             // add details and remove when search and no lasso
             if (DetailsHandle) {
-              DetailsHandle.remove();
+              DetailsHandle?.remove();
+              DetailsHandle = null;
             }
 
             if (clickHandle) {
-              clickHandle.remove();
+              clickHandle?.remove();
+              clickHandle = null;
             }
 
             if (clickHandle && select) {
-              clickHandle.remove();
+              clickHandle?.remove();
+              clickHandle = null;
             }
             $("#select-button").removeClass("btn-warning");
             DetailsHandle = view.on("click", handleDetailsClick);
@@ -2645,16 +2676,19 @@ require([
               clickHandle.remove();
             }
             if (DetailsHandle) {
-              DetailsHandle.remove();
+              DetailsHandle?.remove();
+              DetailsHandle = null;
             }
             $("#select-button").addClass("btn-warning");
             clickHandle = view.on("click", handleClick);
           } else if (lasso && !select) {
             if (clickHandle) {
-              clickHandle.remove();
+              clickHandle?.remove();
+              clickHandle = null;
             }
             if (DetailsHandle) {
-              DetailsHandle.remove();
+              DetailsHandle?.remove();
+              DetailsHandle = null;
             }
             clickHandle = view.on("click", handleClick);
             $("#select-button").addClass("btn-warning");
@@ -2662,10 +2696,12 @@ require([
             // else add the select click, not the details
             // DetailsHandle = view.on("click", handleDetailsClick);
             if (clickHandle) {
-              clickHandle.remove();
+              clickHandle?.remove();
+              clickHandle = null;
             }
             if (DetailsHandle) {
-              DetailsHandle.remove();
+              DetailsHandle?.remove();
+              DetailsHandle = null;
             }
             $("#select-button").addClass("btn-warning");
             clickHandle = view.on("click", handleClick);
@@ -2699,7 +2735,8 @@ require([
           $("#backButton-div").css("padding-top", "0px");
           $("#results-div").css("height", "150px");
           if (DetailsHandle) {
-            DetailsHandle.remove();
+            DetailsHandle?.remove();
+            DetailsHandle = null;
           }
           DetailsHandle = view.on("click", handleDetailsClick);
           // Find and remove the existing buffer graphic
@@ -2716,10 +2753,12 @@ require([
         $("#abutters").on("click", function (e) {
           // clickHandle.remove();
           if (DetailsHandle) {
-            DetailsHandle.remove();
+            DetailsHandle?.remove();
+            DetailsHandle = null;
           }
           if (clickHandle) {
-            clickHandle.remove();
+            clickHandle?.remove();
+            clickHandle = null;
           }
           $("#results-div").css("height", "200px");
           $("#exportButtons").show();
@@ -2753,10 +2792,12 @@ require([
         $("#abutters-attributes").on("click", function (e) {
           // clickHandle.remove();
           if (DetailsHandle) {
-            DetailsHandle.remove();
+            DetailsHandle?.remove();
+            DetailsHandle = null;
           }
           if (clickHandle) {
-            clickHandle.remove();
+            clickHandle?.remove();
+            clickHandle = null;
           }
           $("#results-div").css("height", "200px");
           $("#exportButtons").show();
@@ -3759,7 +3800,8 @@ require([
         }
 
         if (clickHandle) {
-          clickHandle.remove();
+          clickHandle?.remove();
+          clickHandle = null;
         }
 
         detailsHandleUsed = "detailClick";
@@ -4267,10 +4309,12 @@ require([
           }
         }
         if (clickHandle) {
-          clickHandle.remove();
+          clickHandle?.remove();
+          clickHandle = null;
         }
         if (DetailsHandle) {
-          DetailsHandle.remove();
+          DetailsHandle?.remove();
+          DetailsHandle = null;
         }
         DetailsHandle = view.on("click", handleDetailsClick);
       }
@@ -4670,11 +4714,13 @@ require([
             $("#csvExportResults").hide();
             $("#exportButtons").hide();
             if (DetailsHandle) {
-              DetailsHandle.remove();
+              DetailsHandle?.remove();
+              DetailsHandle = null;
             }
 
             if (clickHandle) {
-              clickHandle.remove();
+              clickHandle?.remove();
+              clickHandle = null;
             }
 
             let suggestionsContainer = document.getElementById("suggestions");
@@ -4775,10 +4821,12 @@ require([
           $("#selected-feature").empty();
           // $("#exportSearch").show();
           if (DetailsHandle) {
-            DetailsHandle.remove();
+            DetailsHandle?.remove();
+            DetailsHandle = null;
           }
           if (clickHandle) {
-            clickHandle.remove();
+            clickHandle?.remove();
+            clickHandle = null;
           }
         });
 
@@ -4816,10 +4864,12 @@ require([
         polygonGraphics = [];
         view.graphics.removeAll();
         if (DetailsHandle) {
-          DetailsHandle.remove();
+          DetailsHandle?.remove();
+          DetailsHandle = null;
         }
         if (clickHandle) {
-          clickHandle.remove();
+          clickHandle?.remove();
+          clickHandle = null;
         }
         runQuery();
       }
@@ -5030,10 +5080,12 @@ require([
               addPolygons(response, view.graphics);
               processFeatures(response.features);
               if (clickHandle) {
-                clickHandle.remove();
+                clickHandle?.remove();
+                clickHandle = null;
               }
               if (DetailsHandle) {
-                DetailsHandle.remove();
+                DetailsHandle?.remove();
+                DetailsHandle = null;
               }
               DetailsHandle = view.on("click", handleDetailsClick);
             });
@@ -5049,10 +5101,12 @@ require([
               addPolygons(response, view.graphics);
               processFeatures(response.features);
               if (clickHandle) {
-                clickHandle.remove();
+                clickHandle?.remove();
+                clickHandle = null;
               }
               if (DetailsHandle) {
-                DetailsHandle.remove();
+                DetailsHandle?.remove();
+                DetailsHandle = null;
               }
               DetailsHandle = view.on("click", handleDetailsClick);
             });
