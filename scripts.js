@@ -2721,9 +2721,9 @@ require([
           if (clickHandle) {
             clickHandle.remove();
           }
+          $("#results-div").css("height", "200px");
           $("#exportButtons").show();
           $("#exportResults").show();
-          $("#exportButtons").show();
           $("#exportSearch").hide();
           $("#csvExportResults").show();
           $("#csvExportSearch").hide();
@@ -2758,6 +2758,7 @@ require([
           if (clickHandle) {
             clickHandle.remove();
           }
+          $("#results-div").css("height", "200px");
           $("#exportButtons").show();
           $("#exportResults").show();
           $("#exportButtons").show();
