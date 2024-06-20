@@ -1412,7 +1412,7 @@ require([
 
           const listItem = document.createElement("li");
           const imageDiv = document.createElement("li");
-          imageDiv.innerHTML = `<img object-id="${objectID}" src="${imageUrl}" alt="Image of ${locationUniqueId}" >`;
+          imageDiv.innerHTML = `<img class="img-search" object-id="${objectID}" src="${imageUrl}" alt="Image of ${locationUniqueId}" >`;
           listItem.classList.add("list-group-item", "col-9");
           listItem.classList.add("search-list");
           imageDiv.setAttribute("object-id", objectID);
@@ -1543,7 +1543,7 @@ require([
 
           const listItem = document.createElement("li");
           const imageDiv = document.createElement("li");
-          imageDiv.innerHTML = `<img object-id="${objectID}" src="${imageUrl}" alt="Image of ${locationUniqueId}" >`;
+          imageDiv.innerHTML = `<img class="img-search" object-id="${objectID}" src="${imageUrl}" alt="Image of ${locationUniqueId}" >`;
           listItem.classList.add("list-group-item", "col-9");
           listItem.classList.add("search-list");
           imageDiv.setAttribute("object-id", objectID);

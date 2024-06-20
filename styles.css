@@ -299,6 +299,12 @@ ul {
   height: 85%;
 }
 
+.img-search {
+  text-align: center !important;
+    height: 70px !important;
+    width: fit-content !important;
+}
+
 #featureWid {
   display: block;
   min-height: 425px;
@@ -525,16 +531,11 @@ ul {
 
 .image-div {
   display: flex;
-  padding-top: 10px;
+  justify-content: center; /* Centers the image horizontally */
+  align-items: center; 
   background-color: var(--background-color) !important;
-  /* align-items: center; */
-  /* justify-content: center; */
-  padding-left: 0;
-  /* height: 100px; */
+
 }
-/* width: 60px;
-  height: 60px;
-} */
 
 #side-Exp {
   margin-top: 20px; /* Remove any default margin */
