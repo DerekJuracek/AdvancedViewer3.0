@@ -3774,7 +3774,7 @@ require([
         let Prior_Assessed_Total =
           matchedObject.Prior_Assessed_Total === undefined
             ? ""
-            : formatNumber(matchedObject.Prior_Appraised_Total);
+            : formatNumber(matchedObject.Prior_Assessed_Total);
 
         let Prior_Assessment_Year =
           matchedObject.Prior_Assessment_Year === undefined
