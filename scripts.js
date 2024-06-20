@@ -1438,6 +1438,58 @@ require([
           listGroup.appendChild(listItem);
         });
 
+        listGroup.addEventListener("click", function (event) {
+          if (
+            event.target.closest(".justZoom") ||
+            event.target.closest(".justZoomBtn")
+          ) {
+            return; // Exit the handler early if a button was clicked
+          }
+          if (clickHandle) {
+            clickHandle.remove();
+          }
+
+          if (DetailsHandle) {
+            DetailsHandle.remove();
+          }
+          $("#select-button").attr("title", "Select Enabled");
+          // Check if the clicked element is an li or a descendant of an li
+          let targetElement = event.target.closest("li");
+
+          // If it's not an li, exit the handler
+          if (!targetElement) return;
+
+          // Now you can handle the click event as you would in the individual event listener
+          let itemId = targetElement.getAttribute("data-id");
+          let objectID = targetElement.getAttribute("object-id");
+          zoomToFeature(objectID, polygonGraphics, itemId);
+          // DetailsHandle = view.on("click", handleDetailsClick);
+          // clickHandle.remove();
+          $("#details-spinner").show();
+          $("#WelcomeBox").hide();
+          $("#featureWid").hide();
+          $("#result-btns").hide();
+          $("#total-results").hide();
+          $("#ResultDiv").hide();
+          $("#abutters-content").hide();
+          $("#details-btns").show();
+          $("#detailBox").show();
+          $("#backButton").show();
+          $("#detailsButton").hide();
+          $("#detail-content").empty();
+          $("#selected-feature").empty();
+          $("#exportButtons").hide();
+          $("#exportSearch").hide();
+          $("#exportResults").hide();
+          $("#csvExportResults").hide();
+          $("#csvExportSearch").hide();
+          $("#results-div").css("height", "150px");
+          $("#backButton-div").css("padding-top", "0px");
+          $(".center-container").hide();
+
+          buildDetailsPanel(objectID, itemId);
+        });
+
         featureWidDiv.appendChild(listGroup);
       }
 
