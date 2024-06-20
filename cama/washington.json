@@ -8,7 +8,7 @@
   "cssLayerFilterColor": "#9dbac7",
   "cssLayerFilterTextColor": "#474747",
   "basemapTitle": "Washington Basemap",
-  "parcelRenderer": "#05FCCF",
+  "parcelRenderer": "#91C73D",
   "condos": "yes",
   "imageUrl": "https://publicweb-gis.s3.amazonaws.com/Images/Bldg_Photos/Washington_CT/",
   "welcomeImage": "https://publicweb-gis.s3.amazonaws.com/Images/MunicipalSeals/Washington_CT.png",

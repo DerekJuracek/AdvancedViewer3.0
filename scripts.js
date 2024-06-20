@@ -1189,7 +1189,6 @@ require([
 
         $("#distanceButton").removeClass("active");
         $("#areaButton").removeClass("active");
-
         $("#result-btns").hide();
         $("#details-btns").hide();
         $("#dropdown").toggleClass("expanded");
@@ -1699,8 +1698,8 @@ require([
               let Prior_Appraised_Total =
                 feature.attributes["Prior_Appraised_Total"];
               let Map = feature.attributes["Map"];
-              let Lat = feature.attributes["LAT"];
-              let Lon = feature.attributes["LON"];
+              let Lat = feature.attributes["Lat"];
+              let Lon = feature.attributes["Lon"];
 
               firstList.push(
                 new Parcel(
@@ -3138,13 +3137,13 @@ require([
             .join(" OR GIS_LINK = ");
           const queryString = `GIS_LINK = ${queryValues}`;
 
-          let query = noCondosTable.createQuery();
+          let query = CondosTable.createQuery();
           query.where = queryString;
           query.returnGeometry = false;
           query.returnHiddenFields = true; // Adjust based on your needs
           query.outFields = ["*"];
 
-          noCondosTable.queryFeatures(query).then((response) => {
+          CondosTable.queryFeatures(query).then((response) => {
             buildPanel(response);
           });
         } else {
@@ -3580,7 +3579,7 @@ require([
         <a target="_blank" rel="noopener noreferrer" href=${configVars.pdf_demo}><span style="font-family:Tahoma;font-size:12px;"><strong>Demographics Profile</strong></span></a><br>
         <a target="_blank" rel="noopener noreferrer" href=${configVars.housingUrl}><span style="font-family:Tahoma;font-size:12px;"><strong>Housing Profile</strong></span></a><br>
         <a target="_blank" rel="noopener noreferrer" href=https://www.google.com/maps/@${Lat},${Lon},17z/@${Lat},${Lon},17z/data=!5m1!1e2><span style="font-family:Tahoma;font-size:12px;"><strong>View in Google Maps</strong></span></a><br>
-        <a target="_blank" rel="noopener noreferrer" href=https://www.bing.com/maps?cp=${Lat}~${Lon}&amp;lvl=19.0&amp;style=g&amp;v=2&amp;sV=1><span style="font-family:Tahoma;font-size:12px;"><strong>View in Bing Maps</strong></span></a><br>
+        <a target="_blank" rel="noopener noreferrer" href=https://www.bing.com/maps?cp=${Lat}~${Lon}&lvl=17.0><span style="font-family:Tahoma;font-size:12px;"><strong>View in Bing Maps</strong></span></a><br>
               
         `;
         $("#details-spinner").hide();
@@ -3786,8 +3785,8 @@ require([
         let objectID2 =
           matchedObject.objectid === undefined ? "" : matchedObject.objectid;
 
-        let Lat = matchedObject.Lat === undefined ? "" : matchedObject.Lat;
-        let Lon = matchedObject.Lon === undefined ? "" : matchedObject.Lon;
+        let Lat = matchedObject.LAT === undefined ? "" : matchedObject.LAT;
+        let Lon = matchedObject.LON === undefined ? "" : matchedObject.LON;
 
         zoomToItemId = locationUniqueId;
         zoomToObjectID = objectID2;
@@ -3843,7 +3842,7 @@ require([
     <a target="_blank" rel="noopener noreferrer" href=${configVars.pdf_demo}><span style="font-family:Tahoma;font-size:12px;"><strong>Demographics Profile</strong></span></a><br>
     <a target="_blank" rel="noopener noreferrer" href=${configVars.housingUrl}><span style="font-family:Tahoma;font-size:12px;"><strong>Housing Profile</strong></span></a><br>
     <a target="_blank" rel="noopener noreferrer" href=https://www.google.com/maps/@${Lat},${Lon},17z/@${Lat},${Lon},17z/data=!5m1!1e2><span style="font-family:Tahoma;font-size:12px;"><strong>View in Google Maps</strong></span></a><br>
-    <a target="_blank" rel="noopener noreferrer" href=https://www.bing.com/maps?cp=${Lat}~${Lon}&amp;lvl=19.0&amp;style=g&amp;v=2&amp;sV=1><span style="font-family:Tahoma;font-size:12px;"><strong>View in Bing Maps</strong></span></a><br>
+    <a target="_blank" rel="noopener noreferrer" href=https://www.bing.com/maps?cp=${Lat}~${Lon}&lvl=17.0><span style="font-family:Tahoma;font-size:12px;"><strong>View in Bing Maps</strong></span></a><br>
           
     `;
 
@@ -4599,7 +4598,7 @@ require([
           query.where = whereClause;
           query.returnGeometry = false;
           query.outFields = [
-            "Street_name",
+            "Street_Name",
             "MBL",
             "Location",
             "Co_Owner",
@@ -4616,7 +4615,7 @@ require([
 
             response.features.forEach((feature) => {
               [
-                "Street_name",
+                "Street_Name",
                 "MBL",
                 "Location",
                 "Co_Owner",
