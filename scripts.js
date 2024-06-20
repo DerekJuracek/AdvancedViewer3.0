@@ -83,6 +83,7 @@ require([
       configVars.tabTitle = config.tabTitle;
       configVars.basemapTitle = config.basemapTitle;
       configVars.parcelRenderer = config.parcelRenderer;
+      configVars.useUniqueIdforParcelMap = config.useUniqueIdforParcelMap;
       // configVars.parcelLayerTitle = config.parcelLayerRestTitle;
 
       document.getElementById("AccessorName").innerHTML = config.accessorName;
@@ -1868,11 +1869,16 @@ require([
               (g) => g.id === bufferGraphicId
             );
 
+            // const graphicIndex2 = polygonGraphics2.findIndex(
+            //   (g) => g.id === bufferGraphicId
+            // );
+
             polygonGraphics.splice(graphicIndex, 1);
+            // polygonGraphics2.splice(graphicIndex, 1);
 
             if (polygonGraphics.length === 0) {
               if (!DetailsHandle) {
-                DetailsHandle.view.on("click", handleDetailsClick);
+                DetailsHandle = view.on("click", handleDetailsClick);
               }
               if (clickHandle) {
                 clickHandle.remove();
@@ -2849,6 +2855,7 @@ require([
             "Mailing City",
             "Mailing State",
             "Mailing Zip",
+            "Uniqueid",
             "Location",
           ];
 
@@ -2865,9 +2872,10 @@ require([
             let Mail_State = feature.attributes["Mail_State"] || "";
             let Mailing_Zip = feature.attributes["Mailing_Zip"] || "";
             let Location = feature.attributes["Location"] || "";
+            let uniqueid = feature.attributes["Uniqueid"] || "";
 
             // Append data to CSV content
-            csvContent += `"${owner}","${coOwner}","${mailingAddress}","${mailingAddress2}","${Mailing_City}","${Mail_State}","${Mailing_Zip}","${Location}"\n`;
+            csvContent += `"${owner}","${coOwner}","${mailingAddress}","${mailingAddress2}","${Mailing_City}","${Mail_State}","${Mailing_Zip}","${uniqueid}","${Location}"\n`;
           });
 
           // Create blob
@@ -2901,6 +2909,7 @@ require([
             "Mailing City",
             "Mailing State",
             "Mailing Zip",
+            "Uniqueid",
             "Location",
           ];
 
@@ -2916,9 +2925,10 @@ require([
             let Mail_State = feature.Mail_State || "";
             let Mailing_Zip = feature.Mailing_Zip || "";
             let Location = feature.location || "";
+            let uniqueid = feature.uniqueId || "";
 
             // Append data to CSV content
-            csvContent += `"${owner}","${coOwner}","${mailingAddress}","${mailingAddress2}","${Mailing_City}","${Mail_State}","${Mailing_Zip}","${Location}"\n`;
+            csvContent += `"${owner}","${coOwner}","${mailingAddress}","${mailingAddress2}","${Mailing_City}","${Mail_State}","${Mailing_Zip}","${uniqueid}","${Location}"\n`;
           });
 
           // Create blob
@@ -3458,6 +3468,8 @@ require([
         let Location = features.Location === undefined ? "" : features.Location;
         let locationUniqueId =
           features.Uniqueid === undefined ? "" : features.Uniqueid;
+        let locationGIS_LINK =
+          features.GIS_LINK === undefined ? "" : features.GIS_LINK;
         let locationCoOwner =
           features.Co_Owner === undefined ? "" : features.Co_Owner;
         let locationOwner = features.Owner === undefined ? "" : features.Owner;
@@ -3534,8 +3546,17 @@ require([
 
         let Lat = features.Lat === undefined ? "" : features.Lat;
         let Lon = features.Lon === undefined ? "" : features.Lon;
+        let Id;
 
-        zoomToItemId = locationUniqueId;
+        if (configVars.useUniqueIdforParcelMap === "yes") {
+          zoomToItemId = locationUniqueId;
+          Id = locationUniqueId;
+        } else {
+          zoomToItemId = locationGIS_LINK;
+          Id = locationGIS_LINK;
+        }
+
+        // zoomToItemId = locationUniqueId;
         zoomToObjectID = objectID2;
 
         const imageUrl = `${configVars.imageUrl}${locationUniqueId}.jpg`;
@@ -3553,7 +3574,7 @@ require([
         </p>
 
         <div>
-        <img src=${configVars.imageUrl}${locationUniqueId}.jpg alt="Building Photo" width="200" height="100"><br>
+        <img src=${configVars.imageUrl}${locationUniqueId}.jpg alt="Building Photo" width="250" height="125"><br>
         </div>
         <p>
         <span style="font-family:Tahoma;font-size:12px;"><strong>${locationOwner} ${locationCoOwner}</strong></span> <br>
@@ -3585,7 +3606,7 @@ require([
         </p>
         <p>   
         <a target="_blank" rel="noopener noreferrer" href=${configVars.propertyCard}&amp;uniqueid=${locationUniqueId}><span style="font-family:Tahoma;font-size:12px;"><strong>Property Card</strong></span></a><br>
-        <a target="_blank" rel="noopener noreferrer" href=${configVars.parcelMapUrl}/Quick_Maps/QM_${locationUniqueId}.pdf><span style="font-family:Tahoma;font-size:12px;"><strong>Parcel Map</strong></span></a><span style="font-family:Tahoma;font-size:12px;"> </span><br>
+        <a target="_blank" rel="noopener noreferrer" href=${configVars.parcelMapUrl}/Quick_Maps/QM_${Id}.pdf><span style="font-family:Tahoma;font-size:12px;"><strong>Parcel Map</strong></span></a><span style="font-family:Tahoma;font-size:12px;"> </span><br>
         <a target="_blank" rel="noopener noreferrer" href=${configVars.taxMap_Url}${map_pdf}.pdf><span style="font-family:Tahoma;font-size:12px;"><strong>Tax map</strong></span></a><br>
         <a target="_blank" rel="noopener noreferrer" href=${configVars.tax_bill}&amp;uniqueId=${locationUniqueId}><span style="font-family:Tahoma;font-size:12px;"><strong>Tax Bills</strong></span></a><br>
         <a target="_blank" rel="noopener noreferrer" href=${configVars.pdf_demo}><span style="font-family:Tahoma;font-size:12px;"><strong>Demographics Profile</strong></span></a><br>
@@ -3700,6 +3721,8 @@ require([
           matchedObject.location === undefined ? "" : matchedObject.location;
         let locationUniqueId =
           matchedObject.uniqueId === undefined ? "" : matchedObject.uniqueId;
+        let locationGIS_LINK =
+          matchedObject.GIS_LINK === undefined ? "" : matchedObject.GIS_LINK;
         let locationCoOwner =
           matchedObject.coOwner === undefined ? "" : matchedObject.coOwner;
         let locationOwner =
@@ -3799,8 +3822,17 @@ require([
 
         let Lat = matchedObject.LAT === undefined ? "" : matchedObject.LAT;
         let Lon = matchedObject.LON === undefined ? "" : matchedObject.LON;
+        let Id;
 
-        zoomToItemId = locationUniqueId;
+        if (configVars.useUniqueIdforParcelMap === "yes") {
+          zoomToItemId = locationUniqueId;
+          Id = locationUniqueId;
+        } else {
+          zoomToItemId = locationGIS_LINK;
+          Id = locationGIS_LINK;
+        }
+
+        // zoomToItemId = locationUniqueId;
         zoomToObjectID = objectID2;
 
         const imageUrl = `https://publicweb-gis.s3.amazonaws.com/Images/Bldg_Photos/Washington_CT/${locationUniqueId}.jpg`;
@@ -3816,7 +3848,7 @@ require([
     </p>
 
     <div>
-    <img src=${configVars.imageUrl}${locationUniqueId}.jpg alt="Building Photo" width="200" height="100"><br>
+    <img src=${configVars.imageUrl}${locationUniqueId}.jpg alt="Building Photo" width="250" height="125"><br>
     </div>
     <p>
     <span style="font-family:Tahoma;font-size:12px;"><strong>${locationOwner} ${locationCoOwner}</strong></span> <br>
@@ -3848,7 +3880,7 @@ require([
     </p>
     <p>
     <a target="_blank" rel="noopener noreferrer" href=${configVars.propertyCard}&amp;uniqueid=${locationUniqueId}><span style="font-family:Tahoma;font-size:12px;"><strong>Property Card</strong></span></a><br>
-    <a target="_blank" rel="noopener noreferrer" href=https://publicweb-gis.s3.amazonaws.com/PDFs/${configVars.parcelMapUrl}/Quick_Maps/QM_${locationUniqueId}.pdf><span style="font-family:Tahoma;font-size:12px;"><strong>Parcel Map</strong></span></a><span style="font-family:Tahoma;font-size:12px;"> </span><br>
+    <a target="_blank" rel="noopener noreferrer" href=https://publicweb-gis.s3.amazonaws.com/PDFs/${configVars.parcelMapUrl}/Quick_Maps/QM_${Id}.pdf><span style="font-family:Tahoma;font-size:12px;"><strong>Parcel Map</strong></span></a><span style="font-family:Tahoma;font-size:12px;"> </span><br>
     <a target="_blank" rel="noopener noreferrer" href=${configVars.taxMap_Url}${map_pdf}.pdf><span style="font-family:Tahoma;font-size:12px;"><strong>Tax map</strong></span></a><br>
     <a target="_blank" rel="noopener noreferrer" href=${configVars.tax_bill}&amp;uniqueId=${locationUniqueId}><span style="font-family:Tahoma;font-size:12px;"><strong>Tax Bills</strong></span></a><br>
     <a target="_blank" rel="noopener noreferrer" href=${configVars.pdf_demo}><span style="font-family:Tahoma;font-size:12px;"><strong>Demographics Profile</strong></span></a><br>
