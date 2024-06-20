@@ -3436,6 +3436,7 @@ require([
         detailsHandleUsed = "detailClick";
         $("#detail-content").empty();
         $("#selected-feature").empty();
+        $(".center-container").hide();
         function formatNumber(value) {
           if (value === undefined) return "";
           return new Intl.NumberFormat("en-US").format(value);
