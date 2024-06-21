@@ -9,6 +9,22 @@
 
 }
 
+ul.esri-print__layout-tab-list {
+  height: 10px !important;
+}
+
+div.esri-print__form-section-container {
+  margin: 0 0 0 0 !important;
+}
+
+header.esri-print__header-title {
+  display: none;
+  /* font-size: 10px !important;  
+
+  padding: 0 0 0 0 !important;
+  margin: 0 0 0 0; */
+}
+
 
 
 .btn-info {
