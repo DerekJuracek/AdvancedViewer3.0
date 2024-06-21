@@ -2547,21 +2547,23 @@ require([
               clickDetailsPanel(totalResults);
             } else {
               $("#details-spinner").hide();
-              $("#details-btns").hide();
-              $(".center-container").show();
-              $("#featureWid").show();
-              $("#total-results").show();
-              $("#ResultDiv").show();
+              $("#featureWid").hide();
+              $("#result-btns").hide();
+              $("#total-results").hide();
+              $("#ResultDiv").hide();
               $("#abutters-content").hide();
-              $("#backButton").hide();
+              $("#details-btns").show();
+              $("#detailBox").show();
+              $("#backButton").show();
               $("#detailsButton").hide();
-              $("#detail-content").empty();
+              $("#detail-content").html(
+                `<h5 style="color: red;">Issue selecting Parcel. Please make another selection.</h5>`
+              );
               $("#selected-feature").empty();
               $("#exportSearch").hide();
               $("#exportButtons").hide();
               $("#results-div").css("height", "150px");
               $("#backButton-div").css("padding-top", "0px");
-              alert("Error: please select parcel within town boundary");
               return;
             }
           });
@@ -2584,21 +2586,25 @@ require([
               clickDetailsPanel(totalResults);
             } else {
               $("#details-spinner").hide();
-              $("#details-btns").hide();
-              $(".center-container").show();
-              $("#featureWid").show();
-              $("#total-results").show();
-              $("#ResultDiv").show();
+              $("#featureWid").hide();
+              $("#result-btns").hide();
+              $("#total-results").hide();
+              $("#ResultDiv").hide();
               $("#abutters-content").hide();
-              $("#backButton").hide();
+              $("#details-btns").show();
+              $("#detailBox").show();
+              $("#backButton").show();
               $("#detailsButton").hide();
-              $("#detail-content").empty();
+              $("#detail-content").html(
+                `<h5 style="color: red;">Issue selecting Parcel. Please make another selection.</h5>`
+              );
               $("#selected-feature").empty();
               $("#exportSearch").hide();
               $("#exportButtons").hide();
               $("#results-div").css("height", "150px");
               $("#backButton-div").css("padding-top", "0px");
-              alert("Error: please select parcel within town boundary");
+
+              // alert("Error: please select parcel within town boundary");
               return;
             }
           });
