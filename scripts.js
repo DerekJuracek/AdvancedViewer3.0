@@ -2539,11 +2539,31 @@ require([
 
           noCondosLayer.queryFeatures(query).then(function (response) {
             totalResults = response.features;
-            let objID = response.features[0].attributes.OBJECTID;
-            let geom = response.features[0].geometry;
-            let item = response.features[0];
-            zoomToDetail(objID, geom, item);
-            clickDetailsPanel(totalResults);
+            if (totalResults.length > 0) {
+              let objID = response.features[0].attributes.OBJECTID;
+              let geom = response.features[0].geometry;
+              let item = response.features[0];
+              zoomToDetail(objID, geom, item);
+              clickDetailsPanel(totalResults);
+            } else {
+              $("#details-spinner").hide();
+              $("#details-btns").hide();
+              $(".center-container").show();
+              $("#featureWid").show();
+              $("#total-results").show();
+              $("#ResultDiv").show();
+              $("#abutters-content").hide();
+              $("#backButton").hide();
+              $("#detailsButton").hide();
+              $("#detail-content").empty();
+              $("#selected-feature").empty();
+              $("#exportSearch").hide();
+              $("#exportButtons").hide();
+              $("#results-div").css("height", "150px");
+              $("#backButton-div").css("padding-top", "0px");
+              alert("Error: please select parcel within town boundary");
+              return;
+            }
           });
         } else {
           let query2 = CondosLayer.createQuery();
@@ -2556,11 +2576,31 @@ require([
 
           CondosLayer.queryFeatures(query2).then(function (response) {
             totalResults = response.features;
-            let objID = response.features[0].attributes.OBJECTID;
-            let geom = response.features[0].geometry;
-            let item = response.features[0];
-            zoomToDetail(objID, geom, item);
-            clickDetailsPanel(totalResults);
+            if (totalResults.length > 0) {
+              let objID = response.features[0].attributes.OBJECTID;
+              let geom = response.features[0].geometry;
+              let item = response.features[0];
+              zoomToDetail(objID, geom, item);
+              clickDetailsPanel(totalResults);
+            } else {
+              $("#details-spinner").hide();
+              $("#details-btns").hide();
+              $(".center-container").show();
+              $("#featureWid").show();
+              $("#total-results").show();
+              $("#ResultDiv").show();
+              $("#abutters-content").hide();
+              $("#backButton").hide();
+              $("#detailsButton").hide();
+              $("#detail-content").empty();
+              $("#selected-feature").empty();
+              $("#exportSearch").hide();
+              $("#exportButtons").hide();
+              $("#results-div").css("height", "150px");
+              $("#backButton-div").css("padding-top", "0px");
+              alert("Error: please select parcel within town boundary");
+              return;
+            }
           });
         }
       }
@@ -2585,9 +2625,13 @@ require([
           query.outFields = ["*"];
 
           noCondosLayer.queryFeatures(query).then(function (response) {
-            totalResults = response.features;
-            processFeatures(totalResults, "", event);
-            addPolygons(response, view.graphics, isClickEvent);
+            if (response.features) {
+              totalResults = response.features;
+              processFeatures(totalResults, "", event);
+              addPolygons(response, view.graphics, isClickEvent);
+            } else {
+              return;
+            }
           });
         } else {
           let query2 = CondosLayer.createQuery();
@@ -2599,9 +2643,13 @@ require([
           query2.outFields = ["*"];
 
           CondosLayer.queryFeatures(query2).then(function (response) {
-            totalResults = response.features;
-            processFeatures(totalResults, "", event);
-            addPolygons(response, view.graphics, isClickEvent);
+            if (response.features) {
+              totalResults = response.features;
+              processFeatures(totalResults, "", event);
+              addPolygons(response, view.graphics, isClickEvent);
+            } else {
+              return;
+            }
           });
         }
       }
