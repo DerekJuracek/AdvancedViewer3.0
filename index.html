@@ -53,9 +53,11 @@
       crossorigin="anonymous"
     ></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  
   </head>
 
   <body class="custom-example-theme">
+  
     <!-- Modal -->
     <div
       class="modal fade"
@@ -135,6 +137,20 @@
         </div>
       </div>
     </div>
+    <!-- <div id="viewport-size"></div>
+    <script>
+      function updateViewportSize() {
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        document.getElementById('viewport-size').innerText = `Viewport size: ${width}px x ${height}px`;
+      }
+  
+      // Update the size on load
+      updateViewportSize();
+  
+      // Update the size on resize
+      window.addEventListener('resize', updateViewportSize);
+    </script> -->
     <nav
       class="navbar navbar-dark bg-dark justify-content-between custom-navbar"
     >
@@ -363,6 +379,7 @@
           type="button"
           class="btn btn-info mr-3"
           id="abutters-attributes"
+          title="Abutters List"
           title="Abutters List"
         >
           <svg
@@ -777,7 +794,7 @@
                 <a
                     href="https://forms.office.com/r/ApsqdW1ASa"
                     target="_blank"
-                    ><strong>Feedback</strong></a
+                    ><strong>Report an Issue</strong></a
                   >
                   &nbsp; &nbsp;
                   <a href="mailto:mgonzalez@qds.biz" target="_blank"><strong>Contact</strong></a>
@@ -1133,7 +1150,7 @@
             </li>
             <li class="list-group-item list-group-item-info options-bar-li">
               <a href="https://forms.office.com/r/ApsqdW1ASa" target="_blank" style="font-size: 16px;"
-                >Feedback</a
+                >Report an Issue</a
               >
             </li>
             <li

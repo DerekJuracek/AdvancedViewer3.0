@@ -1896,9 +1896,9 @@ require([
 
         var fillSymbol = {
           type: "simple-fill",
-          color: [0, 255, 255, 0.25],
+          color: [127, 42, 145, 0.4],
           outline: {
-            color: [102, 235, 235, 0.6],
+            color: [127, 42, 145, 0.8],
             width: 2,
           },
         };
@@ -2097,9 +2097,9 @@ require([
         function addResultGraphics(finalResults) {
           var fillSymbol = {
             type: "simple-fill",
-            color: [0, 255, 255, 0.25],
+            color: [127, 42, 145, 0.4],
             outline: {
-              color: [102, 235, 235, 0.6],
+              color: [127, 42, 145, 0.8],
               width: 2,
             },
           };
@@ -3483,7 +3483,7 @@ require([
           color: [51, 51, 204, 0.1],
           style: "forward-diagonal",
           outline: {
-            color: "#FF7900",
+            color: "rgba(127, 42, 145, 0.8)",
             width: 4,
           },
         };
@@ -5431,6 +5431,13 @@ require([
           combobox4ID.selectedItems = [];
           combobox5ID.selectedItems = [];
           combobox6ID.selectedItems = [];
+
+          combobox1ID.value = "";
+          combobox2ID.value = "";
+          combobox3ID.value = "";
+          combobox4ID.value = "";
+          combobox5ID.value = "";
+          combobox6ID.value = "";
 
           buildQueries();
 
