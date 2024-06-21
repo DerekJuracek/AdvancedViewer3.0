@@ -311,6 +311,7 @@ ul {
   max-height: 700px;
   width: 100%;
   margin-bottom: 20px;
+  overflow-x: hidden;
 }
 
 .filterSlider {
