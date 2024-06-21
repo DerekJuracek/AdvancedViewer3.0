@@ -419,6 +419,7 @@ ul {
   width: 350px;
   z-index: 1000;
   overflow-y: hidden;
+  overflow-x: hidden;
   background-color: rgba(30, 30, 30, 0.9) !important;
   transition: left 0.5s; /* Animate the 'left' property */
 }
