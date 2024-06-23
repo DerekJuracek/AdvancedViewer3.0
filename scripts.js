@@ -196,8 +196,6 @@ require([
       view.when(() => {
         let urlButton = document.getElementById("urlButton");
 
-        let urlValue;
-
         urlButton.addEventListener("click", function (event) {
           let urlValue = urlInput.value;
 
@@ -206,14 +204,33 @@ require([
               url: `${urlValue}`,
             });
 
-            // Add the layer to the web map
-            webmap.add(urlInputLayer);
+            // Listen for the load event to handle success and error
+            urlInputLayer
+              .load()
+              .then(() => {
+                // Add the layer to the web map
+                webmap.add(urlInputLayer);
+                $("#urlMessage").html(
+                  `<strong><p style="color:green;">Successfully uploaded REST Service.</p></strong>`
+                );
 
-            // Add the newly added layer to the pick list
-            var pickListContainer = $("#layerList");
-            addLayerToPickList(urlInputLayer, pickListContainer);
+                webmap.layers.on("change", function (event) {
+                  console.log(event);
+                  console.log(event, " layer was added/removed from the map.");
+                });
 
-            urlInput.value = "";
+                // Add the newly added layer to the pick list
+                var pickListContainer = $("#layerList");
+                addLayerToPickList(urlInputLayer, pickListContainer);
+
+                urlInput.value = "";
+              })
+              .catch((error) => {
+                $("#urlMessage").html(
+                  `<strong><p style="color:red;">Error uploading REST Service.</p></strong>`
+                );
+                console.error("Error loading the FeatureLayer:", error);
+              });
           }
 
           if (urlValue.length > 0) {
@@ -3756,7 +3773,7 @@ require([
         </p>
         <p>   
         <a target="_blank" rel="noopener noreferrer" href=${configVars.propertyCard}&amp;uniqueid=${locationUniqueId}><span style="font-family:Tahoma;font-size:12px;"><strong>Property Card</strong></span></a><br>
-        <a target="_blank" rel="noopener noreferrer" href=${configVars.parcelMapUrl}/Quick_Maps/QM_${Id}.pdf><span style="font-family:Tahoma;font-size:12px;"><strong>Parcel Map</strong></span></a><span style="font-family:Tahoma;font-size:12px;"> </span><br>
+        <a target="_blank" rel="noopener noreferrer" href=https://publicweb-gis.s3.amazonaws.com/PDFs/${configVars.parcelMapUrl}/Quick_Maps/QM_${Id}.pdf><span style="font-family:Tahoma;font-size:12px;"><strong>Parcel Map</strong></span></a><span style="font-family:Tahoma;font-size:12px;"> </span><br>
         <a target="_blank" rel="noopener noreferrer" href=${configVars.taxMap_Url}${map_pdf}.pdf><span style="font-family:Tahoma;font-size:12px;"><strong>Tax map</strong></span></a><br>
         <a target="_blank" rel="noopener noreferrer" href=${configVars.tax_bill}&amp;uniqueId=${locationUniqueId}><span style="font-family:Tahoma;font-size:12px;"><strong>Tax Bills</strong></span></a><br>
         <a target="_blank" rel="noopener noreferrer" href=${configVars.pdf_demo}><span style="font-family:Tahoma;font-size:12px;"><strong>Demographics Profile</strong></span></a><br>
@@ -5486,6 +5503,36 @@ require([
           combobox5ID.selectedItems = [];
           combobox6ID.selectedItems = [];
 
+          combobox1ID.filteredItems.forEach((item) => {
+            item.active = false;
+            item.selected = false;
+          });
+
+          combobox2ID.filteredItems.forEach((item) => {
+            item.active = false;
+            item.selected = false;
+          });
+
+          combobox3ID.filteredItems.forEach((item) => {
+            item.active = false;
+            item.selected = false;
+          });
+
+          combobox4ID.filteredItems.forEach((item) => {
+            item.active = false;
+            item.selected = false;
+          });
+
+          combobox5ID.filteredItems.forEach((item) => {
+            item.active = false;
+            item.selected = false;
+          });
+
+          combobox6ID.filteredItems.forEach((item) => {
+            item.active = false;
+            item.selected = false;
+          });
+
           combobox1ID.value = "";
           combobox2ID.value = "";
           combobox3ID.value = "";
@@ -5496,7 +5543,6 @@ require([
           buildQueries();
 
           $(".wrapper .x-button").click();
-
           $("#streetFilter").value = "";
         }
 
@@ -5572,6 +5618,11 @@ require([
         });
 
         $("#addData-selector").on("click", function () {
+          $(document).keypress(function (event) {
+            if (event.key === "Enter") {
+              event.preventDefault();
+            }
+          });
           $("#rightPanel").hide();
           $("#BookmarksDiv").hide();
           $("#BasemapDiv").hide();

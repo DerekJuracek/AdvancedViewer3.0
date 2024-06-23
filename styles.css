@@ -25,6 +25,11 @@ header.esri-print__header-title {
   margin: 0 0 0 0; */
 }
 
+div.esri-print__container {
+    height: 400px !important;
+    overflow-y: auto !important;
+}
+
 
 
 .btn-info {
@@ -907,11 +912,113 @@ calcite-slider::part(tick) {
 }
 
 #filterScrollableContainer {
-  max-height: 400px; /* Adjust based on your needs */
+  height: 300px; /* Adjust based on your needs */
   overflow-y: auto;
   margin-top: 20px; /* Add some space between the title and the scrollable container */
 }
 
+@media (min-height: 400px) {
+  #filterScrollableContainer {
+    height: 150px;
+  }
+}
+
+@media (min-height: 450px) {
+  #filterScrollableContainer {
+    height: 200px;
+  }
+}
+
+@media (min-height: 500px) {
+  #filterScrollableContainer {
+    height: 235px;
+  }
+}
+
+@media (min-height: 550px) {
+  #filterScrollableContainer {
+    height: 250px;
+  }
+}
+
+@media (min-height: 600px) {
+  #filterScrollableContainer {
+    height: 275px;
+  }
+}
+
+@media (min-height: 650px) {
+  #filterScrollableContainer {
+    height: 300px;
+  }
+}
+
+
+@media (min-height: 700px) {
+  #filterScrollableContainer {
+    height: 325px;
+  }
+}
+
+@media (min-height: 750px) {
+  #filterScrollableContainer {
+    height: 350px;
+  }
+}
+
+@media (min-height: 800px) {
+  #filterScrollableContainer {
+    height: 375px;
+  }
+}
+
+@media (min-height: 850px) {
+  #filterScrollableContainer {
+    height: 400px;
+  }
+}
+
+@media (min-height: 900px) {
+  #filterScrollableContainer {
+    height: 425px;
+  }
+}
+
+@media (min-height: 950px) {
+  #filterScrollableContainer {
+    height: 450px;
+  }
+}
+
+@media (min-height: 1000px) {
+  #filterScrollableContainer {
+    height: 475px;
+  }
+}
+
+@media (min-height: 1050px) {
+  #filterScrollableContainer {
+    height: 500px;
+  }
+}
+
+@media (min-height: 1100px) {
+  #filterScrollableContainer {
+    height: 525px;
+  }
+}
+
+@media (min-height: 1150px) {
+  #filterScrollableContainer {
+    height: 550px;
+  }
+}
+
+@media (min-height: 1200px) {
+  #filterScrollableContainer {
+    height: 600px;
+  }
+}
 .filterContainer {
   margin-bottom: 10px; /* Adds some space between your filters */
 }
