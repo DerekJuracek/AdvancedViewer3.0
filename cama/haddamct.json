@@ -15,7 +15,7 @@
   "welcomeImage": "https://publicweb-gis.s3.amazonaws.com/Images/MunicipalSeals/Haddam_CT.png",
   "accessorName": "- Tammy Anderson – Assessor <br>    - Tracy Thompson - Assistant Assessor",
   "propertyCard": "https://www.propertyrecordcards.com/PropertyResults.aspx?towncode=061",
-  "pdf_Image": "https://publicweb-gis.s3.amazonaws.com/PDFs/CT_Haddam",
+  "pdf_Image": "https://publicweb-gis.s3.amazonaws.com/PDFs/CT_Haddam/Quick_Maps/QM_",
   "pdf_demographics": "https://publicweb-gis.s3.amazonaws.com/CT_Town_Profiles/Haddam_Demographics_2023.pdf",
   "tax_bill": "https://www.mytaxbill.org/inet/bill/parcel.do?town=Haddam",
   "taxMapUrl": "https://publicweb-gis.s3.amazonaws.com/PDFs/CT_Haddam/Tax_Maps/TaxMap_",
