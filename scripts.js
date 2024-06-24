@@ -53,9 +53,15 @@ require([
 ) {
   const urlParams = new URLSearchParams(window.location.search);
   let configDefaultTown = "cama/washingtonct.json";
+  let currentURL = window.location.href;
   let configUrl = urlParams.get("viewer");
+  let urlPattern = /\?viewer=cama\/\w+$/;
 
-  if (configUrl != null && configUrl != configDefaultTown) {
+  if (
+    configUrl != null &&
+    configUrl != configDefaultTown &&
+    urlPattern.test(currentURL)
+  ) {
     configUrl = configUrl + ".json";
   } else {
     window.location.href = "https://www.qds.biz/gis-service";
