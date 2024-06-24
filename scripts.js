@@ -2,6 +2,8 @@ require([
   "esri/WebMap",
   "esri/views/MapView",
   "esri/layers/FeatureLayer",
+  "esri/layers/ImageryLayer",
+  "esri/layers/MapImageLayer",
   "esri/widgets/Search",
   "esri/widgets/Features",
   "esri/rest/support/Query",
@@ -26,6 +28,8 @@ require([
   WebMap,
   MapView,
   FeatureLayer,
+  ImageryLayer,
+  MapImageLayer,
   Search,
   Features,
   Query,
@@ -54,7 +58,7 @@ require([
   if (configUrl != null && configUrl != configDefaultTown) {
     configUrl = configUrl + ".json";
   } else {
-    configUrl = configDefaultTown;
+    // window.location.href = "https://www.qds.biz/gis-service";
   }
   const configVars = {
     mapId: "",
@@ -235,6 +239,98 @@ require([
 
           if (urlValue.length > 0) {
             addFeatureLayer();
+          }
+        });
+      });
+
+      view.when(() => {
+        let urlButton2 = document.getElementById("urlButtonImagery");
+
+        urlButton2.addEventListener("click", function (event) {
+          let urlValue = urlInputImagery.value;
+
+          function addImageryLayer() {
+            let urlInputLayer = new ImageryLayer({
+              url: `${urlValue}`,
+            });
+
+            // Listen for the load event to handle success and error
+            urlInputLayer
+              .load()
+              .then(() => {
+                // Add the layer to the web map
+                webmap.add(urlInputLayer);
+                $("#urlMessageImagery").html(
+                  `<strong><p style="color:green;">Successfully uploaded REST Service.</p></strong>`
+                );
+
+                webmap.layers.on("change", function (event) {
+                  console.log(event);
+                  console.log(event, " layer was added/removed from the map.");
+                });
+
+                // Add the newly added layer to the pick list
+                var pickListContainer = $("#layerList");
+                addLayerToPickList(urlInputLayer, pickListContainer);
+
+                urlInput.value = "";
+              })
+              .catch((error) => {
+                $("#urlMessageImagery").html(
+                  `<strong><p style="color:red;">Error uploading REST Service.</p></strong>`
+                );
+                console.error("Error loading the FeatureLayer:", error);
+              });
+          }
+
+          if (urlValue.length > 0) {
+            addImageryLayer();
+          }
+        });
+      });
+
+      view.when(() => {
+        let urlButton3 = document.getElementById("urlButtonMapService");
+
+        urlButton3.addEventListener("click", function (event) {
+          let urlValue = urlInputMapService.value;
+
+          function addMapServiceLayer() {
+            let urlInputLayer = new MapImageLayer({
+              url: `${urlValue}`,
+            });
+
+            // Listen for the load event to handle success and error
+            urlInputLayer
+              .load()
+              .then(() => {
+                // Add the layer to the web map
+                webmap.add(urlInputLayer);
+                $("#urlMessageMapService").html(
+                  `<strong><p style="color:green;">Successfully uploaded REST Service.</p></strong>`
+                );
+
+                webmap.layers.on("change", function (event) {
+                  console.log(event);
+                  console.log(event, " layer was added/removed from the map.");
+                });
+
+                // Add the newly added layer to the pick list
+                var pickListContainer = $("#layerList");
+                addLayerToPickList(urlInputLayer, pickListContainer);
+
+                urlInput.value = "";
+              })
+              .catch((error) => {
+                $("#urlMessageMapService").html(
+                  `<strong><p style="color:red;">Error uploading REST Service.</p></strong>`
+                );
+                console.error("Error loading the FeatureLayer:", error);
+              });
+          }
+
+          if (urlValue.length > 0) {
+            addMapServiceLayer();
           }
         });
       });
@@ -3591,6 +3687,9 @@ require([
       function runAttBuffer(value) {
         $("#abutters-spinner").show();
         // console.log(detailsGeometry);
+        if (value === 0) {
+          value = -10;
+        }
         let buffer = value;
         let unit = queryUnits;
         let bufferResults;
@@ -3714,7 +3813,7 @@ require([
           features.Prior_Assessment_Year === undefined
             ? ""
             : features.Prior_Assessment_Year;
-        let map_pdf = features.Map === undefined ? "" : features.Map;
+        let map_pdf = features.Map === undefined ? "" : $.trim(features.Map);
 
         let objectID2 =
           features.OBJECTID === undefined ? "" : features.OBJECTID;
@@ -3992,7 +4091,8 @@ require([
             ? ""
             : matchedObject.Prior_Assessment_Year;
 
-        let map_pdf = matchedObject.Map === undefined ? "" : matchedObject.Map;
+        let map_pdf =
+          matchedObject.Map === undefined ? "" : $.trim(matchedObject.Map);
         let objectID2 =
           matchedObject.objectid === undefined ? "" : matchedObject.objectid;
 
