@@ -5228,11 +5228,11 @@ require([
             queryParameters.soldOnMin !== null &&
             queryParameters.soldOnMax !== null
           ) {
-            var minDate = new Date(queryParameters.soldOnMin);
-            var maxDate = new Date(queryParameters.soldOnMax);
+            // var minDate = new Date(queryParameters.soldOnMin);
+            // var maxDate = new Date(queryParameters.soldOnMax);
 
             queryParts.push(
-              `Sale_Date >= '01/01/${queryParameters.soldOnMin}' AND Sale_Date <= '12/31/${queryParameters.soldOnMax}'`
+              `Sale_Date >= '${queryParameters.soldOnMin}' AND Sale_Date <= '${queryParameters.soldOnMax}'`
             );
           }
 
@@ -5384,25 +5384,69 @@ require([
           slider3.value = [minVal, maxVal];
         });
 
-        $("#soldon-val-slider").on("calciteSliderChange", function (e) {
-          value = e.target.value;
-          minVal = value[0];
-          maxVal = value[1];
+        $("#sold_calendar_lowest").on("calciteDatePickerChange", function () {
+          var dateValue = $("#sold_calendar_lowest").val();
 
-          queryParameters.soldOnMin = minVal;
-          $("#sold-val-min").val(minVal);
+          var parts = dateValue.split("-");
+          var year = parseInt(parts[0], 10);
+          var month = parseInt(parts[1], 10) - 1; // JavaScript months are 0-based
+          var day = parseInt(parts[2], 10);
 
-          queryParameters.soldOnMax = maxVal;
-          $("#sold-val-max").val(maxVal);
+          // Create a new Date object
+          var date = new Date(year, month, day);
+          console.log(date);
+
+          // Format the date for the query if necessary, e.g., toISOString()
+          var formattedDate = date.toISOString().split("T")[0]; // Get only the date part in "yyyy-mm-dd" format
+          console.log("Formatted Date:", formattedDate);
+          // console.log(Val);
+
+          queryParameters.soldOnMin = formattedDate;
+
+          // var soldOnDate = date.toISOString();
         });
 
-        $("#sold-val-min, #sold-val-max").on("input", function () {
-          var minVal = parseInt($("#sold-val-min").val());
-          var maxVal = parseInt($("#sold-val-max").val());
+        $("#sold_calendar_highest").on("calciteDatePickerChange", function () {
+          var dateValue = $("#sold_calendar_highest").val();
 
-          const slider4 = document.querySelector("#soldon-val-slider");
-          slider4.value = [minVal, maxVal];
+          var parts = dateValue.split("-");
+          var year = parseInt(parts[0], 10);
+          var month = parseInt(parts[1], 10) - 1; // JavaScript months are 0-based
+          var day = parseInt(parts[2], 10);
+
+          // Create a new Date object
+          var date = new Date(year, month, day);
+          console.log(date);
+
+          // Format the date for the query if necessary, e.g., toISOString()
+          var formattedDate = date.toISOString().split("T")[0]; // Get only the date part in "yyyy-mm-dd" format
+          console.log("Formatted Date:", formattedDate);
+          // console.log(Val);
+
+          queryParameters.soldOnMax = formattedDate;
+
+          // var soldOnDate = date.toISOString();
         });
+
+        // $("#soldon-val-slider").on("calciteSliderChange", function (e) {
+        //   value = e.target.value;
+        //   minVal = value[0];
+        //   maxVal = value[1];
+
+        //   queryParameters.soldOnMin = minVal;
+        //   $("#sold-val-min").val(minVal);
+
+        //   queryParameters.soldOnMax = maxVal;
+        //   $("#sold-val-max").val(maxVal);
+        // });
+
+        // $("#sold-val-min, #sold-val-max").on("input", function () {
+        //   var minVal = parseInt($("#sold-val-min").val());
+        //   var maxVal = parseInt($("#sold-val-max").val());
+
+        //   const slider4 = document.querySelector("#soldon-val-slider");
+        //   slider4.value = [minVal, maxVal];
+        // });
 
         $("#saleP-val-slider").on("calciteSliderChange", function (e) {
           value = e.target.value;
@@ -5445,13 +5489,6 @@ require([
               minInput: "acres-val-min",
               maxInput: "acres-val-max",
               index: 2,
-            },
-            {
-              fieldName: "Sale_Date",
-              slider: "soldon-val-slider",
-              minInput: "sold-val-min",
-              maxInput: "sold-val-max",
-              index: 3,
             },
             {
               fieldName: "Sale_Price",

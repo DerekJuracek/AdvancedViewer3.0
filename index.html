@@ -666,7 +666,11 @@
                 <div class="filterLabel green-class">Sold On</div>
                 <calcite-label>
                   <div class="filterInputDiv">
-                    <div class="slider-div">
+               
+                      <calcite-date-picker id="sold_calendar_lowest"></calcite-date-picker>
+                      <calcite-date-picker id="sold_calendar_highest"></calcite-date-picker>
+                
+                    <!-- <div class="slider-div">
                       <calcite-input-text
                         id="sold-val-min"
                         placeholder="min"
@@ -680,10 +684,10 @@
                         placeholder="max"
                         value="2024"
                       ></calcite-input-text>
-                    </div>
+                    </div> -->
                   </div>
                   <!-- Sold By Date -->
-                  <calcite-slider
+                  <!-- <calcite-slider
                     id="soldon-val-slider"
                     class="calcite-mode-dark"
                     min-value="1900"
@@ -696,7 +700,7 @@
                     max-label="Date"
                     min-label="Date"
                     style="width: 90%; padding-left: 20px"
-                  ></calcite-slider>
+                  ></calcite-slider> -->
                 </calcite-label>
               </div>
               <div class="filterContainer">
