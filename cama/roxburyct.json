@@ -18,7 +18,7 @@
   "pdf_Image": "https://publicweb-gis.s3.amazonaws.com/PDFs/CT_Roxbury",
   "pdf_demographics": "https://publicweb-gis.s3.amazonaws.com/CT_Town_Profiles/Roxbury_Demographics_2023.pdf",
   "tax_bill": "https://www.mytaxbill.org/inet/bill/parcel.do?town=roxbury",
-  "taxMapUrl": "https://publicweb-gis.s3.amazonaws.com/PDFs/CT_Roxbury/Tax_Maps/TaxMap_",
+  "taxMapUrl": "https://publicweb-gis.s3.amazonaws.com/PDFs/CT_Roxbury/Tax_Maps/TaxMap_2022_HVA_",
   "useUniqueIdforParcelMap": "yes",
   "parcelMapUrl": "CT_Roxbury",
   "housingUrl": "https://publicweb-gis.s3.amazonaws.com/CT_Town_Profiles/Roxbury_Housing_2022.pdf",
