@@ -1734,6 +1734,8 @@ require([
           $("#results-div").css("height", "150px");
           $("#backButton-div").css("padding-top", "0px");
           $(".center-container").hide();
+          $("#abutters-attributes").prop("disabled", false);
+          $("#abutters-zoom").prop("disabled", false);
 
           buildDetailsPanel(objectID, itemId);
         });
@@ -2544,6 +2546,8 @@ require([
         $("#exportButtons").hide();
         $("#results-div").css("height", "150px");
         $("#backButton-div").css("padding-top", "0px");
+        $("#abutters-attributes").prop("disabled", false);
+        $("#abutters-zoom").prop("disabled", false);
 
         if (sessionStorage.getItem("condos") === "no") {
           let query = CondosLayer.createQuery();
@@ -2576,6 +2580,8 @@ require([
               $("#detail-content").html(
                 `<h5 style="color: red;">Issue selecting Parcel. Please make another selection.</h5>`
               );
+              $("#abutters-attributes").prop("disabled", true);
+              $("#abutters-zoom").prop("disabled", true);
               $("#selected-feature").empty();
               $("#exportSearch").hide();
               $("#exportButtons").hide();
@@ -2615,6 +2621,8 @@ require([
               $("#detail-content").html(
                 `<h5 style="color: red;">Issue selecting Parcel. Please make another selection.</h5>`
               );
+              $("#abutters-attributes").prop("disabled", true);
+              $("#abutters-zoom").prop("disabled", true);
               $("#selected-feature").empty();
               $("#exportSearch").hide();
               $("#exportButtons").hide();
