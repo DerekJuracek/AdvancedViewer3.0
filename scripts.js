@@ -4265,7 +4265,7 @@ require([
           type: "simple-fill",
           color: [0, 0, 0, 0.1],
           outline: {
-            color: [255, 0, 0, 1],
+            color: [145, 199, 61, 1],
             width: 3,
           },
         };
@@ -4360,7 +4360,7 @@ require([
               type: "simple-fill",
               color: [0, 0, 0, 0.1],
               outline: {
-                color: [255, 0, 0, 1],
+                color: [145, 199, 61, 1],
                 width: 3,
               },
             };
@@ -4399,7 +4399,7 @@ require([
                 type: "simple-fill",
                 color: [0, 0, 0, 0.1],
                 outline: {
-                  color: [255, 0, 0, 1],
+                  color: [145, 199, 61, 1],
                   width: 3,
                 },
               };
@@ -4436,7 +4436,7 @@ require([
                 type: "simple-fill",
                 color: [0, 0, 0, 0.1],
                 outline: {
-                  color: [255, 0, 0, 1],
+                  color: [145, 199, 61, 1],
                   width: 3,
                 },
               };
@@ -4471,7 +4471,7 @@ require([
                   type: "simple-fill",
                   color: [0, 0, 0, 0.1],
                   outline: {
-                    color: [255, 0, 0, 1],
+                    color: [145, 199, 61, 1],
                     width: 3,
                   },
                 };
