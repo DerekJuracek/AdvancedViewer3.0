@@ -4361,7 +4361,7 @@ require([
               color: [0, 0, 0, 0.1],
               outline: {
                 color: [145, 199, 61, 1],
-                width: 3,
+                width: 4,
               },
             };
 
@@ -4400,7 +4400,7 @@ require([
                 color: [0, 0, 0, 0.1],
                 outline: {
                   color: [145, 199, 61, 1],
-                  width: 3,
+                  width: 4,
                 },
               };
 
@@ -4437,7 +4437,7 @@ require([
                 color: [0, 0, 0, 0.1],
                 outline: {
                   color: [145, 199, 61, 1],
-                  width: 3,
+                  width: 4,
                 },
               };
 
@@ -4472,7 +4472,7 @@ require([
                   color: [0, 0, 0, 0.1],
                   outline: {
                     color: [145, 199, 61, 1],
-                    width: 3,
+                    width: 4,
                   },
                 };
 
