@@ -58,7 +58,7 @@ require([
   if (configUrl != null && configUrl != configDefaultTown) {
     configUrl = configUrl + ".json";
   } else {
-    // window.location.href = "https://www.qds.biz/gis-service";
+    window.location.href = "https://www.qds.biz/gis-service";
   }
   const configVars = {
     mapId: "",
