@@ -25,6 +25,14 @@ header.esri-print__header-title {
   margin: 0 0 0 0; */
 }
 
+.esri-distance-measurement-2d__clear-button {
+  display: none !important;
+}
+
+.esri-area-measurement-2d__clear-button {
+  display: none !important;
+}
+
 div.esri-print__container {
     height: 400px;
     overflow-y: auto;

@@ -5483,12 +5483,19 @@ require([
               maxInput: "assess-val-max",
               index: 1,
             },
+
             {
               fieldName: "Total_Acres",
               slider: "acres-val-slider",
               minInput: "acres-val-min",
               maxInput: "acres-val-max",
               index: 2,
+            },
+            {
+              fieldName: "Sale_Date",
+              minInput: "sold_calendar_lowest",
+              maxInput: "sold_calendar_highest",
+              index: 3,
             },
             {
               fieldName: "Sale_Price",
@@ -5500,18 +5507,29 @@ require([
           ];
 
           sliderVals.forEach(function (slider) {
-            const sliderEl = document.getElementById(slider.slider);
-            const sliderInputMin = document.getElementById(slider.minInput);
-            const sliderInputMax = document.getElementById(slider.maxInput);
+            if (slider.fieldName == "Sale_Date") {
+              const sliderElLow = document.getElementById(slider.minInput);
+              const sliderElMax = document.getElementById(slider.maxInput);
 
-            sliderEl.minValue = vals[slider.index][slider.fieldName].min;
-            sliderEl.maxValue = vals[slider.index][slider.fieldName].max;
+              sliderElLow.value = vals[slider.index][slider.fieldName].min;
+              sliderElMax.value = vals[slider.index][slider.fieldName].max;
 
-            sliderEl.min = vals[slider.index][slider.fieldName].min;
-            sliderEl.max = vals[slider.index][slider.fieldName].max;
+              // const sliderInputMin = document.getElementById(slider.minInput);
+              // const sliderInputMax = document.getElementById(slider.maxInput);
+            } else {
+              const sliderEl = document.getElementById(slider.slider);
+              const sliderInputMin = document.getElementById(slider.minInput);
+              const sliderInputMax = document.getElementById(slider.maxInput);
 
-            sliderInputMin.value = vals[slider.index][slider.fieldName].min;
-            sliderInputMax.value = vals[slider.index][slider.fieldName].max;
+              sliderEl.minValue = vals[slider.index][slider.fieldName].min;
+              sliderEl.maxValue = vals[slider.index][slider.fieldName].max;
+
+              sliderEl.min = vals[slider.index][slider.fieldName].min;
+              sliderEl.max = vals[slider.index][slider.fieldName].max;
+
+              sliderInputMin.value = vals[slider.index][slider.fieldName].min;
+              sliderInputMax.value = vals[slider.index][slider.fieldName].max;
+            }
           });
         }
 
@@ -5646,6 +5664,10 @@ require([
           const combobox4ID = document.querySelector("#buildingFilter");
           const combobox5ID = document.querySelector("#buildingUseFilter");
           const combobox6ID = document.querySelector("#designTypeFilter");
+          const soldOnLowest = document.querySelector("#sold_calendar_lowest");
+          const soldOnHighest = document.querySelector(
+            "#sold_calendar_highest"
+          );
 
           combobox1ID.selectedItems = [];
           combobox2ID.selectedItems = [];
@@ -5690,6 +5712,11 @@ require([
           combobox4ID.value = "";
           combobox5ID.value = "";
           combobox6ID.value = "";
+
+          soldOnLowest.value = "";
+          soldOnHighest.value = "";
+          soldOnLowest.activeDate = null;
+          soldOnHighest.activeDate = null;
 
           buildQueries();
 

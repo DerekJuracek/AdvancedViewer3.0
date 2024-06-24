@@ -663,44 +663,19 @@
                 </calcite-label>
               </div>
               <div class="filterContainer">
-                <div class="filterLabel green-class">Sold On</div>
+                <div class="filterLabel green-class">Sold On (Earliest Date)</div>
                 <calcite-label>
                   <div class="filterInputDiv">
-               
-                      <calcite-date-picker id="sold_calendar_lowest"></calcite-date-picker>
-                      <calcite-date-picker id="sold_calendar_highest"></calcite-date-picker>
-                
-                    <!-- <div class="slider-div">
-                      <calcite-input-text
-                        id="sold-val-min"
-                        placeholder="min"
-                        value="1900"
-                      ></calcite-input-text>
-                    </div>
-                    <span style="color: white">-</span>
-                    <div style="right: 0px" class="slider-div">
-                      <calcite-input-text
-                        id="sold-val-max"
-                        placeholder="max"
-                        value="2024"
-                      ></calcite-input-text>
-                    </div> -->
+                      <calcite-date-picker id="sold_calendar_lowest" range="true"></calcite-date-picker>
                   </div>
-                  <!-- Sold By Date -->
-                  <!-- <calcite-slider
-                    id="soldon-val-slider"
-                    class="calcite-mode-dark"
-                    min-value="1900"
-                    max-value="2021"
-                    min="1900"
-                    max="2024"
-                    precise
-                    label-ticks
-                    label-handles
-                    max-label="Date"
-                    min-label="Date"
-                    style="width: 90%; padding-left: 20px"
-                  ></calcite-slider> -->
+                </calcite-label>
+              </div>
+              <div class="filterContainer">
+                <div class="filterLabel green-class">Sold On (Most Recent Date)</div>
+                <calcite-label>
+                  <div class="filterInputDiv">
+                      <calcite-date-picker id="sold_calendar_highest"></calcite-date-picker>
+                  </div>
                 </calcite-label>
               </div>
               <div class="filterContainer">
