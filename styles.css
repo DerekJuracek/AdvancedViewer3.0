@@ -550,6 +550,7 @@ ul {
 #sidebar2 {
   position: absolute;
   border-top-right-radius: 15px;
+  border-bottom-right-radius: 15px;
   left: -350px; /* Start off-screen */
   top: 15%;
   height: 83%;
