@@ -1310,6 +1310,7 @@ require([
 
         $("#select-button").addClass("btn-warning");
         clickHandle = view.on("click", handleClick);
+        select = true;
         $("#searchInput ul").remove();
         $("#searchInput").val = "";
         $("#select-button").prop("disabled", false);
@@ -5569,10 +5570,14 @@ require([
               if (field === "Sale_Date") {
                 let max = new Date(response.features[0].attributes.maxValue);
                 let min = new Date(response.features[0].attributes.minValue);
+                // console.log(max);
+                // console.log(min);
+                // console.log(min.getFullYear());
+                // console.log(max.getFullYear());
                 valPair = {
                   [field]: {
-                    min: min.getFullYear(),
-                    max: max.getFullYear(),
+                    min: min,
+                    max: max,
                   },
                 };
               } else {
