@@ -1308,6 +1308,8 @@ require([
         // select = false;
         // lasso = false;
 
+        $("#select-button").addClass("btn-warning");
+        clickHandle = view.on("click", handleClick);
         $("#searchInput ul").remove();
         $("#searchInput").val = "";
         $("#select-button").prop("disabled", false);
