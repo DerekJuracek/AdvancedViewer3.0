@@ -285,7 +285,7 @@ main {
 .custom-navbar {
   position: absolute;
   top: 0;
-  left: 15px;
+  left: 3px;
   z-index: 1000;
   min-width: 380px;
   border-radius: 15px 15px 15px 15px;
@@ -536,8 +536,8 @@ ul {
 
 .sidebar {
   display: block;
-  border-bottom-left-radius: 10px; /* Adjust the radius as needed */
-  border-top-left-radius: 10px;
+  border-bottom-left-radius: 15px; /* Adjust the radius as needed */
+  border-top-left-radius: 15px;
   position: absolute; /* Change position to 'absolute' */
   right: 0; /* This ensures it's flush with the right side of the container */
   height: 80%;
@@ -549,7 +549,7 @@ ul {
 
 #sidebar2 {
   position: absolute;
-  border-top-right-radius: 5px;
+  border-top-right-radius: 15px;
   left: -350px; /* Start off-screen */
   top: 15%;
   height: 83%;
