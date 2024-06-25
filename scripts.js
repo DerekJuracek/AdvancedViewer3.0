@@ -1640,10 +1640,8 @@ require([
 
         let seenIds = new Set();
         let seenUID = new Set();
-
         // Step 1: Filter for unique objectid with geometry
-        uniqueArray = firstList.filter((obj) => {
-          // const isNewId = !seenIds.has(obj.uniqueId) && obj.geometry;
+        let uniqueArray = firstList.filter((obj) => {
           if (obj.geometry) {
             seenIds.add(obj.uniqueId);
             return true;
@@ -1660,9 +1658,12 @@ require([
           }
         });
 
-        uniqueArray.sort((a, b) =>
-          a.owner.toLowerCase().localeCompare(b.owner.toLowerCase())
-        );
+        // Updated sorting to handle null or undefined owner properties
+        uniqueArray.sort((a, b) => {
+          const ownerA = a.owner ? a.owner.toLowerCase() : "";
+          const ownerB = b.owner ? b.owner.toLowerCase() : "";
+          return ownerA.localeCompare(ownerB);
+        });
 
         function removeDups(pointGraphic, pointLocation, pointGisLink) {
           uniqueArray = uniqueArray.filter(
