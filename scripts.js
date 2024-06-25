@@ -1641,7 +1641,7 @@ require([
         let seenIds = new Set();
         let seenUID = new Set();
         // Step 1: Filter for unique objectid with geometry
-        let uniqueArray = firstList.filter((obj) => {
+        uniqueArray = firstList.filter((obj) => {
           if (obj.geometry) {
             seenIds.add(obj.uniqueId);
             return true;
