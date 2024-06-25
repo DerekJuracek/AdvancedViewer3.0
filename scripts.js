@@ -1311,6 +1311,7 @@ require([
         $("#select-button").addClass("btn-warning");
         clickHandle = view.on("click", handleClick);
         select = true;
+        lasso = false;
         $("#searchInput ul").remove();
         $("#searchInput").val = "";
         $("#select-button").prop("disabled", false);
