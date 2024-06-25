@@ -52,10 +52,11 @@ require([
   ScaleBar
 ) {
   const urlParams = new URLSearchParams(window.location.search);
-  // let configDefaultTown = "cama/washingtonct.json";
   let currentURL = window.location.href;
   let configUrl = urlParams.get("viewer");
-  let urlPattern = /\?viewer=cama\/\w+$/;
+
+  // Updated regex pattern to allow additional query parameters
+  let urlPattern = /\?viewer=cama\/\w+(&\w+=\w+)*$/;
 
   if (configUrl != null && urlPattern.test(currentURL)) {
     configUrl = configUrl + ".json";
