@@ -17,6 +17,14 @@ div.esri-print__form-section-container {
   margin: 0 0 0 0 !important;
 }
 
+div.esri-scale-bar__label {
+  font-size: inherit;
+  color: black !important;
+  white-space: nowrap;
+  padding: 0 7px;
+  font-weight: 600;
+}
+
 header.esri-print__header-title {
   display: none;
   /* font-size: 10px !important;  
@@ -277,7 +285,7 @@ main {
 .custom-navbar {
   position: absolute;
   top: 0;
-  left: 100px;
+  left: 15px;
   z-index: 1000;
   min-width: 380px;
   border-radius: 15px 15px 15px 15px;

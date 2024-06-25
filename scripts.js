@@ -1734,11 +1734,11 @@ require([
           }
 
           if (!locationCoOwner && locationGeom) {
-            listItemHTML = ` <div class="listText">UID: ${locationUniqueId}  &nbsp; &nbsp; &nbsp; &nbsp;&nbsp; &nbsp;MBL: ${locationMBL} <br> ${locationOwner} ${locationCoOwner} <br> ${locationVal} <br> Property Type: ${propertyType}</div><div class="justZoomBtn"><button type="button" class="btn btn-primary btn-sm justZoom" title="Zoom to Parcel"><calcite-icon icon="magnifying-glass-plus" scale="s"/>Zoom</button><button type="button" class="btn btn-primary btn-sm justRemove" title="Remove from Search List"><calcite-icon icon="minus-circle" scale="s"/>Remove</button></div>`;
+            listItemHTML = ` <div class="listText">UID: ${locationUniqueId}  &nbsp;<br>MBL: ${locationMBL} <br> ${locationOwner} ${locationCoOwner} <br> ${locationVal} <br> Property Type: ${propertyType}</div><div class="justZoomBtn"><button type="button" class="btn btn-primary btn-sm justZoom" title="Zoom to Parcel"><calcite-icon icon="magnifying-glass-plus" scale="s"/>Zoom</button><button type="button" class="btn btn-primary btn-sm justRemove" title="Remove from Search List"><calcite-icon icon="minus-circle" scale="s"/>Remove</button></div>`;
           } else if (!locationGeom && displayNoGeometry) {
-            listItemHTML = ` <div class="listText">UID: ${locationUniqueId}  &nbsp; &nbsp; &nbsp; &nbsp;&nbsp; &nbsp;MBL: ${locationMBL} <br> ${locationOwner} ${locationCoOwner} <br> ${locationVal} <br> Property Type: ${propertyType}</div><div class="justZoomBtn"><button type="button" class="btn btn-primary btn-sm justRemove" title="Remove from Search List"><calcite-icon icon="minus-circle" scale="s"/>Remove</button></div>`;
+            listItemHTML = ` <div class="listText">UID: ${locationUniqueId}  &nbsp;<br>MBL: ${locationMBL} <br> ${locationOwner} ${locationCoOwner} <br> ${locationVal} <br> Property Type: ${propertyType}</div><div class="justZoomBtn"><button type="button" class="btn btn-primary btn-sm justRemove" title="Remove from Search List"><calcite-icon icon="minus-circle" scale="s"/>Remove</button></div>`;
           } else {
-            listItemHTML = ` <div class="listText">UID: ${locationUniqueId}  &nbsp; &nbsp; &nbsp; &nbsp;&nbsp; &nbsp;MBL: ${locationMBL} <br> ${locationOwner} ${locationCoOwner} <br> ${locationVal} <br> Property Type: ${propertyType}</div><div class="justZoomBtn"><button type="button" class="btn btn-primary btn-sm justZoom" title="Zoom to Parcel"><calcite-icon icon="magnifying-glass-plus" scale="s"/>Zoom</button><button type="button" class="btn btn-primary btn-sm justRemove" title="Remove from Search List"><calcite-icon icon="minus-circle" scale="s"/>Remove</button></div>`;
+            listItemHTML = ` <div class="listText">UID: ${locationUniqueId}  &nbsp;<br>MBL: ${locationMBL} <br> ${locationOwner} ${locationCoOwner} <br> ${locationVal} <br> Property Type: ${propertyType}</div><div class="justZoomBtn"><button type="button" class="btn btn-primary btn-sm justZoom" title="Zoom to Parcel"><calcite-icon icon="magnifying-glass-plus" scale="s"/>Zoom</button><button type="button" class="btn btn-primary btn-sm justRemove" title="Remove from Search List"><calcite-icon icon="minus-circle" scale="s"/>Remove</button></div>`;
           }
 
           // Append the new list item to the list
@@ -5090,6 +5090,7 @@ require([
         };
 
         function updateQuery() {
+          console.log(queryParameters);
           let queryParts = [];
           if (
             queryParameters.streetName !== null &&
@@ -5258,6 +5259,7 @@ require([
               clearContents();
               addPolygons(response, view.graphics);
               processFeatures(response.features);
+              console.log(queryParameters);
               if (clickHandle) {
                 clickHandle?.remove();
                 clickHandle = null;
@@ -5279,6 +5281,7 @@ require([
               clearContents();
               addPolygons(response, view.graphics);
               processFeatures(response.features);
+              console.log(queryParameters);
               if (clickHandle) {
                 clickHandle?.remove();
                 clickHandle = null;
