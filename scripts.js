@@ -4101,6 +4101,8 @@ require([
           matchedObject.Prior_Assessment_Year === undefined
             ? ""
             : matchedObject.Prior_Assessment_Year;
+        let locationGeom =
+          matchedObject.geometry === undefined ? "" : matchedObject.geometry;
 
         let map_pdf =
           matchedObject.Map === undefined ? "" : $.trim(matchedObject.Map);
@@ -4117,6 +4119,19 @@ require([
         } else {
           zoomToItemId = locationGIS_LINK;
           Id = locationGIS_LINK;
+        }
+
+        if (
+          !locationGeom ||
+          locationGeom == "" ||
+          locationGeom == undefined ||
+          locationGeom === null
+        ) {
+          $("#abutters-attributes").prop("disabled", true);
+          $("#abutters-zoom").prop("disabled", true);
+        } else {
+          $("#abutters-attributes").prop("disabled", false);
+          $("#abutters-zoom").prop("disabled", false);
         }
 
         // zoomToItemId = locationUniqueId;
