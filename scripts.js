@@ -98,9 +98,12 @@ require([
       configVars.basemapTitle = config.basemapTitle;
       configVars.parcelRenderer = config.parcelRenderer;
       configVars.useUniqueIdforParcelMap = config.useUniqueIdforParcelMap;
+      configVars.helpUrl = config.helpUrl;
       // configVars.parcelLayerTitle = config.parcelLayerRestTitle;
 
       document.getElementById("AccessorName").innerHTML = config.accessorName;
+      // document.getElementsByClassName("help-url").href(configVars.helpUrl);
+      $(".help-url").attr("href", configVars.helpUrl);
       // configVars.homeExtent = config.homeExtent;
 
       document.getElementById("title").innerHTML = configVars.title;
