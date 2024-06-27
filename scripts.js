@@ -4376,6 +4376,7 @@ require([
           if (noCondosParcelGeom) {
             CondoBuffer = false;
             targetExtent = noCondosParcelGeom[0].geometry;
+            detailsGeometry = noCondosParcelGeom[0].geometry;
             const fillSymbol = {
               type: "simple-fill",
               color: [0, 0, 0, 0.1],

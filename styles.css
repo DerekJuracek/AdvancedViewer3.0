@@ -46,6 +46,10 @@ div.esri-print__container {
     overflow-y: auto;
 }
 
+li.esri-print__layout-tab {
+  font-size: 12px !important;
+}
+
 @media (min-height: 300px) {
   div.esri-print__container {
     height: 250px;
