@@ -56,7 +56,7 @@
   
   </head>
 
-  <body class="custom-example-theme">
+  <body class="custom-example-theme" id="whole-app" style="display: none;">
   
     <!-- Modal -->
     <div
@@ -291,7 +291,7 @@
     <div id="sketchDiv"></div>
 
     <div class="container">
-      <div id="sidebar2" class="bg-dark sidebar2" style="left: 0px">
+      <div id="sidebar2" class="bg-dark sidebar2 collapsed" style="left: 0px">
         <div id="control-panel">
           <div class="center-container">
             <div id="terrano-logo">
@@ -500,13 +500,13 @@
               <!-- Dropdown 1 -->
               <div class="filterContainer">
                 <div class="filterLabel green-class">Street Name is</div>
-                <calcite-combobox id="streetFilter" placeholder="All" scale="m">
+                <calcite-combobox id="streetFilter" placeholder="Select a Street Name" scale="m">
                   <!-- dynamically populated -->
                 </calcite-combobox>
               </div>
               <div class="filterContainer">
                 <div class="filterLabel green-class">Owner is</div>
-                <calcite-combobox id="ownerFilter" placeholder="All" scale="m">
+                <calcite-combobox id="ownerFilter" placeholder="Select a Owner" scale="m">
                   <!-- dynamically populated -->
                 </calcite-combobox>
               </div>
@@ -586,10 +586,31 @@
                 </calcite-label>
               </div>
               <div class="filterContainer">
+                <div class="filterLabel green-class">Zoning Type is</div>
+                <calcite-combobox
+                  id="zoningFilter"
+                  placeholder="Select a Zone"
+                  scale="m"
+                >
+                  <!-- dynamically populated -->
+                </calcite-combobox>
+              </div>
+              <div class="filterContainer">
+                <div class="filterLabel green-class">Neighborhood is</div>
+                <calcite-combobox
+                  id="neighborhoodFilter"
+                  placeholder="Select a Neighborhood"
+                  scale="m"
+                >
+                  <!-- dynamically populated -->
+                </calcite-combobox>
+              </div>
+              <div cl
+              <div class="filterContainer">
                 <div class="filterLabel green-class">Property Type is</div>
                 <calcite-combobox
                   id="propertyFilter"
-                  placeholder="All"
+                  placeholder="Select a Property Type"
                   scale="m"
                 >
                   <!-- dynamically populated -->
@@ -609,7 +630,7 @@
                 <div class="filterLabel green-class">Building Use is</div>
                 <calcite-combobox
                   id="buildingUseFilter"
-                  placeholder="All"
+                  placeholder="Select a Building Use Type"
                   scale="m"
                 >
                   <!-- dynamically created -->
@@ -666,7 +687,7 @@
                 <div class="filterLabel green-class">Sold On (Earliest Date)</div>
                 <calcite-label>
                   <div class="filterInputDiv">
-                      <calcite-date-picker id="sold_calendar_lowest" range="true"></calcite-date-picker>
+                      <calcite-date-picker id="sold_calendar_lowest" range="false" value=""></calcite-date-picker>
                   </div>
                 </calcite-label>
               </div>
@@ -674,7 +695,7 @@
                 <div class="filterLabel green-class">Sold On (Most Recent Date)</div>
                 <calcite-label>
                   <div class="filterInputDiv">
-                      <calcite-date-picker id="sold_calendar_highest"></calcite-date-picker>
+                      <calcite-date-picker id="sold_calendar_highest" value=""></calcite-date-picker>
                   </div>
                 </calcite-label>
               </div>
@@ -1150,7 +1171,7 @@
               id="Print-selector"
               class="list-group-item list-group-item-info options-bar-li"
             >
-              Print
+              Export
             </li>
             <li class="list-group-item list-group-item-light options-bar-li">
               <a href="QDS.biz" target="_blank" class="help-url" style="font-size: 16px;"> Help</a>
@@ -1317,7 +1338,8 @@
         <!-- </div> -->
       </div>
     </div>
-    <script src="https://js.arcgis.com/4.27/"></script>
-    <script src="scripts.js"></script>
+  
   </body>
+  <script src="https://js.arcgis.com/4.27/"></script>
+  <script src="scripts.js"></script>
 </html>

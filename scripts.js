@@ -60,6 +60,7 @@ require([
 
   if (configUrl != null && urlPattern.test(currentURL)) {
     configUrl = configUrl + ".json";
+    $("#whole-app").show();
   } else {
     window.location.href = "https://www.qds.biz/gis-service";
   }
@@ -99,52 +100,13 @@ require([
       configVars.parcelRenderer = config.parcelRenderer;
       configVars.useUniqueIdforParcelMap = config.useUniqueIdforParcelMap;
       configVars.helpUrl = config.helpUrl;
-      // configVars.parcelLayerTitle = config.parcelLayerRestTitle;
-
       document.getElementById("AccessorName").innerHTML = config.accessorName;
-      // document.getElementsByClassName("help-url").href(configVars.helpUrl);
       $(".help-url").attr("href", configVars.helpUrl);
       // configVars.homeExtent = config.homeExtent;
-
       document.getElementById("title").innerHTML = configVars.title;
       document.getElementById("imageContainer").src = configVars.welcomeImage;
       document.getElementById("tab-title").innerHTML = configVars.tabTitle;
 
-      // use the webMapPortalId in your app as needed
-
-      // variables read from json config files
-
-      // const headerPanel = document.getElementById("header-title");
-      // const headerBackGroundColor = config.cssHeaderBackground;
-      // headerPanel.style.backgroundColor = headerBackGroundColor;
-
-      // const viewBackgroundColor = config.cssViewBackground;
-
-      // const layerFilterBackgroundColor = config.cssLayerFilterColor;
-      // const layerFilterTextColor = config.cssLayerFilterTextColor;
-
-      // const layerDiv = document.getElementsByClassName("layerDiv1");
-      // layerDiv[0].style.backgroundColor = layerFilterBackgroundColor;
-      // layerDiv[1].style.backgroundColor = layerFilterBackgroundColor;
-
-      // layerDiv[0].style.color = layerFilterTextColor;
-      // layerDiv[1].style.color = layerFilterTextColor;
-
-      // const image = config.image;
-      // const Title = config.title;
-
-      // const basemapTitle = config.basemapTitle;
-
-      // const filterButton = document.createElement("calcite-icon");
-      // filterButton.setAttribute("icon", "reset");
-      // filterButton.setAttribute("id", "resetFilters");
-
-      // filterButton.style.cursor = "pointer";
-      // filterButton.style.marginLeft = "200px";
-      // filterButton.style.marginTop = "2px";
-
-      // const filterList = document.getElementById("filterDiv");
-      // filterList.appendChild(filterButton);
       function formatDate(timestamp) {
         var date = new Date(timestamp);
         var day = date.getDate(); // Get the day of the month
@@ -1264,6 +1226,68 @@ require([
             comboBox.append(newItem);
           });
         });
+
+        let query7 = noCondosLayer.createQuery();
+        query7.where = `1=1 AND Zoning IS NOT NULL`;
+        query7.returnDistinctValues = true;
+        query7.returnGeometry = false; // Adjust based on your needs
+        query7.outFields = ["Zoning"];
+
+        CondosLayer.queryFeatures(query7).then(function (response) {
+          var features = response.features;
+          var comboBox = $("#zoningFilter");
+
+          features.forEach(function (feature) {
+            var name = feature.attributes.Zoning; // Assuming 'Name' is the field you want to display
+            var newItem;
+            if (name == "" || null || undefined) {
+              return;
+            } else {
+              // Create a new Calcite ComboBox item
+              newItem = $(
+                '<calcite-combobox-item value="' +
+                  name +
+                  '" text-label="' +
+                  name +
+                  '"></calcite-combobox-item>'
+              );
+            }
+
+            // Append the new item to the ComboBox
+            comboBox.append(newItem);
+          });
+        });
+
+        let query8 = noCondosLayer.createQuery();
+        query8.where = `1=1 AND Neighborhood IS NOT NULL`;
+        query8.returnDistinctValues = true;
+        query8.returnGeometry = false; // Adjust based on your needs
+        query8.outFields = ["Neighborhood"];
+
+        CondosLayer.queryFeatures(query8).then(function (response) {
+          var features = response.features;
+          var comboBox = $("#neighborhoodFilter");
+
+          features.forEach(function (feature) {
+            var name = feature.attributes.Neighborhood; // Assuming 'Name' is the field you want to display
+            var newItem;
+            if (name == "" || null || undefined) {
+              return;
+            } else {
+              // Create a new Calcite ComboBox item
+              newItem = $(
+                '<calcite-combobox-item value="' +
+                  name +
+                  '" text-label="' +
+                  name +
+                  '"></calcite-combobox-item>'
+              );
+            }
+
+            // Append the new item to the ComboBox
+            comboBox.append(newItem);
+          });
+        });
       }
 
       generateFilters();
@@ -1336,6 +1360,7 @@ require([
         $("#dropdown").hide();
         $("#results-div").css("left", "0px");
         $("#sidebar2").css("left", "-350px");
+        $("#sidebar2").removeClass("collapsed");
         $("#right-arrow-2").show();
         $("#left-arrow-2").hide();
         $("#abutters-content").hide();
@@ -1773,6 +1798,8 @@ require([
         $("status-loader").hide();
         $("#dropdown").show();
         $("#sidebar2").css("left", "0px");
+
+        $("#sidebar2").addClass("collapsed");
         $("#results-div").css("left", "350px");
         $("#left-arrow-2").show();
         $("#right-arrow-2").hide();
@@ -3030,6 +3057,7 @@ require([
           $("#filterDiv").show();
           $("#dropdown").toggleClass("expanded");
           $("#sidebar2").css("left", "0px");
+          $("#sidebar2").addClass("collapsed");
           $("#results-div").css("left", "350px");
           $("#left-arrow-2").show();
           $("#right-arrow-2").hide();
@@ -3066,6 +3094,7 @@ require([
           $("#backButton").show();
           $("#dropdown").toggleClass("expanded");
           $("#sidebar2").css("left", "0px");
+          $("#sidebar2").addClass("collapsed");
           $("#results-div").css("left", "350px");
           $("#left-arrow-2").show();
           $("#right-arrow-2").hide();
@@ -3892,7 +3921,7 @@ require([
         <p>   
         <a target="_blank" rel="noopener noreferrer" href=${configVars.propertyCard}&amp;uniqueid=${locationUniqueId}><span style="font-family:Tahoma;font-size:12px;"><strong>Property Card</strong></span></a><br>
         <a target="_blank" rel="noopener noreferrer" href=https://publicweb-gis.s3.amazonaws.com/PDFs/${configVars.parcelMapUrl}/Quick_Maps/QM_${Id}.pdf><span style="font-family:Tahoma;font-size:12px;"><strong>Parcel Map</strong></span></a><span style="font-family:Tahoma;font-size:12px;"> </span><br>
-        <a target="_blank" rel="noopener noreferrer" href=${configVars.taxMap_Url}${map_pdf}.pdf><span style="font-family:Tahoma;font-size:12px;"><strong>Tax map</strong></span></a><br>
+        <a target="_blank" rel="noopener noreferrer" href=${configVars.taxMap_Url}${map_pdf}.pdf><span style="font-family:Tahoma;font-size:12px;"><strong>Tax Map</strong></span></a><br>
         <a target="_blank" rel="noopener noreferrer" href=${configVars.tax_bill}&amp;uniqueId=${locationUniqueId}><span style="font-family:Tahoma;font-size:12px;"><strong>Tax Bills</strong></span></a><br>
         <a target="_blank" rel="noopener noreferrer" href=${configVars.pdf_demo}><span style="font-family:Tahoma;font-size:12px;"><strong>Demographics Profile</strong></span></a><br>
         <a target="_blank" rel="noopener noreferrer" href=${configVars.housingUrl}><span style="font-family:Tahoma;font-size:12px;"><strong>Housing Profile</strong></span></a><br>
@@ -4183,7 +4212,7 @@ require([
     <p>
     <a target="_blank" rel="noopener noreferrer" href=${configVars.propertyCard}&amp;uniqueid=${locationUniqueId}><span style="font-family:Tahoma;font-size:12px;"><strong>Property Card</strong></span></a><br>
     <a target="_blank" rel="noopener noreferrer" href=https://publicweb-gis.s3.amazonaws.com/PDFs/${configVars.parcelMapUrl}/Quick_Maps/QM_${Id}.pdf><span style="font-family:Tahoma;font-size:12px;"><strong>Parcel Map</strong></span></a><span style="font-family:Tahoma;font-size:12px;"> </span><br>
-    <a target="_blank" rel="noopener noreferrer" href=${configVars.taxMap_Url}${map_pdf}.pdf><span style="font-family:Tahoma;font-size:12px;"><strong>Tax map</strong></span></a><br>
+    <a target="_blank" rel="noopener noreferrer" href=${configVars.taxMap_Url}${map_pdf}.pdf><span style="font-family:Tahoma;font-size:12px;"><strong>Tax Map</strong></span></a><br>
     <a target="_blank" rel="noopener noreferrer" href=${configVars.tax_bill}&amp;uniqueId=${locationUniqueId}><span style="font-family:Tahoma;font-size:12px;"><strong>Tax Bills</strong></span></a><br>
     <a target="_blank" rel="noopener noreferrer" href=${configVars.pdf_demo}><span style="font-family:Tahoma;font-size:12px;"><strong>Demographics Profile</strong></span></a><br>
     <a target="_blank" rel="noopener noreferrer" href=${configVars.housingUrl}><span style="font-family:Tahoma;font-size:12px;"><strong>Housing Profile</strong></span></a><br>
@@ -4876,11 +4905,22 @@ require([
       }
       // });
 
+      // document
+      //   .getElementById("searchInput")
+      //   .addEventListener("change", function (e) {
+      //     var searchTerm = e.target.value.toUpperCase();
+
+      //     if (searchTerm.length === 0) {
+      //       alert("you are a fool");
+      //     }
+      //   });
+
       document
         .getElementById("searchInput")
         .addEventListener("input", function (e) {
           firstList = [];
           $("#sidebar2").css("left", "-350px");
+          $("#sidebar2").removeClass("collapsed");
           $("#results-div").css("left", "0px");
           $("#dropdown").toggleClass("expanded");
           $("#dropdown").hide();
@@ -4889,50 +4929,75 @@ require([
 
           var searchTerm = e.target.value.toUpperCase();
 
-          if (searchTerm.length < 2) {
-            firstList = [];
-            secondList = [];
-            polygonGraphics = [];
-            $("#select-button").removeClass("btn-warning");
-            $("#searchInput ul").remove();
-            $("#suggestions").hide();
-            $("#featureWid").empty();
-            $("#dropdown").removeClass("expanded");
-            $("#dropdown").hide();
-            $("#result-btns").hide();
-            $("#details-btns").hide();
-            $("#right-arrow-2").show();
-            $("#left-arrow-2").hide();
-            $("#abutters-content").hide();
-            $("#abutters-content").hide();
-            $("#selected-feature").empty();
-            $("#parcel-feature").empty();
-            $("#backButton").hide();
-            $("#detailBox").hide();
-            $("#exportSearch").hide();
-            $("#csvExportSearch").hide();
-            $("#csvExportResults").hide();
-            $("#exportButtons").hide();
-            if (DetailsHandle) {
-              DetailsHandle?.remove();
-              DetailsHandle = null;
-            }
+          // if (searchTerm.length < 1) {
+          //   if (DetailsHandle) {
+          //     DetailsHandle?.remove();
+          //     DetailsHandle = null;
+          //   }
 
-            if (clickHandle) {
-              clickHandle?.remove();
-              clickHandle = null;
-            }
+          //   if (clickHandle) {
+          //     clickHandle?.remove();
+          //     clickHandle = null;
+          //   }
 
-            let suggestionsContainer = document.getElementById("suggestions");
-            suggestionsContainer.innerHTML = "";
-            $("#featureWid").empty();
+          //   clickHandle = view.on("click", handleClick);
+          //   $("#lasso").removeClass("btn-warning");
+          //   $("#select-button").addClass("btn-warning");
+          //   select = true;
+          //   lasso = false;
+          // }
 
-            view.graphics.removeAll();
-
-            // view.goTo(webmap.portalItem.extent);
-
-            return;
+          // if (searchTerm.length < 2) {
+          firstList = [];
+          secondList = [];
+          polygonGraphics = [];
+          $("#select-button").removeClass("btn-warning");
+          $("#searchInput ul").remove();
+          $("#suggestions").hide();
+          $("#featureWid").empty();
+          $("#featureWid").hide();
+          $("#ResultDiv").hide();
+          $("#dropdown").removeClass("expanded");
+          $("#dropdown").hide();
+          $("#result-btns").hide();
+          $("#details-btns").hide();
+          $("#right-arrow-2").show();
+          $("#left-arrow-2").hide();
+          $("#abutters-content").hide();
+          $("#abutters-content").hide();
+          $("#selected-feature").empty();
+          $("#parcel-feature").empty();
+          $("#backButton").hide();
+          $("#detailBox").hide();
+          $("#exportSearch").hide();
+          $("#csvExportSearch").hide();
+          $("#csvExportResults").hide();
+          $("#exportButtons").hide();
+          if (DetailsHandle) {
+            DetailsHandle?.remove();
+            DetailsHandle = null;
           }
+
+          if (clickHandle) {
+            clickHandle?.remove();
+            clickHandle = null;
+          }
+
+          $("#dropdown").show();
+          $("#WelcomeBox").show();
+          // $("#select-button").attr("title", "Add to Selection Enabled");
+          $(".center-container").show();
+
+          // clickHandle = view.on("click", handleClick);
+          // $("#lasso").removeClass("btn-warning");
+          // $("#select-button").addClass("btn-warning");
+          // select = true;
+          // lasso = false;
+
+          let suggestionsContainer = document.getElementById("suggestions");
+          suggestionsContainer.innerHTML = "";
+          $("#featureWid").empty();
+          view.graphics.removeAll();
 
           // Construct your where clause
           let whereClause = `
@@ -5078,6 +5143,7 @@ require([
         .getElementById("searchButton")
         .addEventListener("click", function () {
           $("#sidebar2").css("left", "-350px");
+          $("#sidebar2").removeClass("collapsed");
           $("#results-div").css("left", "0px");
           $("#exportResults").hide();
           $("#csvExportResults").hide();
@@ -5098,6 +5164,8 @@ require([
           appraisedValueMax: null,
           assessedValueMin: null,
           assessedValueMax: null,
+          zoningType: null,
+          neighborhoodType: null,
           propertyType: null,
           buildingType: null,
           buildingUseType: null,
@@ -5179,6 +5247,42 @@ require([
             } else {
               queryParts.push(
                 `(Parcel_Type LIKE '%${queryParameters.propertyType.trim()}%')`
+              );
+            }
+          }
+
+          if (
+            queryParameters.zoningType !== null &&
+            queryParameters.zoningType.length > 1
+          ) {
+            if (Array.isArray(queryParameters.zoningType)) {
+              // Map each name in the array to a LIKE query part with % wildcards
+              const PropertyParts = queryParameters.zoningType.map(
+                (name) => `Zoning LIKE '%${name.trim()}%'`
+              );
+              // Join these parts with OR
+              queryParts.push(`(${PropertyParts.join(" OR ")})`);
+            } else {
+              queryParts.push(
+                `(Zoning LIKE '%${queryParameters.zoningType.trim()}%')`
+              );
+            }
+          }
+
+          if (
+            queryParameters.neighborhoodType !== null &&
+            queryParameters.neighborhoodType.length > 1
+          ) {
+            if (Array.isArray(queryParameters.neighborhoodType)) {
+              // Map each name in the array to a LIKE query part with % wildcards
+              const PropertyParts = queryParameters.neighborhoodType.map(
+                (name) => `Neighborhood LIKE '%${name.trim()}%'`
+              );
+              // Join these parts with OR
+              queryParts.push(`(${PropertyParts.join(" OR ")})`);
+            } else {
+              queryParts.push(
+                `(Neighborhood LIKE '%${queryParameters.neighborhoodType.trim()}%')`
               );
             }
           }
@@ -5377,6 +5481,14 @@ require([
           queryParameters.propertyType = e.target.value;
         });
 
+        $("#zoningFilter").on("calciteComboboxChange", function (e) {
+          queryParameters.zoningType = e.target.value;
+        });
+
+        $("#neighborhoodFilter").on("calciteComboboxChange", function (e) {
+          queryParameters.neighborhoodType = e.target.value;
+        });
+
         $("#buildingFilter").on("calciteComboboxChange", function (e) {
           queryParameters.buildingType = e.target.value;
         });
@@ -5410,46 +5522,12 @@ require([
 
         $("#sold_calendar_lowest").on("calciteDatePickerChange", function () {
           var dateValue = $("#sold_calendar_lowest").val();
-
-          var parts = dateValue.split("-");
-          var year = parseInt(parts[0], 10);
-          var month = parseInt(parts[1], 10) - 1; // JavaScript months are 0-based
-          var day = parseInt(parts[2], 10);
-
-          // Create a new Date object
-          var date = new Date(year, month, day);
-          console.log(date);
-
-          // Format the date for the query if necessary, e.g., toISOString()
-          var formattedDate = date.toISOString().split("T")[0]; // Get only the date part in "yyyy-mm-dd" format
-          console.log("Formatted Date:", formattedDate);
-          // console.log(Val);
-
-          queryParameters.soldOnMin = formattedDate;
-
-          // var soldOnDate = date.toISOString();
+          queryParameters.soldOnMin = dateValue;
         });
 
         $("#sold_calendar_highest").on("calciteDatePickerChange", function () {
           var dateValue = $("#sold_calendar_highest").val();
-
-          var parts = dateValue.split("-");
-          var year = parseInt(parts[0], 10);
-          var month = parseInt(parts[1], 10) - 1; // JavaScript months are 0-based
-          var day = parseInt(parts[2], 10);
-
-          // Create a new Date object
-          var date = new Date(year, month, day);
-          console.log(date);
-
-          // Format the date for the query if necessary, e.g., toISOString()
-          var formattedDate = date.toISOString().split("T")[0]; // Get only the date part in "yyyy-mm-dd" format
-          console.log("Formatted Date:", formattedDate);
-          // console.log(Val);
-
-          queryParameters.soldOnMax = formattedDate;
-
-          // var soldOnDate = date.toISOString();
+          queryParameters.soldOnMax = dateValue;
         });
 
         // $("#soldon-val-slider").on("calciteSliderChange", function (e) {
@@ -5535,8 +5613,35 @@ require([
               const sliderElLow = document.getElementById(slider.minInput);
               const sliderElMax = document.getElementById(slider.maxInput);
 
-              sliderElLow.value = vals[slider.index][slider.fieldName].min;
-              sliderElMax.value = vals[slider.index][slider.fieldName].max;
+              var minstr = vals[slider.index][slider.fieldName].min;
+              var maxstr = vals[slider.index][slider.fieldName].max;
+
+              // Create a Date object
+              let dateL = new Date(minstr);
+              let dateM = new Date(maxstr);
+
+              // Extract the components
+              let yearL = dateL.getFullYear();
+              let monthL = ("0" + (dateL.getMonth() + 1)).slice(-2); // Months are zero-indexed
+              let dayL = ("0" + dateL.getDate()).slice(-2);
+
+              let yearM = dateM.getFullYear();
+              let monthM = ("0" + (dateM.getMonth() + 1)).slice(-2); // Months are zero-indexed
+              let dayM = ("0" + dateM.getDate()).slice(-2);
+
+              // Format the date as yyyy-MM-dd
+              let formattedDateL = `${yearL}-${monthL}-${dayL}`;
+              // Format the date as yyyy-MM-dd
+              let formattedDateM = `${yearM}-${monthM}-${dayM}`;
+
+              console.log(sliderElLow.value);
+              console.log(sliderElMax.value);
+
+              sliderElLow.value = formattedDateL;
+              sliderElMax.value = formattedDateM;
+
+              queryParameters.soldOnMin = formattedDateL;
+              queryParameters.soldOnMax = formattedDateM;
 
               // const sliderInputMin = document.getElementById(slider.minInput);
               // const sliderInputMax = document.getElementById(slider.maxInput);
@@ -5692,6 +5797,8 @@ require([
           const combobox4ID = document.querySelector("#buildingFilter");
           const combobox5ID = document.querySelector("#buildingUseFilter");
           const combobox6ID = document.querySelector("#designTypeFilter");
+          const combobox7ID = document.querySelector("#zoningFilter");
+          const combobox8ID = document.querySelector("#neighborhoodFilter");
           const soldOnLowest = document.querySelector("#sold_calendar_lowest");
           const soldOnHighest = document.querySelector(
             "#sold_calendar_highest"
@@ -5703,6 +5810,8 @@ require([
           combobox4ID.selectedItems = [];
           combobox5ID.selectedItems = [];
           combobox6ID.selectedItems = [];
+          combobox7ID.selectedItems = [];
+          combobox8ID.selectedItems = [];
 
           combobox1ID.filteredItems.forEach((item) => {
             item.active = false;
@@ -5734,12 +5843,24 @@ require([
             item.selected = false;
           });
 
+          combobox7ID.filteredItems.forEach((item) => {
+            item.active = false;
+            item.selected = false;
+          });
+
+          combobox8ID.filteredItems.forEach((item) => {
+            item.active = false;
+            item.selected = false;
+          });
+
           combobox1ID.value = "";
           combobox2ID.value = "";
           combobox3ID.value = "";
           combobox4ID.value = "";
           combobox5ID.value = "";
           combobox6ID.value = "";
+          combobox7ID.value = "";
+          combobox8ID.value = "";
 
           soldOnLowest.value = "";
           soldOnHighest.value = "";
@@ -5885,8 +6006,6 @@ require([
 
       $(document).ready(function () {
         $("#side-Exp2").on("click", function () {
-          $("#sidebar2").toggleClass("collapsed");
-
           if ($("#sidebar2").hasClass("collapsed")) {
             $("#results-div").css("left", "0px");
             $("#sidebar2").css("left", "-350px");
@@ -5898,6 +6017,7 @@ require([
             $("#left-arrow-2").show();
             $("#right-arrow-2").hide();
           }
+          $("#sidebar2").toggleClass("collapsed");
         });
       });
     });
