@@ -155,7 +155,6 @@ require([
           $("#agreeCheck").change(function () {
             if ($(this).is(":checked")) {
               $("#agreeBtn").prop("disabled", false);
-              console.log("Checkbox is checked.");
               // Perform actions when checkbox is checked
             } else {
               $("#agreeBtn").prop("disabled", true);
@@ -656,7 +655,7 @@ require([
               try {
                 handleUsed = "click";
                 clickHandle.remove();
-                console.log(handleUsed);
+                // console.log(handleUsed);
               } catch (error) {
                 console.error("Failed to remove DetailsHandle", error);
               }
@@ -680,7 +679,7 @@ require([
                   } else {
                   }
                   // The measurement is complete
-                  console.log("Measurement completed");
+                  // console.log("Measurement completed");
 
                   // Your custom logic here
                   // For example, you could display the measurement result in a custom UI element,
@@ -742,7 +741,7 @@ require([
                   } else {
                   }
                   // The measurement is complete
-                  console.log("Measurement completed");
+                  // console.log("Measurement completed");
 
                   // Your custom logic here
                   // For example, you could display the measurement result in a custom UI element,
@@ -2607,7 +2606,7 @@ require([
                     noCondosLayer
                       .queryFeatures(newQuery)
                       .then(function (result) {
-                        console.log(result);
+                        // console.log(result);
 
                         view.goTo({
                           target: result.features,
@@ -5179,7 +5178,6 @@ require([
         };
 
         function updateQuery() {
-          console.log(queryParameters);
           let queryParts = [];
           if (
             queryParameters.streetName !== null &&
@@ -5384,7 +5382,6 @@ require([
               clearContents();
               addPolygons(response, view.graphics);
               processFeatures(response.features);
-              console.log(queryParameters);
               if (clickHandle) {
                 clickHandle?.remove();
                 clickHandle = null;
@@ -5406,7 +5403,6 @@ require([
               clearContents();
               addPolygons(response, view.graphics);
               processFeatures(response.features);
-              console.log(queryParameters);
               if (clickHandle) {
                 clickHandle?.remove();
                 clickHandle = null;
@@ -5427,9 +5423,9 @@ require([
           queryParameters.streetName = e.target.value;
           let itemsList = $("#streetFilter");
           let selectedItems = itemsList[0].selectedItems;
-          selectedItems.forEach((item) => {
-            console.log(item.value); // Assuming each item has a value attribute
-          });
+          // selectedItems.forEach((item) => {
+          //   console.log(item.value); // Assuming each item has a value attribute
+          // });
 
           // console.log(`street filter is: ${value}`);
         });
@@ -5633,9 +5629,6 @@ require([
               let formattedDateL = `${yearL}-${monthL}-${dayL}`;
               // Format the date as yyyy-MM-dd
               let formattedDateM = `${yearM}-${monthM}-${dayM}`;
-
-              console.log(sliderElLow.value);
-              console.log(sliderElMax.value);
 
               sliderElLow.value = formattedDateL;
               sliderElMax.value = formattedDateM;
