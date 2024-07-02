@@ -772,7 +772,7 @@ li.list-results:hover {
   height: 40px;
 }
 
-img {
+.image {
   display: flex;
   text-align: center;
   padding-bottom: 10px;
@@ -1265,6 +1265,14 @@ calcite-slider::part(tick) {
   display: flex;
   align-items: center;
   padding-top: 20px;
+}
+
+#terrano-img {
+  display: flex;
+  text-align: center;
+  padding-bottom: 10px;
+  justify-content: center;
+  height: 70px;
 }
 
 .content {

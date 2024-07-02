@@ -1535,7 +1535,7 @@ require([
 
           const listItem = document.createElement("li");
           const imageDiv = document.createElement("li");
-          imageDiv.innerHTML = `<img class="img-search" object-id="${objectID}" src="${imageUrl}" alt="Image of ${locationUniqueId}" >`;
+          imageDiv.innerHTML = `<img class="img-search image" object-id="${objectID}" src="${imageUrl}" alt="Image of ${locationUniqueId}" >`;
           listItem.classList.add("list-group-item", "col-9");
           listItem.classList.add("search-list");
           imageDiv.setAttribute("object-id", objectID);
@@ -1721,7 +1721,7 @@ require([
 
           const listItem = document.createElement("li");
           const imageDiv = document.createElement("li");
-          imageDiv.innerHTML = `<img class="img-search" object-id="${objectID}" src="${imageUrl}" alt="Image of ${locationUniqueId}" >`;
+          imageDiv.innerHTML = `<img class="img-search image" object-id="${objectID}" src="${imageUrl}" alt="Image of ${locationUniqueId}" >`;
           listItem.classList.add("list-group-item", "col-9");
           listItem.classList.add("search-list");
           imageDiv.setAttribute("object-id", objectID);
@@ -3859,7 +3859,7 @@ require([
         </p>
 
         <div>
-        <img src=${configVars.imageUrl}${locationUniqueId}.jpg alt="Building Photo" width="250" height="125"><br>
+        <img class="image" src=${configVars.imageUrl}${locationUniqueId}.jpg alt="Building Photo" width="250" height="125"><br>
         </div>
         <p>
         <span style="font-family:Tahoma;font-size:12px;"><strong>${locationOwner} ${locationCoOwner}</strong></span> <br>
@@ -4150,7 +4150,7 @@ require([
     </p>
 
     <div>
-    <img src=${configVars.imageUrl}${locationUniqueId}.jpg alt="Building Photo" width="250" height="125"><br>
+    <img class="image" src=${configVars.imageUrl}${locationUniqueId}.jpg alt="Building Photo" width="250" height="125"><br>
     </div>
     <p>
     <span style="font-family:Tahoma;font-size:12px;"><strong>${locationOwner} ${locationCoOwner}</strong></span> <br>
