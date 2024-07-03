@@ -6045,6 +6045,29 @@ require([
         });
       });
 
+      function clickRefreshButton() {
+        var refreshButton = document.querySelector(
+          ".esri-widget--button.esri-print__refresh-button.esri-icon-refresh"
+        );
+        if (refreshButton) {
+          refreshButton.click();
+        }
+      }
+
+      // Watch for changes in the zoom level
+      view.watch("zoom", function (newValue, oldValue) {
+        if (newValue !== oldValue) {
+          clickRefreshButton();
+        }
+      });
+
+      // Optionally, watch for changes in the center (pan)
+      view.watch("center", function (newValue, oldValue) {
+        if (newValue !== oldValue) {
+          clickRefreshButton();
+        }
+      });
+
       $(document).ready(function () {
         $("#side-Exp2").on("click", function () {
           if ($("#sidebar2").hasClass("collapsed")) {
