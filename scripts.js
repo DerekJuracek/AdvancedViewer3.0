@@ -5998,6 +5998,54 @@ require([
       });
 
       $(document).ready(function () {
+        $("#popoverButton").popover({
+          trigger: "hover",
+        });
+      });
+
+      $(document).ready(function () {
+        $("#lasso").popover({
+          trigger: "hover",
+        });
+      });
+
+      $(document).ready(function () {
+        $("#select-button").popover({
+          trigger: "hover",
+        });
+      });
+
+      $(document).ready(function () {
+        $("#clear-btn1").popover({
+          trigger: "hover",
+        });
+      });
+
+      $(document).ready(function () {
+        $("#filterButton").popover({
+          trigger: "hover",
+        });
+      });
+
+      $(document).ready(function () {
+        $("#layerListBtn").popover({
+          trigger: "hover",
+        });
+      });
+
+      $(document).ready(function () {
+        $("#abutters-attributes").popover({
+          trigger: "hover",
+        });
+      });
+
+      $(document).ready(function () {
+        $("#abutters-zoom").popover({
+          trigger: "hover",
+        });
+      });
+
+      $(document).ready(function () {
         $("#side-Exp2").on("click", function () {
           if ($("#sidebar2").hasClass("collapsed")) {
             $("#results-div").css("left", "0px");

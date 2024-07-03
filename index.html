@@ -45,21 +45,13 @@
       type="text/css"
       href="https://js.arcgis.com/calcite-components/2.6.0/calcite.css"
     />
-    <script
+    <!-- <script
       src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"
       integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
       crossorigin="anonymous"
-    ></script>
-    <script
-      src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
-      integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
-      crossorigin="anonymous"
-    ></script>
-    <script
-      src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.min.js"
-      integrity="sha384-+sLIOodYLS7CIrQpBjl+C7nPvqq+FbNUBDunl/OZv93DB7Ln/533i8e/mZXLi/P+"
-      crossorigin="anonymous"
-    ></script>
+    ></script> -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   
   </head>
@@ -174,6 +166,14 @@
           <span class="navbar-brand mb-0 h1" id="title"
             >Town of Washington, CT</span
           >
+          <!-- <span style="padding-left: 30px; margin-bottom: 5px;">
+            <button type="button" class="btn" id="popoverButton" data-toggle="popover" data-placement="right"  title="Popover title"data-content="This is a popover example.">
+              <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="white" class="bi bi-question-circle" viewBox="0 0 16 16">
+                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+                <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286m1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94"/>
+                  </svg>
+            </button>
+         </span> -->
         </div>
         <div class="col-12">
           <form class="form-inline">
@@ -199,7 +199,10 @@
                 id="lasso"
                 value="lasso"
                 class="btn btn-sm btn-info"
-                title="Use Lasso to Select Parcels"
+                data-toggle="popover"
+                data-placement="bottom"
+                data-html="true"
+                data-content="Use lasso tool to drag and drop your selected parcels."
               >
                 <svg
                   width="20"
@@ -220,7 +223,10 @@
                 type="button"
                 class="btn btn-sm bar-Buttons btn-info"
                 id="select-button"
-                title="Enable Click to add Parcels"
+                data-toggle="popover"
+                data-placement="bottom"
+                data-html="true"
+                data-content="Use select tool to click/unclick specific parcels."
               >
                 <svg
                   width="20"
@@ -243,7 +249,10 @@
                 type="button"
                 id="clear-btn1"
                 class="btn btn-light btn-sm clear-btn btn-info"
-                title="Reset"
+                data-toggle="popover"
+                data-placement="bottom"
+                data-html="true"
+                data-content="Use reset to clear previous search."
                 style="
                   height: 31.81px !important;
                   width: 38px;
@@ -387,8 +396,10 @@
           type="button"
           class="btn btn-info mr-3"
           id="abutters-attributes"
-          title="Abutters List"
-          title="Abutters List"
+          data-toggle="popover"
+          data-placement="left"
+          data-html="true"
+          data-content="Use abutters tool to draw buffer around selected parcel and to recieve mailing list."
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -426,7 +437,10 @@
             type="button"
             class="btn btn-info mr-3 abutters-zoom"
             id="abutters-zoom"
-            title="Zoom to Parcel"
+            data-toggle="popover"
+            data-placement="right"
+            data-html="true"
+            data-content="Zoom to select parcel."
           >
           <calcite-icon scale="s" icon="magnifying-glass-plus" />
           </button>
@@ -986,6 +1000,10 @@
             type="button"
             id="filterButton"
             class="btn bg-light bar-Buttons"
+            data-toggle="popover"
+            data-placement="right"
+            data-html="true"
+            data-content="Use filter to search for parcels by attributes."
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -1004,6 +1022,10 @@
             type="button"
             id="layerListBtn"
             class="btn bg-light bar-Buttons"
+            data-toggle="popover"
+            data-placement="right"
+            data-html="true"
+            data-content="Use layer list to toggle layers visibility."
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
