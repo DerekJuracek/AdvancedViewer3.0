@@ -1106,21 +1106,34 @@
           >
             Bookmarks
           </div>
+          <!-- Default dropup button -->
+          <div id='scale-dropdown' style="z-index: -5; padding-left: 500px;" class="btn-group dropup ">
+            <button type="button" class="btn btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+              Select Scale
+            </button>
+            <div class="dropdown-menu dropdown-menu-sm dropp-2">
+              <button value="600" class="dropdown-item btn-sm scale-select" type="button">1 inch = 50 feet</button>
+              <button value="1200" class="dropdown-item btn-sm scale-select" type="button">1 inch = 100 feet</button>
+              <button value="2400" class="dropdown-item btn-sm scale-select" type="button">1 inch = 200 feet</button>
+              <button value="12000" class="dropdown-item btn-sm scale-select" type="button">1 inch = 1000 feet</button>
+              <button value="24000" class="dropdown-item btn-sm scale-select" type="button">1 inch = 2000 feet</button>
+              <button value="60000" class="dropdown-item btn-sm scale-select" type="button">1 inch = 5000 feet</button>
+            </div>
+          </div>
           <div id="PrintDiv" style="display: none; color: white">
-            <div style="padding-bottom: 10px;">
+            
+            <!-- <div style="padding-bottom: 10px;">
               <label for="scaleSelect">Set Map Scale:</label>
               <select id="scaleSelect" class="form-control form-control-sm">
+                <option value="">Select scale</option>
                 <option value="600">1 inch = 50 feet</option>
                 <option value="1200">1 inch = 100 feet</option>
                 <option value="2400">1 inch = 200 feet</option>
-                <option value="6000">1 inch = 500 feet</option>
                 <option value="12000">1 inch = 1000 feet</option>
                 <option value="24000">1 inch = 2000 feet</option>
-                <option value="48000">1 inch = 4000 feet</option>
-                <option value="72000">1 inch = 6000 feet</option>
-                <!-- Add more options as needed -->
+                <option value="60000">1 inch = 5000 feet</option>
               </select>
-            </div>
+            </div> -->
           </div>
           <div id="AddDataDiv" style="display: none;">
             <div>

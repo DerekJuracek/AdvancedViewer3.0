@@ -319,8 +319,9 @@ require([
           view: view,
           container: $("#PrintDiv")[0],
           templateOptions: {
-            scaleEnabled: true,
+            scaleEnabled: false,
           },
+          advancedOptions: false,
           allowedLayouts: [
             "letter-ansi-a-landscape",
             "letter-ansi-a-portrait",
@@ -5999,12 +6000,25 @@ require([
       });
 
       // Add event listener for scale selection
-      document
-        .getElementById("scaleSelect")
-        .addEventListener("change", function (event) {
+      // const scaleDropdown2 = document.getElementsByClassName("scale-Select");
+
+      scaleDropdown = document.getElementById("scale-dropdown");
+
+      // Add event listener for scale selection
+      // Add event listener for scale selection
+      document.querySelectorAll(".scale-select").forEach(function (button) {
+        button.addEventListener("click", function (event) {
           var selectedScale = event.target.value;
-          view.scale = selectedScale;
+          if (selectedScale) {
+            view.scale = selectedScale;
+          }
         });
+      });
+      view.ui.add(scaleDropdown, {
+        position: "bottom-left",
+      });
+
+      // view.add(scaleDropdown, "bottom-right");
 
       $(document).ready(function () {
         $("#popoverButton").popover({
