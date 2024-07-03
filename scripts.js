@@ -136,6 +136,7 @@ require([
       var view = new MapView({
         container: "viewDiv",
         map: webmap,
+        units: "imperial",
         zoom: `${configVars.zoom}`,
         popupEnabled: false,
         ui: {
@@ -5996,6 +5997,14 @@ require([
           $("#rightPanel").show();
         });
       });
+
+      // Add event listener for scale selection
+      document
+        .getElementById("scaleSelect")
+        .addEventListener("change", function (event) {
+          var selectedScale = event.target.value;
+          view.scale = selectedScale;
+        });
 
       $(document).ready(function () {
         $("#popoverButton").popover({
