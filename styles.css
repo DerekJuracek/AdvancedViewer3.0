@@ -24,6 +24,13 @@ div.esri-scale-bar__label {
   padding: 0 7px;
   font-weight: 600;
 }
+div.esri-distance-measurement-2d__container {
+  height: 100px !important;
+}
+
+div.esri-area-measurement-2d__container {
+  height: 100px !important;
+}
 
 header.esri-print__header-title {
   display: none;
@@ -62,12 +69,13 @@ div.esri-ui-corner div.esri-component {
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.0) !important;
 }
 
-div.esri-print__content {
-  background-color: transparent !important;
-  /* flex-flow: column;
-  flex-grow: 1;
-  justify-content: space-between;
-  display: flex; */
+/* this removes powered by esri */
+/* div.esri-attribution {
+  display: none !important;
+} */
+
+div.esri-attribution__sources {
+  display: none !important;
 }
 
 esri-ui-corner esri-component {
@@ -122,6 +130,115 @@ esri-ui-corner esri-component {
     height: 600px;
   }
 }
+
+#print-container {
+  display: none;
+}
+.print-title {
+  text-align: center;
+  font-size: 24px;
+  margin: 10px 0;
+}
+.print-map {
+  position: relative;
+}
+.print-legend, .print-scale-bar {
+  background: white;
+  padding: 10px;
+}
+
+
+
+     /* Hide elements you don't want to print */
+     @media print {
+      #sidebar2 {
+          visibility: hidden;
+      }
+
+      #sidebar {
+        visibility: hidden;
+      }
+
+      .container {
+        display: none;
+      }
+
+      #print-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        margin-top: 20px;
+    }
+
+      .print-title {
+        text-align: center;
+        font-size: 24px;
+        margin: 20px 0;
+    }
+
+    div.esri-ui-inner-container esri-ui-corner-container {
+      display: none;
+    }
+
+      #print-map-image {
+        padding-top: 50px;
+        margin-top: 200px;
+      }
+
+      #map-div {
+        padding-top: 50px;
+      }
+
+      #new-print-container, #new-print-container * {
+        visibility: visible;
+    }
+    #new-print-container {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+    }
+
+      
+  }
+
+  #accordion {
+color: black !important;
+width: 250px !important;
+  }
+
+  .card {
+    border-right: white 1px solid !important;
+    border-left: white 1px solid !important;
+    border-top: 0px;
+    border-bottom: 0px;
+  }
+
+  .card-header {
+    word-wrap: normal !important;
+    background-color: rgb(91, 29, 104) !important;
+    color: white !important;
+    border: 0.5px white solid;
+  }
+  .card-body {
+   background-color: rgba(30, 30, 30, 0.9) !important;
+   color: white;
+  }
+
+  .collapse {
+    width: 248px;
+  }
+
+  .card-header {
+    padding: 0  0 0 0 !important;
+  }
+
+  .btn-link {
+    color: white !important;
+  }
+
 
 
 
@@ -191,21 +308,37 @@ esri-ui-corner esri-component {
   background-color: rgba(127, 42, 145, 1) !important;
 }
 
+a.bg-info:focus, a.bg-info:hover, button.bg-info:focus, button.bg-info:hover {
+  background-color: rgba(127, 42, 145, 1) !important;
+}
+
+#scale-value:hover, #scale-value.show,#scale-value:active  {
+  color: white !important;
+  box-shadow: 0 0 0 0.2rem rgba(145, 199, 61,1) !important;
+  border-color: rgba(145, 199, 61,1) !important;
+  background-color: rgba(127, 42, 145, 1) !important;
+  outline-color: var(--third);
+}
+
+div.btn.btn-secondary.bg-info.btn-sm.dropdown-toggle.show {
+  background-color: rgba(127, 42, 145, 1) !important;
+}
+
 /* .clear-btn:hover {
   box-shadow: 0 0 0 0.2rem rgba(145, 199, 61,1) !important;
   border-color: transparent;
-} */
+}  */
 
 #distanceButton, #areaButton {
   border-color: white !important;
-  background-color: rgba(127, 42, 145, 1) !important; /* Background color on hover */
-}
+  background-color: rgba(127, 42, 145, 1) !important;
+} 
 
 
 #distanceButton:hover, #areaButton:hover {
   box-shadow: 0 0 0 0.2rem rgba(145, 199, 61,1) !important;
   border-color: transparent;
-  background-color: rgba(127, 42, 145, 1) !important; /* Background color on hover */
+  background-color: rgba(127, 42, 145, 1) !important; 
 }
 
 .btn-info:hover {
@@ -213,7 +346,7 @@ esri-ui-corner esri-component {
   background-color: rgba(127, 42, 145, 1) !important;
   outline: none;
   border-color: transparent;
-  /* border: none; */
+  /* border: none;  */
 
 } 
 .action-button:hover {
@@ -229,6 +362,11 @@ esri-ui-corner esri-component {
 
 } 
 
+
+.btn.focus, .btn:focus {
+  outline: 0;
+  box-shadow: 0 0 0 .2rem rgba(0, 123, 255, .0) !important;
+}
 .active {
   box-shadow: 0 0 0 0.2rem rgba(145, 199, 61,1) !important;
 
@@ -302,11 +440,13 @@ main {
 .navbar .container {
   display: block;
   padding-right: 0;
+  padding-top: 0;
 }
 
 .navbar.bg-dark {
   background-color: var(--background-color) !important;
   margin-top: 3px; 
+  /* padding-top: 0px; */
 }
 
 .custom-navbar {
@@ -314,11 +454,12 @@ main {
   top: 0;
   left: 3px;
   z-index: 1000;
-  min-width: 380px;
+  width: 425px;
   border-radius: 15px 15px 15px 15px;
   overflow-y: visible;
   padding-right: 0px;
   padding-left: 20px;
+  height: 105px;
   /* This ensures the navbar is always on top */
 }
 
@@ -430,51 +571,51 @@ ul {
 
 @media (min-height: 300px) {
   #featureWid {
-    height: 250px;
+    height: 220px;
   }
 }
 
 @media (min-height: 500px) {
   #featureWid {
-    height: 300px;
+    height: 270px;
   }
 }
 
 @media (min-height: 600px) {
   #featureWid {
-    height: 400px;
+    height: 360px;
   }
 }
 
 @media (min-height: 650px) {
   #featureWid {
-    height: 400px;
+    height: 370px;
   }
 }
 
 
 @media (min-height: 700px) {
   #featureWid {
-    height: 425px;
+    height: 395px;
   }
 }
 
 
 @media (min-height: 800px) {
   #featureWid {
-    height: 450px;
+    height: 420px;
   }
 }
 
 @media (min-height: 900px) {
   #featureWid {
-    height: 500px;
+    height: 440px;
   }
 }
 
 @media (min-height: 1000px) {
   #featureWid {
-    height: 550px;
+    height: 520px;
   }
 }
 
@@ -485,7 +626,7 @@ ul {
 .suggestions-dropdown {
   display: none;
   position: absolute;
-  top: 100%;
+  top: 67%;
   left: 0;
   width: 100%;
   height: 100px;
@@ -570,7 +711,7 @@ ul {
   height: 80%;
   width: 250px;
   z-index: 1000;
-  background-color: var(--background-color) !important;
+  background-color: rgba(30, 30, 30, .9) !important;
   transition: width 0.5s;
 }
 
@@ -602,7 +743,7 @@ ul {
   border-bottom-left-radius: 10px;
   top: 8%;
   right: 250px; /* the width of #sidebar */
-  height: 290px;
+  height: 350px;
   width: 55px;
   background-color: var(--background-color) !important;
   transition: right 0.5s;
@@ -613,18 +754,30 @@ ul {
   position: absolute;
   display: flex; /* Make this a flex container */
   flex-direction: column; /* This will align the items vertically */
-  justify-content: space-between;
+  /* justify-content: space-between; */
   border-top-right-radius: 10px;
   border-bottom-right-radius: 10px;
   margin-top: 10px;
   top: 30%;
   left: 250px; /* the width of #sidebar */
-  height: 200px;
+  height: 250px;
   width: 55px;
   background-color: rgba(30, 30, 30, 0.9) !important;
   transition: left 0.5s;
   padding: 6px; /* Change this to the color you want */
 }
+
+.vertical-text {
+  display: inline-block;
+  writing-mode: vertical-rl; /* Makes the text vertical */
+  text-orientation: mixed; /* Keeps the text horizontal while in vertical mode */
+  transform: rotate(180deg); /* Rotates the text to read from top to bottom */
+  white-space: nowrap; /* Prevents text from wrapping */
+  padding: 10px;
+  border-radius: 0px 0px 0px 0px;
+  padding-bottom: 5px; /* Adjust padding as needed */
+}
+
 
 #left-div {
   position: absolute;
@@ -727,7 +880,7 @@ ul {
 .btn-group-vertical {
   display: flex;
   flex-direction: column;
-  margin-bottom: 60px;
+  margin-bottom: 10px;
   padding-top: 15px;
 }
 
@@ -959,7 +1112,7 @@ calcite-slider::part(tick) {
 #details-btns {
   padding-top: 20px;
   padding-left: 30px;
-  padding-bottom: 20px;
+  padding-bottom: 5px;
   align-items: center;
 }
 
@@ -1299,7 +1452,7 @@ calcite-slider::part(tick) {
 }
 
 .content {
-  margin-top: 40px;
+  margin-top: 65px;
   /* height: 400px; */
   overflow-y: auto;
 
