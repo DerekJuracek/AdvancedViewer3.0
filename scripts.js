@@ -4,52 +4,34 @@ require([
   "esri/layers/FeatureLayer",
   "esri/layers/ImageryLayer",
   "esri/layers/MapImageLayer",
-  "esri/widgets/Search",
-  "esri/widgets/Features",
-  "esri/rest/support/Query",
-  "esri/popup/content/RelationshipContent",
   "esri/core/reactiveUtils",
   "esri/Graphic",
-  "esri/widgets/Zoom",
   "esri/geometry/geometryEngine",
   "esri/layers/GraphicsLayer",
-  "esri/widgets/Sketch",
   "esri/widgets/Sketch/SketchViewModel",
-  "esri/views/View",
   "esri/widgets/DistanceMeasurement2D",
   "esri/widgets/AreaMeasurement2D",
   "esri/widgets/BasemapLayerList",
   "esri/widgets/Bookmarks",
-  "esri/widgets/Print",
   "esri/widgets/Legend",
-  "esri/widgets/Expand",
-  "esri/widgets/ScaleBar",
+  "esri/layers/support/TileInfo",
 ], function (
   WebMap,
   MapView,
   FeatureLayer,
   ImageryLayer,
   MapImageLayer,
-  Search,
-  Features,
-  Query,
-  RelationshipContent,
   reactiveUtils,
   Graphic,
-  Zoom,
   geometryEngine,
   GraphicsLayer,
-  Sketch,
   SketchViewModel,
-  View,
   DistanceMeasurement2D,
   AreaMeasurement2D,
   BasemapLayerList,
   Bookmarks,
-  Print,
   Legend,
-  Expand,
-  ScaleBar
+  TileInfo
 ) {
   const urlParams = new URLSearchParams(window.location.search);
   let currentURL = window.location.href;
@@ -100,11 +82,37 @@ require([
       configVars.parcelRenderer = config.parcelRenderer;
       configVars.useUniqueIdforParcelMap = config.useUniqueIdforParcelMap;
       configVars.helpUrl = config.helpUrl;
+      configVars.includeFilter = config.includeFilter;
+      configVars.customWelcomePage = config.customWelcomePage;
+      configVars.customWelcomeMessage = config.customWelcomeMessage;
+      configVars.showDisclaimer = config.showDisclaimer;
+      configVars.customDisclaimerPage = config.customDisclaimerPage;
+      configVars.customDisclaimerMessage = config.customDisclaimerMessage;
+      configVars.DetailLinks = config.DetailLinks;
+
+      configVars.DetailLinksToInclude = config.DetailLinksToInclude;
+
+      if (configVars.showDisclaimer === "no") {
+        sessionStorage.setItem("agreedToDisclaimer", "yes");
+        $("#starterModal").modal("hide");
+      }
+
+      if (configVars.customWelcomePage === "yes") {
+        document.getElementById("welcomeMessage").innerHTML =
+          configVars.customWelcomeMessage;
+      }
+      if (configVars.customDisclaimerPage === "yes") {
+        document.getElementById("disclaimer-text").innerHTML =
+          configVars.customDisclaimerMessage;
+      }
+
       document.getElementById("AccessorName").innerHTML = config.accessorName;
       $(".help-url").attr("href", configVars.helpUrl);
       // configVars.homeExtent = config.homeExtent;
       document.getElementById("title").innerHTML = configVars.title;
+      document.getElementById("print-title").innerHTML = configVars.title;
       document.getElementById("imageContainer").src = configVars.welcomeImage;
+      document.getElementById("print-image").src = configVars.welcomeImage;
       document.getElementById("tab-title").innerHTML = configVars.tabTitle;
 
       function formatDate(timestamp) {
@@ -133,6 +141,13 @@ require([
         layers: [searchGraphicsLayers],
       });
 
+      // Create LODs from level 0 to 31
+      const tileInfo = TileInfo.create({
+        numLODs: 30,
+      });
+
+      const lods = tileInfo.lods;
+      // console.log(lods);
       var view = new MapView({
         container: "viewDiv",
         map: webmap,
@@ -142,20 +157,40 @@ require([
         ui: {
           components: ["attribution"],
         },
+        constraints: {
+          lods: lods,
+          minScale: 240,
+          maxScale: 170000,
+        },
       });
       view.when(() => {
+        // console.log(view.spatialReference);
         configVars.homeExtent = view.extent;
       });
+
+      if (configVars.includeFilter === "no") {
+        $("#filterButton").remove();
+      } else {
+      }
+
       // console.log("extent is", extent);
 
       view.when(() => {
-        $("#starterModal").modal("show");
+        if (
+          sessionStorage.getItem("agreedToDisclaimer") == "yes" ||
+          urlSearchUniqueId == true
+        ) {
+          $("#starterModal").modal("hide");
+        } else {
+          $("#starterModal").modal("show");
+        }
 
         $(document).ready(function () {
           $("#agreeBtn").prop("disabled", true);
           $("#agreeCheck").change(function () {
             if ($(this).is(":checked")) {
               $("#agreeBtn").prop("disabled", false);
+              sessionStorage.setItem("agreedToDisclaimer", "yes");
               // Perform actions when checkbox is checked
             } else {
               $("#agreeBtn").prop("disabled", true);
@@ -303,37 +338,6 @@ require([
         });
       });
 
-      // let basemapDiv = $("#BookmarksDiv");
-
-      view.when(() => {
-        const bookmarks = new Bookmarks({
-          view: view,
-          container: $("#BookmarksDiv")[0],
-          // allows bookmarks to be added, edited, or deleted
-          dragEnabled: true,
-        });
-      });
-
-      view.when(() => {
-        const print = new Print({
-          view: view,
-          container: $("#PrintDiv")[0],
-          templateOptions: {
-            scaleEnabled: false,
-          },
-          allowedLayouts: [
-            "letter-ansi-a-landscape",
-            "letter-ansi-a-portrait",
-            "tabloid-ansi-b-landscape",
-            "tabloid-ansi-b-portrait",
-            "a3-landscape",
-            "a3-portrait",
-            "a4-landscape",
-            "a4-portrait",
-          ],
-        });
-      });
-
       view.when(() => {
         // Filter out layers belonging to the "hidden group" and layers with a specific title "Do Not Show"
         const visibleLayers = webmap.layers.items.filter((layer) => {
@@ -355,33 +359,40 @@ require([
         });
       });
 
-      // view.when(() => {
-      //   // Filter out layers belonging to the "hidden group"
-      //   const visibleLayers = webmap.layers.items.filter((layer) => {
-      //     return !(
-      //       layer.type === "group" &&
-      //       layer.title &&
-      //       layer.title.toLowerCase() === "hidden group"
-      //     );
-      //   });
+      // let basemapDiv = $("#BookmarksDiv");
 
-      //   // Create legend with filtered layers
-      //   const legend = new Legend({
+      view.when(() => {
+        const bookmarks = new Bookmarks({
+          view: view,
+          container: $("#BookmarksDiv")[0],
+          // allows bookmarks to be added, edited, or deleted
+          dragEnabled: true,
+        });
+      });
+
+      // view.when(() => {
+      //   const print = new Print({
       //     view: view,
-      //     container: $("#LegendDiv")[0],
-      //     layerInfos: visibleLayers.map((layer) => {
-      //       return {
-      //         layer: layer,
-      //       };
-      //     }),
+      //     container: $("#PrintDiv")[0],
+      //     templateOptions: {
+      //       scaleEnabled: false,
+      //     },
+      //     allowedLayouts: [
+      //       "letter-ansi-a-landscape",
+      //       "letter-ansi-a-portrait",
+      //       "tabloid-ansi-b-landscape",
+      //       "tabloid-ansi-b-portrait",
+      //       "a3-landscape",
+      //       "a3-portrait",
+      //       "a4-landscape",
+      //       "a4-portrait",
+      //     ],
       //   });
       // });
-
       view.when(() => {
         const basemaps = new BasemapLayerList({
           view: view,
           container: $("#BasemapDiv")[0],
-          // allows bookmarks to be added, edited, or deleted
           dragEnabled: true,
         });
 
@@ -395,6 +406,29 @@ require([
         };
 
         let originalRenderer;
+        let newRenderer = {
+          type: "simple",
+          symbol: {
+            type: "simple-fill",
+            color: [255, 255, 255, 0.0],
+            outline: {
+              width: 1,
+              color: `${configVars.parcelRenderer}`,
+            },
+          },
+        };
+
+        let OG = {
+          type: "simple",
+          symbol: {
+            type: "simple-fill",
+            color: [255, 255, 255, 0.0],
+            outline: {
+              width: 1,
+              color: "#897044",
+            },
+          },
+        };
 
         view.map.allLayers.forEach((layer) => {
           if (layer.title === "Parcel Boundaries") {
@@ -402,15 +436,23 @@ require([
           }
         });
 
-        let scaleBar = new ScaleBar({
-          view: view,
-          style: "ruler",
-          unit: "imperial",
-        });
-        // Add widget to the bottom left corner of the view
-        view.ui.add(scaleBar, {
-          position: "bottom-right",
-        });
+        // Check visibility of ortho layers at the start
+        const orthoLayers = [
+          "Aerial-Ortho 2019",
+          "Aerial-Ortho 2016",
+          "Aerial-Ortho 2012",
+        ];
+        let anyOrthoVisible = view.map.allLayers.some(
+          (layer) => orthoLayers.includes(layer.title) && layer.visible
+        );
+
+        if (anyOrthoVisible) {
+          view.map.allLayers.forEach((layer) => {
+            if (layer.title === "Parcel Boundaries") {
+              layer.renderer = newRenderer;
+            }
+          });
+        }
 
         if (sessionStorage.getItem("condos") === "yes") {
           originalRenderer = CondosLayer.renderer;
@@ -418,90 +460,89 @@ require([
           originalRenderer = noCondosLayer.renderer;
         }
 
-        // console.log(view.map.basemap.baseLayers);
+        // Initialize visibility tracking
+        const layerVisibility = {};
+        view.map.basemap.baseLayers.forEach((layer) => {
+          layerVisibility[layer.id] = layer.visible;
+        });
 
         reactiveUtils.watch(
-          () => [view.map.basemap.baseLayers.map((layer) => layer.visible)],
+          () => view.map.basemap.baseLayers.map((layer) => layer.visible),
           () => {
-            const orthoLayersVisible = isAnyOrthoLayerVisible(
-              view.map.basemap.baseLayers
+            console.log(
+              "Visibility changed:",
+              view.map.basemap.baseLayers.map((layer) => ({
+                title: layer.title,
+                visible: layer.visible,
+              }))
             );
-            manageBasemapVisibility(view.map.basemap.baseLayers);
+            manageBasemapVisibility(
+              view.map.basemap.baseLayers,
+              layerVisibility
+            );
           }
         );
 
-        function isAnyOrthoLayerVisible(baseLayers) {
-          return baseLayers.some((layer) => {
-            return layer.visible;
-          });
-        }
-        function manageBasemapVisibility(baseLayers) {
-          // const orthoLayerTitles = ["Ortho 2012", "Ortho 2016", "Ortho 2019"];
-
-          // Filter out the layers that we're interested in
-          // let basemapLayers = baseLayers.filter((layer) =>
-          //   orthoLayerTitles.includes(layer.title)
-          // );
-
-          let basemapLayers = view.map.basemap.baseLayers;
-
-          // Find the newly visible layer
-          let newlyVisibleLayer = basemapLayers.find(
-            (layer) => layer.visible && !layer.wasVisible
+        function manageBasemapVisibility(baseLayers, visibilityTracker) {
+          let newlyVisibleLayer = baseLayers.find(
+            (layer) => layer.visible && !visibilityTracker[layer.id]
           );
 
-          // If a newly visible layer is found, turn off all other layers
           if (newlyVisibleLayer) {
-            basemapLayers.forEach((layer) => {
+            console.log(`Newly visible layer: ${newlyVisibleLayer.title}`);
+            baseLayers.forEach((layer) => {
               if (layer !== newlyVisibleLayer) {
                 layer.visible = false;
               }
             });
 
-            if (newlyVisibleLayer.title !== `${configVars.basemapTitle}`) {
+            if (
+              newlyVisibleLayer.title !== `${configVars.basemapTitle}` &&
+              newlyVisibleLayer.title !== "Washington Basemap"
+            ) {
               if (sessionStorage.getItem("condos") === "yes") {
-                CondosLayer.renderer = {
-                  type: "simple",
-                  symbol: {
-                    type: "simple-fill",
-                    color: [255, 255, 255, 0.0],
-                    outline: {
-                      width: 1,
-                      color: `${configVars.parcelRenderer}`,
-                    },
-                  },
-                };
+                CondosLayer.renderer = newRenderer;
               } else {
-                noCondosLayer.renderer = {
-                  type: "simple",
-                  symbol: {
-                    type: "simple-fill",
-                    color: [255, 255, 255, 0.0],
-                    outline: {
-                      width: 1,
-                      color: `${configVars.parcelRenderer}`,
-                    },
-                  },
-                };
+                noCondosLayer.renderer = newRenderer;
               }
             } else {
-              if (sessionStorage.getItem("condos") === "yes") {
-                CondosLayer.renderer = originalRenderer;
-              } else {
-                noCondosLayer.renderer = originalRenderer;
-              }
+              // Revert to the original renderer if the basemap is the configured basemap title or "Washington Basemap"
+              view.map.allLayers.forEach((layer) => {
+                if (layer.title === "Parcel Boundaries") {
+                  layer.renderer = OG;
+                }
+              });
+            }
+          } else {
+            // Prevent all basemaps from being deselected
+            let visibleLayers = baseLayers.filter((layer) => layer.visible);
+            if (visibleLayers.length === 0) {
+              // If no layers are visible, revert the change
+              baseLayers.forEach((layer) => {
+                layer.visible = visibilityTracker[layer.id];
+              });
+              // alert("At least one basemap must be visible.");
             }
           }
 
-          // Update wasVisible property
-          basemapLayers.forEach((layer) => {
-            layer.wasVisible = layer.visible;
+          // Update visibility tracker
+          baseLayers.forEach((layer) => {
+            visibilityTracker[layer.id] = layer.visible;
           });
+
+          console.log(
+            "Updated visibility tracker:",
+            baseLayers.map((layer) => ({
+              title: layer.title,
+              wasVisible: visibilityTracker[layer.id],
+            }))
+          );
         }
       });
 
       webmap.add(sketchGL);
-
+      let urlSearchUniqueId;
+      let scaleBar;
       let runQuerySearchTerm;
       let clickedToggle;
       let detailSelected = [];
@@ -545,6 +586,11 @@ require([
       let zoomToItemId;
       let zoomToObjectID;
       let overRide;
+      let dontTriggerMultiQuery;
+      let queryParameters;
+      let filterConfigurations;
+      let multiFilterConfigurations;
+      let filterConfigs;
 
       reactiveUtils.watch(
         () => [view.zoom, view.extent, view.scale],
@@ -662,9 +708,11 @@ require([
               }
             }
 
-            if (detailsHandleUsed == "detailClick") {
-              handleUsed = "details";
-            }
+            // if (handleUsed == "details") {
+            //   handleUsed = "details";
+            // } else {
+            //   handleUsed = "click";
+            // }
 
             // handleUsed = "none yet";
 
@@ -723,9 +771,11 @@ require([
               }
             }
 
-            if (detailsHandleUsed == "detailClick") {
-              handleUsed = "details";
-            }
+            // if (handleUsed == "details") {
+            //   handleUsed = "details";
+            // } else {
+            //   handleUsed = "click";
+            // }
 
             // handleUsed = "none yet";
 
@@ -774,7 +824,7 @@ require([
         for (let i = 0; i < elements.length; i++) {
           elements[i].classList.remove("active", "btn-warning");
           // elements[i].classList.remove("btn-warning");
-          elements[i].classList.add("bg-info");
+          // elements[i].classList.add("bg-info");
         }
         if (selectedButton) {
           selectedButton.classList.add("active", "btn-warning");
@@ -782,12 +832,6 @@ require([
           // selectedButton.classList.add("btn-warning");
         }
       }
-
-      // // Check if the key exists in sessionStorage
-      // if (sessionStorage.getItem(key) === null) {
-      //   // If the key doesn't exist, set it to "none"
-      //   sessionStorage.setItem(key, configVars.isCondosLayer);
-      // }
 
       let noCondosLayer = new FeatureLayer({
         url: `${configVars.noCondoLayer}`,
@@ -797,18 +841,6 @@ require([
         id: "noCondoLayer",
       });
 
-      // noCondosLayer.renderer = {
-      //   type: "simple",
-      //   symbol: {
-      //     type: "simple-fill",
-      //     color: [255, 255, 255, 0],
-      //     outline: {
-      //       width: 1,
-      //       color: [169, 169, 169, 1],
-      //     },
-      //   },
-      // };
-
       let CondosLayer = new FeatureLayer({
         url: `${configVars.condoLayer}`,
         visible: false,
@@ -816,19 +848,6 @@ require([
         title: "Parcel Boundaries",
         id: "condoLayer",
       });
-
-      // CondosLayer.renderer = {
-      //   type: "simple", // autocasts as new SimpleRenderer()
-      //   symbol: {
-      //     type: "simple-fill", // autocasts as new SimpleMarkerSymbol()
-      //     color: [255, 255, 255, 0],
-      //     outline: {
-      //       // autocasts as new SimpleLineSymbol()
-      //       width: 1,
-      //       color: [169, 169, 169, 1],
-      //     },
-      //   },
-      // };
 
       const CondosTable = new FeatureLayer({
         url: `${configVars.masterTable}`,
@@ -841,12 +860,151 @@ require([
       webmap.add(noCondosLayer);
       webmap.add(CondosLayer);
 
-      CondosTable.load().then(() => {
-        webmap.tables.add(CondosTable);
-      });
-      noCondosTable.load().then(() => {
-        webmap.tables.add(noCondosTable);
-      });
+      multiFilterConfigurations = [
+        {
+          layer: CondosLayer,
+          field: "Appraised_Total",
+          filterSelector: "#app-val-min",
+          filterSelector2: "#app-val-max",
+        },
+        {
+          layer: CondosLayer,
+          field: "Assessed_Total",
+          filterSelector: "#assess-val-min",
+          filterSelector2: "#assess-val-max",
+        },
+        {
+          layer: CondosLayer,
+          field: "Total_Acres",
+          filterSelector: "#acres-val-min",
+          filterSelector2: "#acres-val-max",
+        },
+        {
+          layer: CondosLayer,
+          field: "Sale_Date",
+          filterSelector: "#sold_calendar_lowest",
+          filterSelector2: "#sold_calendar_highest",
+        },
+        {
+          layer: CondosLayer,
+          field: "Sale_Price",
+          filterSelector: "#saleP-val-min",
+          filterSelector2: "#saleP-val-max",
+        },
+      ];
+
+      filterConfigurations = [
+        {
+          layer: CondosLayer,
+          field: "Street_Name",
+          filterSelector: "#streetFilter",
+          alias: "Street_Name",
+          message: "Select a Street Name",
+        },
+        {
+          layer: CondosLayer,
+          field: "Owner",
+          filterSelector: "#ownerFilter",
+          message: "Select a Owner",
+        },
+        {
+          layer: CondosLayer,
+          field: "Parcel_Type",
+          filterSelector: "#propertyFilter",
+          alias: "Parcel_Type",
+          message: "Select a Property Type",
+        },
+        {
+          layer: CondosLayer,
+          field: "Building_Type",
+          filterSelector: "#buildingFilter",
+          message: "Select a Building Type",
+        },
+        {
+          layer: CondosLayer,
+          field: "Building_Use_Code",
+          filterSelector: "#buildingUseFilter",
+          message: "Select a Building Use Type",
+        },
+        {
+          layer: CondosLayer,
+          field: "Design_Type",
+          filterSelector: "#designTypeFilter",
+          message: "Select a Design Type",
+        },
+        {
+          layer: CondosLayer,
+          field: "Zoning",
+          filterSelector: "#zoningFilter",
+          message: "Select a Zone",
+        },
+        {
+          layer: CondosLayer,
+          field: "Neighborhood",
+          filterSelector: "#neighborhoodFilter",
+          message: "Select a Neighborhood",
+        },
+      ];
+
+      filterConfigs = [
+        {
+          layer: CondosLayer,
+          field: "Appraised_Total",
+          filterSelector: "#streetFilter",
+          minInput: "app-val-min",
+          maxInput: "app-val-max",
+          minValField: "appraisedValueMin",
+          maxValueField: "appraisedValueMax",
+          index: 0,
+        },
+        {
+          layer: CondosLayer,
+          field: "Assessed_Total",
+          filterSelector: "#ownerFilter",
+          minInput: "assess-val-min",
+          maxInput: "assess-val-max",
+          minValField: "assessedValueMin",
+          maxValueField: "assessedValueMax",
+          index: 1,
+        },
+        {
+          layer: CondosLayer,
+          field: "Total_Acres",
+          filterSelector: "#propertyFilter",
+          minInput: "acres-val-min",
+          maxInput: "acres-val-max",
+          minValField: "acresValueMin",
+          maxValueField: "acresValueMax",
+          index: 2,
+        },
+        {
+          layer: CondosLayer,
+          field: "Sale_Date",
+          filterSelector: "#buildingFilter",
+          minInput: "sold_calendar_lowest",
+          maxInput: "sold_calendar_highest",
+          minValField: "soldOnMin",
+          maxValueField: "soldOnMax",
+          index: 3,
+        },
+        {
+          layer: CondosLayer,
+          field: "Sale_Price",
+          filterSelector: "#buildingUseFilter",
+          minInput: "saleP-val-min",
+          maxInput: "saleP-val-max",
+          minValField: "soldPMin",
+          maxValueField: "soldPMax",
+          index: 4,
+        },
+      ];
+
+      // CondosTable.load().then(() => {
+      //   webmap.tables.add(CondosTable);
+      // });
+      // noCondosTable.load().then(() => {
+      //   webmap.tables.add(noCondosTable);
+      // });
 
       view.when(function () {
         let watchLayer;
@@ -863,8 +1021,6 @@ require([
           (layer) => layer.id === watchLayer
         );
 
-        // Check if the specific layer was found
-        // if (specificLayer) {
         reactiveUtils.watch(
           () => specificLayer.visible,
           () => {
@@ -872,14 +1028,6 @@ require([
             updateLayerUI(specificLayer.id, isVisible);
           }
         );
-        // Watch for visibility changes on the specific layer
-        // reactiveUtils.watch(specificLayer, "visible", function (isVisible) {
-        //   // Update UI based on the layer's visibility
-        //   updateLayerUI(specificLayer.id, isVisible);
-        // });
-        // } else {
-        //   console.error("Layer not found.");
-        // }
       });
 
       function updateLayerUI(layerId, isVisible) {
@@ -929,17 +1077,6 @@ require([
 
           // Append the item to the specified container
           container.append(item);
-
-          // Add click event listener for the action
-          // $(`#action-${layer.id}`).on("click", function () {
-          //   // Toggle visibility
-          //   layer.visible = !layer.visible;
-
-          //   // Swap the icon based on the new visibility state
-          //   var newIcon = layer.visible ? "minus" : "plus";
-          //   $(this).attr("icon", newIcon);
-
-          // });
         }
       }
 
@@ -1025,272 +1162,547 @@ require([
         overRide = bool;
       }
 
-      function generateFilters() {
-        let query = noCondosLayer.createQuery();
-        query.where = `1=1 AND Street_Name IS NOT NULL`;
-        query.returnDistinctValues = true;
-        query.returnGeometry = false;
-        query.orderByFields = ["Street_Name ASC"]; // Adjust based on your needs
-        query.outFields = ["Street_Name"];
+      function showWaiting(id) {
+        const Filter = $(id);
 
-        CondosLayer.queryFeatures(query).then(function (response) {
-          var features = response.features;
-          var comboBox = $("#streetFilter");
+        if (Filter[0].tagName === "CALCITE-COMBOBOX") {
+          Filter[0].open = false;
+          Filter[0].disabled = true;
+          Filter[0].placeholder = "Loading...";
+        } else if (Filter[0].tagName === "CALCITE-INPUT-TEXT") {
+          // Filter[0].open = false;
+          Filter[0].loading = true;
+          Filter[0].disabled = true;
+          Filter[0].placeholder = "Loading...";
+        } else if (Filter[0].tagName === "CALCITE-DATE-PICKER") {
+          Filter[0].disabled = true;
+        }
+      }
 
-          // let streetFilteEle = $("#streetFilter");
-          features.forEach(function (feature) {
-            var name = feature.attributes.Street_Name; // Assuming 'Name' is the field you want to display
-            // var id = feature.attributes.OBJECTID; // Assuming 'Id' is the value you want to use
+      function hideWaiting(id, message) {
+        const Filter = $(id);
 
-            // Create a new Calcite ComboBox item
-            var newItem;
-            if (name == "" || null || undefined) {
-              return;
-            } else {
-              // Create a new Calcite ComboBox item
-              newItem = $(
-                '<calcite-combobox-item value="' +
-                  name +
-                  '" text-label="' +
-                  name +
-                  '"></calcite-combobox-item>'
-              );
-            }
+        if (Filter[0].tagName === "CALCITE-COMBOBOX") {
+          Filter[0].disabled = false;
+          Filter[0].placeholder = `${message}`;
+        } else if (Filter[0].tagName === "CALCITE-INPUT-TEXT") {
+          Filter[0].disabled = false;
+          Filter[0].loading = false;
+          Filter[0].placeholder = `${message}`;
+        } else if (Filter[0].tagName === "CALCITE-DATE-PICKER") {
+          Filter[0].disabled = false;
+        }
+      }
 
-            // Append the new item to the ComboBox
-            comboBox.append(newItem);
+      let queryMultiVals = {
+        // streetName: null,
+        // owner: null,
+        appraisedValueMin: null,
+        appraisedValueMax: null,
+        assessedValueMin: null,
+        assessedValueMax: null,
+        // zoningType: null,
+        // neighborhoodType: null,
+        // propertyType: null,
+        // buildingType: null,
+        // buildingUseType: null,
+        // designType: null,
+        acresValueMin: null,
+        acresValueMax: null,
+        soldOnMin: null,
+        soldOnMax: null,
+        soldPMin: null,
+        soldPMax: null,
+      };
+
+      // function checkQueryValues() {
+      //   for (const key in queryParameters) {
+      //     // Check if the object has this key (not from the prototype chain)
+      //     if (queryParameters.hasOwnProperty(key)) {
+      //       // Check if the value is not empty
+      //       if (
+      //         queryParameters[key] !== null &&
+      //         queryParameters[key] !== undefined &&
+      //         queryParameters[key] !== "" &&
+      //         queryParameters[key] !== 0
+      //       ) {
+      //         return false; // If any value is not empty, return false
+      //       }
+      //     }
+      //   }
+      //   return true;
+      // }
+
+      let debounceTimer4;
+
+      function triggerMultiFilter(queryField, val, val2) {
+        function runMultiFilter() {
+          const indexVal = filterConfigurations.findIndex(
+            (item) => item.field == queryField
+          );
+          filterConfigurations.splice(indexVal, 1);
+
+          filterConfigurations.forEach((config) => {
+            generateMultiFilter(
+              config.layer,
+              queryField,
+              config.filterSelector,
+              val,
+              config.field,
+              val2,
+              config.message
+            );
           });
-        });
+        }
 
-        let query2 = noCondosLayer.createQuery();
-        query2.where = `1=1 AND Owner IS NOT NULL`;
-        query2.returnDistinctValues = true;
-        query2.returnGeometry = false; // Adjust based on your needs
-        query2.outFields = ["Owner"];
+        function throttleQuery() {
+          clearTimeout(debounceTimer4);
+          debounceTimer4 = setTimeout(() => {
+            runMultiFilter();
+          }, 600);
+        }
+        throttleQuery();
+      }
 
-        CondosLayer.queryFeatures(query2).then(function (response) {
+      let debounceTimer3;
+
+      async function generateDateFilter(
+        queryLayer,
+        fieldName,
+        comboBoxSelector,
+        value,
+        outField,
+        value2
+      ) {
+        try {
+          // Log the inputs for debugging
+          // console.log(`Querying ${fieldName} between ${value} and ${value2}`);
+
+          let query = CondosTable.createQuery();
+
+          if (Array.isArray(value) && value.length > 0 && !value2) {
+            // Construct the WHERE clause for multiple values
+            let whereClauses = value.map((val) => `${fieldName} = '${val}'`);
+            query.where = whereClauses.join(" OR ");
+          } else if (value && value2) {
+            query.where = `${fieldName} BETWEEN '${value}' AND '${value2}'`;
+          } else {
+            // Construct the WHERE clause for a single value
+            query.where = `${fieldName} = '${value}'`;
+          }
+
+          // query.where = `${fieldName} BETWEEN '${value}' AND '${value2}'`;
+          // console.log(`Query where clause: ${query.where}`);
+
+          query.returnDistinctValues = true;
+          query.returnGeometry = false;
+          query.outFields = [outField];
+          if (outField) {
+            query.orderByFields = [`${outField} ASC`];
+          }
+
+          let response = await CondosTable.queryFeatures(query);
           var features = response.features;
-          var comboBox = $("#ownerFilter");
+          let values = features.map((feature) => feature.attributes[outField]);
 
-          // let streetFilteEle = $("#streetFilter");
-          features.forEach(function (feature) {
-            var name = feature.attributes.Owner; // Assuming 'Name' is the field you want to display
-            // var id = feature.attributes.OBJECTID; // Assuming 'Id' is the value you want to use
+          // Log the values for debugging
+          // console.log(`Queried values: ${values}`);
 
-            var newItem;
-            if (name == "" || null || undefined) {
-              return;
-            } else {
-              // Create a new Calcite ComboBox item
-              newItem = $(
-                '<calcite-combobox-item value="' +
-                  name +
-                  '" text-label="' +
-                  name +
-                  '"></calcite-combobox-item>'
-              );
-            }
+          // Find the max and min values
+          let maxValue = Math.max(...values);
+          let minValue = Math.min(...values);
 
-            // Append the new item to the ComboBox
-            comboBox.append(newItem);
-          });
-        });
+          switch (outField) {
+            case "Sale_Date":
+              let dateL = new Date(minValue);
+              let dateM = new Date(maxValue);
 
-        let query3 = noCondosLayer.createQuery();
-        query3.where = `1=1 AND Parcel_Type IS NOT NULL`;
-        query3.returnDistinctValues = true;
-        query3.returnGeometry = false;
-        query3.orderByFields = ["Parcel_Type ASC"]; // Adjust based on your needs
-        query3.outFields = ["Parcel_Type"];
+              // Extract the components
+              let yearL = dateL.getFullYear();
+              let monthL = ("0" + (dateL.getMonth() + 1)).slice(-2); // Months are zero-indexed
+              let dayL = ("0" + dateL.getDate()).slice(-2);
 
-        CondosLayer.queryFeatures(query3).then(function (response) {
-          // console.log(response);
+              let yearM = dateM.getFullYear();
+              let monthM = ("0" + (dateM.getMonth() + 1)).slice(-2); // Months are zero-indexed
+              let dayM = ("0" + dateM.getDate()).slice(-2);
 
-          var features = response.features;
-          var comboBox = $("#propertyFilter");
+              // Format the date as yyyy-MM-dd
+              let formattedDateL = `${yearL}-${monthL}-${dayL}`;
+              let formattedDateM = `${yearM}-${monthM}-${dayM}`;
 
-          features.forEach(function (feature) {
-            var name = feature.attributes.Parcel_Type; // Assuming 'Name' is the field you want to display
-            var newItem;
-            if (name == "" || null || undefined) {
-              return;
-            } else {
-              // Create a new Calcite ComboBox item
-              newItem = $(
-                '<calcite-combobox-item value="' +
-                  name +
-                  '" text-label="' +
-                  name +
-                  '"></calcite-combobox-item>'
-              );
-            }
+              queryMultiVals.soldOnMin = formattedDateL;
+              queryMultiVals.soldOnMax = formattedDateM;
+              break;
+            case "Appraised_Total":
+              queryMultiVals.appraisedValueMin = minValue;
+              queryMultiVals.appraisedValueMax = maxValue;
+              break;
+            case "Assessed_Total":
+              queryMultiVals.assessedValueMin = minValue;
+              queryMultiVals.assessedValueMax = maxValue;
+              break;
+            case "Sale_Price":
+              queryMultiVals.soldPMin = minValue;
+              queryMultiVals.soldPMax = maxValue;
+              break;
+            case "Total_Acres":
+              queryMultiVals.acresValueMin = minValue;
+              queryMultiVals.acresValueMax = maxValue;
+              break;
+            default:
+              console.log(`Sorry, no field found.`);
+          }
 
-            // Append the new item to the ComboBox
-            comboBox.append(newItem);
-          });
-        });
+          // console.log(queryMultiVals);
 
-        let query4 = noCondosLayer.createQuery();
-        query4.where = `1=1 AND Building_Type IS NOT NULL`;
-        query4.returnDistinctValues = true;
-        query4.returnGeometry = false; // Adjust based on your needs
-        query4.outFields = ["Building_Type"];
+          function throttleQuery() {
+            clearTimeout(debounceTimer3);
+            debounceTimer3 = setTimeout(() => {
+              updateSliderInputs(fieldName);
+            }, 600);
+          }
+          throttleQuery();
+        } catch (error) {
+          console.error("Error querying features:", error);
+        }
+      }
 
-        CondosLayer.queryFeatures(query4).then(function (response) {
-          var features = response.features;
-          var comboBox = $("#buildingFilter");
+      async function runSequentialQueries(queryItems, queryField, val, val2) {
+        for (const fields of queryItems) {
+          await generateDateFilter(
+            fields.layer,
+            queryField,
+            fields.filterSelector,
+            val,
+            fields.field,
+            val2
+          );
+        }
+      }
 
-          features.forEach(function (feature) {
-            var name = feature.attributes.Building_Type; // Assuming 'Name' is the field you want to display
-            // Create a new Calcite ComboBox item
-            var newItem;
-            if (name == "" || null || undefined) {
-              return;
-            } else {
-              // Create a new Calcite ComboBox item
-              newItem = $(
-                '<calcite-combobox-item value="' +
-                  name +
-                  '" text-label="' +
-                  name +
-                  '"></calcite-combobox-item>'
-              );
-            }
+      function triggerMultiDates(queryField, val, val2) {
+        const indexVal = multiFilterConfigurations.findIndex(
+          (item) => item.field == queryField
+        );
+        multiFilterConfigurations.splice(indexVal, 1);
+        // ADD FILTER IF FIELD IS SELECTED
+        // var queryItems = multiFilterConfigurations.filter(
+        //   (item) => item.field != queryField
+        // );
+        runSequentialQueries(multiFilterConfigurations, queryField, val, val2);
+      }
 
-            // Append the new item to the ComboBox
-            comboBox.append(newItem);
-          });
-        });
+      function updateSliderInputs(queryField) {
+        // Filter the filterConfigs array based on your criteria
+        // var relevantFilters = filterConfigs.filter(
+        //   (slider) => slider.field !== queryField
+        // );
 
-        let query5 = noCondosLayer.createQuery();
-        query5.where = `1=1 AND Building_Use_Code IS NOT NULL`;
-        query5.returnDistinctValues = true;
-        query5.returnGeometry = false; // Adjust based on your needs
-        query5.outFields = ["Building_Use_Code"];
+        const indexVal = filterConfigs.findIndex(
+          (item) => item.field == queryField
+        );
+        filterConfigs.splice(indexVal, 1);
 
-        CondosLayer.queryFeatures(query5).then(function (response) {
-          var features = response.features;
-          var comboBox = $("#buildingUseFilter");
+        filterConfigs.forEach((slider) => {
+          const sliderInputMin = document.getElementById(slider.minInput);
+          const sliderInputMax = document.getElementById(slider.maxInput);
 
-          features.forEach(function (feature) {
-            var name = feature.attributes.Building_Use_Code; // Assuming 'Name' is the field you want to display
-            var newItem;
-            if (name == "" || null || undefined) {
-              return;
-            } else {
-              // Create a new Calcite ComboBox item
-              newItem = $(
-                '<calcite-combobox-item value="' +
-                  name +
-                  '" text-label="' +
-                  name +
-                  '"></calcite-combobox-item>'
-              );
-            }
+          let minVal = queryMultiVals[slider.minValField];
+          const maxVal = queryMultiVals[slider.maxValueField];
 
-            // Append the new item to the ComboBox
-            comboBox.append(newItem);
-          });
-        });
+          if (minVal === maxVal) {
+            minVal = 0;
+          }
 
-        let query6 = noCondosLayer.createQuery();
-        query6.where = `1=1 AND Design_Type IS NOT NULL`;
-        query6.returnDistinctValues = true;
-        query6.returnGeometry = false; // Adjust based on your needs
-        query6.outFields = ["Design_Type"];
+          let minStr;
+          let maxStr;
 
-        CondosLayer.queryFeatures(query6).then(function (response) {
-          var features = response.features;
-          var comboBox = $("#designTypeFilter");
-
-          // let streetFilteEle = $("#streetFilter");
-          features.forEach(function (feature) {
-            var name = feature.attributes.Design_Type; // Assuming 'Name' is the field you want to display
-            // var id = feature.attributes.OBJECTID; // Assuming 'Id' is the value you want to use
-
-            var newItem;
-            if (name == "" || null || undefined) {
-              return;
-            } else {
-              // Create a new Calcite ComboBox item
-              newItem = $(
-                '<calcite-combobox-item value="' +
-                  name +
-                  '" text-label="' +
-                  name +
-                  '"></calcite-combobox-item>'
-              );
-            }
-
-            // Append the new item to the ComboBox
-            comboBox.append(newItem);
-          });
-        });
-
-        let query7 = noCondosLayer.createQuery();
-        query7.where = `1=1 AND Zoning IS NOT NULL`;
-        query7.returnDistinctValues = true;
-        query7.returnGeometry = false; // Adjust based on your needs
-        query7.outFields = ["Zoning"];
-
-        CondosLayer.queryFeatures(query7).then(function (response) {
-          var features = response.features;
-          var comboBox = $("#zoningFilter");
-
-          features.forEach(function (feature) {
-            var name = feature.attributes.Zoning; // Assuming 'Name' is the field you want to display
-            var newItem;
-            if (name == "" || null || undefined) {
-              return;
-            } else {
-              // Create a new Calcite ComboBox item
-              newItem = $(
-                '<calcite-combobox-item value="' +
-                  name +
-                  '" text-label="' +
-                  name +
-                  '"></calcite-combobox-item>'
-              );
-            }
-
-            // Append the new item to the ComboBox
-            comboBox.append(newItem);
-          });
-        });
-
-        let query8 = noCondosLayer.createQuery();
-        query8.where = `1=1 AND Neighborhood IS NOT NULL`;
-        query8.returnDistinctValues = true;
-        query8.returnGeometry = false; // Adjust based on your needs
-        query8.outFields = ["Neighborhood"];
-
-        CondosLayer.queryFeatures(query8).then(function (response) {
-          var features = response.features;
-          var comboBox = $("#neighborhoodFilter");
-
-          features.forEach(function (feature) {
-            var name = feature.attributes.Neighborhood; // Assuming 'Name' is the field you want to display
-            var newItem;
-            if (name == "" || null || undefined) {
-              return;
-            } else {
-              // Create a new Calcite ComboBox item
-              newItem = $(
-                '<calcite-combobox-item value="' +
-                  name +
-                  '" text-label="' +
-                  name +
-                  '"></calcite-combobox-item>'
-              );
-            }
-
-            // Append the new item to the ComboBox
-            comboBox.append(newItem);
-          });
+          if (
+            slider.field === "Appraised_Total" ||
+            slider.field === "Assessed_Total" ||
+            slider.field === "Sale_Price"
+          ) {
+            minStr =
+              "$" + (minVal !== undefined ? minVal.toLocaleString() : "");
+            maxStr =
+              "$" + (maxVal !== undefined ? maxVal.toLocaleString() : "");
+            sliderInputMin.value = minStr;
+            sliderInputMax.value = maxStr;
+          } else if (slider.field === "Sale_Date") {
+            sliderInputMin.value = minVal !== undefined ? minVal : "";
+            sliderInputMax.value = maxVal !== undefined ? maxVal : "";
+          } else if (slider.field === "Total_Acres") {
+            minStr = minVal !== undefined ? minVal.toLocaleString() : "";
+            maxStr = maxVal !== undefined ? maxVal.toLocaleString() : "";
+            sliderInputMin.value = minStr;
+            sliderInputMax.value = maxStr;
+          }
         });
       }
 
-      generateFilters();
+      function generateMultiFilter(
+        queryLayer,
+        fieldName,
+        comboBoxSelector,
+        value,
+        outField,
+        value2,
+        message
+      ) {
+        showWaiting(comboBoxSelector);
+        var comboBox = $(comboBoxSelector);
+        comboBox.empty();
+
+        let query = CondosTable.createQuery();
+
+        if (Array.isArray(value) && value.length > 0 && !value2) {
+          // Construct the WHERE clause for multiple values
+          let whereClauses = value.map((val) => `${fieldName} = '${val}'`);
+          query.where = whereClauses.join(" OR ");
+        } else if (value && value2) {
+          query.where = `${fieldName} BETWEEN '${value}' AND '${value2}'`;
+        } else {
+          // Construct the WHERE clause for a single value
+          query.where = `${fieldName} = '${value}'`;
+        }
+
+        query.returnDistinctValues = true;
+        query.returnGeometry = false;
+        query.outFields = [outField];
+        if (outField) {
+          query.orderByFields = [`${outField} ASC`];
+        }
+
+        CondosTable.queryFeatures(query).then(function (response) {
+          var features = response.features;
+          var comboBox = $(comboBoxSelector);
+          comboBox.empty();
+
+          features.forEach(function (feature) {
+            var name = feature.attributes[outField];
+            if (name && name.trim()) {
+              var newItem = $(
+                `<calcite-combobox-item value="${name}" text-label="${name}"></calcite-combobox-item>`
+              );
+              comboBox.append(newItem);
+            }
+          });
+
+          hideWaiting(comboBoxSelector, message);
+        });
+      }
+
+      function generateFilter(
+        queryLayer,
+        fieldName,
+        comboBoxSelector,
+        message
+      ) {
+        showWaiting(comboBoxSelector);
+        var comboBox = $(comboBoxSelector);
+        comboBox.empty();
+
+        let query = CondosTable.createQuery();
+        query.where = `1=1 AND ${fieldName} IS NOT NULL`;
+        query.returnDistinctValues = true;
+        query.returnGeometry = false;
+        if (fieldName) {
+          query.orderByFields = [`${fieldName} ASC`];
+        }
+        query.outFields = [fieldName];
+
+        CondosTable.queryFeatures(query).then(function (response) {
+          var features = response.features;
+          var comboBox = $(comboBoxSelector);
+
+          features.forEach(function (feature) {
+            var name = feature.attributes[fieldName];
+            if (name && name.trim()) {
+              var newItem = $(
+                `<calcite-combobox-item value="${name}" text-label="${name}"></calcite-combobox-item>`
+              );
+              comboBox.append(newItem);
+            }
+          });
+        });
+        hideWaiting(comboBoxSelector, message);
+      }
+
+      generateFilter(
+        CondosLayer,
+        "Street_Name",
+        "#streetFilter",
+        "Select a Street Name"
+      );
+      generateFilter(CondosLayer, "Owner", "#ownerFilter", "Select a Owner");
+      generateFilter(
+        CondosLayer,
+        "Parcel_Type",
+        "#propertyFilter",
+        "Select a Property Type"
+      );
+      generateFilter(
+        CondosLayer,
+        "Building_Type",
+        "#buildingFilter",
+        "Select a Building Type"
+      );
+      generateFilter(
+        CondosLayer,
+        "Building_Use_Code",
+        "#buildingUseFilter",
+        "Select a Building Use"
+      );
+      generateFilter(
+        CondosLayer,
+        "Design_Type",
+        "#designTypeFilter",
+        "Select a Design Type"
+      );
+      generateFilter(CondosLayer, "Zoning", "#zoningFilter", "Select a Zone");
+      generateFilter(
+        CondosLayer,
+        "Neighborhood",
+        "#neighborhoodFilter",
+        "Select a Neighborhood"
+      );
+
+      document
+        .getElementById("Print-selector")
+        .addEventListener("click", function () {
+          captureMap();
+        });
+
+      function captureMap() {
+        const printDPI = 300; // Standard print DPI
+        const pageWidthInInches = 8.5; // Width of the paper in inches
+        const pageHeightInInches = 11; // Height of the paper in inches
+        const mapWidthInInches = 8; // Slightly reduced width of the map on paper in inches
+        const mapHeightInInches = 7; // Slightly reduced height of the map on paper in inches
+        const mapWidthInPixels = mapWidthInInches * printDPI;
+        const mapHeightInPixels = mapHeightInInches * printDPI;
+
+        view
+          .takeScreenshot({
+            width: mapWidthInPixels,
+            height: mapHeightInPixels,
+          })
+          .then(function (screenshot) {
+            const title = "Map Title"; // Set your dynamic title here
+            const printWindow = window.open("", "_blank");
+            const scaleBar1 = document.getElementById("scale-value");
+            const scaleBarHTML = scaleBar1.innerHTML;
+            const currentDate = new Date().toLocaleString();
+
+            printWindow.document.write(`
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>Print Map</title>
+              <link rel="stylesheet" href="https://js.arcgis.com/4.27/esri/themes/light/main.css">
+              <style>
+                  body {
+                      display: flex;
+                      flex-direction: column;
+                      align-items: center;
+                      justify-content: center;
+                      margin: 0;
+                      padding: 0;
+                  }
+                  .print-title {
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      text-align: center;
+                      font-size: 24px;
+                      margin: 20px 0;
+                  }
+                  .print-scale {
+                      display: flex;
+                      align-items: center;
+                      justify-content: space-around;
+                      text-align: center;
+                      font-size: 14px;
+                      width: 100%;
+                      margin-left: 20px;
+                      margin-right: 20px;
+                  }
+                  .print-title img {
+                      margin-right: 20px;
+                  }
+                  .scale-bar-container {
+                      transform: scale(1.5);
+                      margin-right: 50px;
+                  }
+                  .print-scale-bar {
+                      width: 300px;
+                      height: 30px;
+                  }
+                  .info-writing-container {
+                      display: flex;
+                      justify-content: center;
+                      align-items: flex-start;
+                      width: 80%;
+                      margin: 20px auto;
+                  }
+                  .info-text {
+                      width: 20%;
+                      text-align: left;
+                      margin-right: 20px;
+                  }
+                  .writing-lines {
+                      width: 80%;
+                      text-align: center;
+                  }
+                  .writing-lines div {
+                      border-bottom: 1px solid black;
+                      margin: 10px 0;
+                      height: 20px;
+                  }
+                  @media print {
+                      body * {
+                          visibility: visible;
+                      }
+                  }
+              </style>
+          </head>
+          <body>
+              <div class="print-title" id="print-title">
+                  <img id="town-logo" src="${configVars.welcomeImage}" alt="Town Logo">
+                  <h1 id="title-text">${configVars.title}</h1>
+              </div>
+              <div class="print-map">
+                  <img id="print-map-image" src="${screenshot.dataUrl}" alt="Map Image" style="width: ${mapWidthInInches}in; height: auto; border: 3px solid #A9A9A9; margin: 0 0.75in;">
+              </div>
+              <div class="print-scale">
+                  <div class="print-date" style="font-size: 12px;">Date Printed: ${currentDate}</div>
+                  <div id="to-scale" class="scale-bar-container"></div>
+                  <div id="print-scale-bar" class="scale-bar-container">${scaleBarHTML}</div>
+              </div>
+              <div style="text-align: center; font-size: 12px; padding-left: 30px; padding-right: 30px;">
+                  <p>Disclaimer: This map is intended for reference and general informational purposes
+                  only and is not a legally recorded map or survey. While reasonable effort has been
+                  made to ensure the accuracy, correctness, and timeliness of materials presented,
+                  the map vendor and the municipality disclaim any and all liability and responsibility for
+                  any errors, omissions, or inaccuracies in the data provided, including without limitation
+                  any liability for direct, indirect, incidental, consequential, special, exemplary,
+                  punitive, or any other type of damages. Users are hereby notified that the primary
+                  information source should be consulted for verification of the data contained herein.
+                  Continued use of this map acknowledges acceptance of these terms.</p>
+              </div>
+              <script>
+                  window.onload = function() {
+                      window.print();
+                  };
+              </script>
+          </body>
+          </html>
+        `);
+            printWindow.document.close();
+          });
+      }
 
       function clearContents(e, string) {
         const currentUrl = window.location.href;
@@ -1320,11 +1732,15 @@ require([
           }
         }
 
+        handleUsed = "";
+
         if (select) {
           overRideSelect(true);
         } else {
           overRideSelect(false);
         }
+
+        // $("#scale-value").val("").html("Select Scale");
 
         // clickHandle = view.on("click", handleClick);
         //$("#lasso").removeClass("btn-warning");
@@ -1351,11 +1767,12 @@ require([
         firstList = [];
         secondList = [];
         zoomToObjectID = "";
-
+        $(".spinner-container").hide();
         $("#distanceButton").removeClass("active");
         $("#areaButton").removeClass("active");
         $("#result-btns").hide();
         $("#details-btns").hide();
+        $("#abut-mail").hide();
         $("#dropdown").toggleClass("expanded");
         $("#dropdown").hide();
         $("#results-div").css("left", "0px");
@@ -1571,13 +1988,12 @@ require([
           let displayNoGeometry = sessionStorage.getItem("condos") === "yes";
 
           if (!locationCoOwner && locationGeom) {
-            listItemHTML = ` <div class="listText">UID: ${locationUniqueId} &nbsp; &nbsp; &nbsp; &nbsp;&nbsp; &nbsp;MBL: ${locationMBL} <br> ${locationOwner} ${locationCoOwner} <br> ${locationVal} <br> Property Type: ${propertyType}</div><div class="justZoomBtn"><button type="button" class="btn btn-primary btn-sm justZoom" title="Zoom to Parcel"><calcite-icon icon="magnifying-glass-plus" scale="s"/>Zoom</button><button type="button" class="btn btn-primary btn-sm justRemove" title="Remove from Search List"><calcite-icon icon="minus-circle" scale="s"/>Remove</button></div>`;
+            listItemHTML = ` <div class="listText">UID: ${locationUniqueId}  &nbsp;<br>MBL: ${locationMBL} <br> ${locationOwner} ${locationCoOwner} <br> ${locationVal} <br> Property Type: ${propertyType} <br><a target="_blank" class='pdf-links' rel="noopener noreferrer" href=https://publicweb-gis.s3.amazonaws.com/PDFs/${configVars.parcelMapUrl}/Quick_Maps/QM_${locationUniqueId}.pdf>PDF Map</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a target="_blank" class='pdf-links' rel="noopener noreferrer" href=${configVars.propertyCard}&amp;uniqueid=${locationUniqueId}>Property Card</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </div><div class="justZoomBtn"><button type="button" class="btn btn-primary btn-sm justZoom" title="Zoom to Parcel"><calcite-icon icon="magnifying-glass-plus" scale="s"/>Zoom</button><button type="button" class="btn btn-primary btn-sm justRemove" title="Remove from Search List"><calcite-icon icon="minus-circle" scale="s"/>Remove</button></div>`;
           } else if (!locationGeom) {
-            listItemHTML = ` <div class="listText">UID: ${locationUniqueId} &nbsp; &nbsp; &nbsp; &nbsp;&nbsp; &nbsp;MBL: ${locationMBL} <br> ${locationOwner} ${locationCoOwner} <br> ${locationVal} <br> Property Type: ${propertyType}</div><div class="justZoomBtn"><button type="button" class="btn btn-primary btn-sm justRemove" title="Remove from Search List"><calcite-icon icon="minus-circle" scale="s"/>Remove</button></div>`;
+            listItemHTML = ` <div class="listText">UID: ${locationUniqueId}  &nbsp;<br>MBL: ${locationMBL} <br> ${locationOwner} ${locationCoOwner} <br> ${locationVal} <br> Property Type: ${propertyType} <br><a target="_blank" class='pdf-links' rel="noopener noreferrer" href=https://publicweb-gis.s3.amazonaws.com/PDFs/${configVars.parcelMapUrl}/Quick_Maps/QM_${locationUniqueId}.pdf>PDF Map</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a target="_blank" class='pdf-links' rel="noopener noreferrer" href=${configVars.propertyCard}&amp;uniqueid=${locationUniqueId}>Property Card</a></div><div class="justZoomBtn"><button type="button" class="btn btn-primary btn-sm justRemove" title="Remove from Search List"><calcite-icon icon="minus-circle" scale="s"/>Remove</button></div>`;
           } else {
-            listItemHTML = ` <div class="listText">UID: ${locationUniqueId} &nbsp; &nbsp; &nbsp; &nbsp;&nbsp; &nbsp;MBL: ${locationMBL} <br> ${locationOwner} ${locationCoOwner} <br> ${locationVal} <br> Property Type: ${propertyType}</div><div class="justZoomBtn"><button type="button" class="btn btn-primary btn-sm justZoom" title="Zoom to Parcel"><calcite-icon icon="magnifying-glass-plus" scale="s"/>Zoom</button><button type="button" class="btn btn-primary btn-sm justRemove" title="Remove from Search List"><calcite-icon icon="minus-circle" scale="s"/>Remove</button></div>`;
+            listItemHTML = ` <div class="listText">UID: ${locationUniqueId}  &nbsp;<br>MBL: ${locationMBL} <br> ${locationOwner} ${locationCoOwner} <br> ${locationVal} <br> Property Type: ${propertyType} <br><a target="_blank" class='pdf-links' rel="noopener noreferrer" href=https://publicweb-gis.s3.amazonaws.com/PDFs/${configVars.parcelMapUrl}/Quick_Maps/QM_${locationUniqueId}.pdf>PDF Map</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a target="_blank" class='pdf-links' rel="noopener noreferrer" href=${configVars.propertyCard}&amp;uniqueid=${locationUniqueId}>Property Card</a></div><div class="justZoomBtn"><button type="button" class="btn btn-primary btn-sm justZoom" title="Zoom to Parcel"><calcite-icon icon="magnifying-glass-plus" scale="s"/>Zoom</button><button type="button" class="btn btn-primary btn-sm justRemove" title="Remove from Search List"><calcite-icon icon="minus-circle" scale="s"/>Remove</button></div>`;
           }
-
           listItem.innerHTML += listItemHTML;
           listItem.setAttribute("object-id", objectID);
           listItem.setAttribute("data-id", locationGISLINK);
@@ -1623,6 +2039,7 @@ require([
           $("#ResultDiv").hide();
           $("#abutters-content").hide();
           $("#details-btns").show();
+          $("#abut-mail").show();
           $("#detailBox").show();
           $("#backButton").show();
           $("#detailsButton").hide();
@@ -1633,7 +2050,7 @@ require([
           $("#exportResults").hide();
           $("#csvExportResults").hide();
           $("#csvExportSearch").hide();
-          $("#results-div").css("height", "150px");
+          $("#results-div").css("height", "300px");
           $("#backButton-div").css("padding-top", "0px");
           $(".center-container").hide();
 
@@ -1723,6 +2140,11 @@ require([
         const featureWidDiv = document.getElementById("featureWid");
         const listGroup = document.createElement("ul");
 
+        // if (uniqueArray.length <= 0) {
+        //   clearContents();
+        //   alert("Parcel Selection did not return any results.");
+        // }
+
         uniqueArray.forEach(function (feature) {
           // console.log(feature);
 
@@ -1764,11 +2186,11 @@ require([
           }
 
           if (!locationCoOwner && locationGeom) {
-            listItemHTML = ` <div class="listText">UID: ${locationUniqueId}  &nbsp;<br>MBL: ${locationMBL} <br> ${locationOwner} ${locationCoOwner} <br> ${locationVal} <br> Property Type: ${propertyType}</div><div class="justZoomBtn"><button type="button" class="btn btn-primary btn-sm justZoom" title="Zoom to Parcel"><calcite-icon icon="magnifying-glass-plus" scale="s"/>Zoom</button><button type="button" class="btn btn-primary btn-sm justRemove" title="Remove from Search List"><calcite-icon icon="minus-circle" scale="s"/>Remove</button></div>`;
+            listItemHTML = ` <div class="listText">UID: ${locationUniqueId}  &nbsp;<br>MBL: ${locationMBL} <br> ${locationOwner} ${locationCoOwner} <br> ${locationVal} <br> Property Type: ${propertyType} <br><a target="_blank" class='pdf-links' rel="noopener noreferrer" href=https://publicweb-gis.s3.amazonaws.com/PDFs/${configVars.parcelMapUrl}/Quick_Maps/QM_${locationUniqueId}.pdf>PDF Map</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a target="_blank" class='pdf-links' rel="noopener noreferrer" href=${configVars.propertyCard}&amp;uniqueid=${locationUniqueId}>Property Card</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </div><div class="justZoomBtn"><button type="button" class="btn btn-primary btn-sm justZoom" title="Zoom to Parcel"><calcite-icon icon="magnifying-glass-plus" scale="s"/>Zoom</button><button type="button" class="btn btn-primary btn-sm justRemove" title="Remove from Search List"><calcite-icon icon="minus-circle" scale="s"/>Remove</button></div>`;
           } else if (!locationGeom) {
-            listItemHTML = ` <div class="listText">UID: ${locationUniqueId}  &nbsp;<br>MBL: ${locationMBL} <br> ${locationOwner} ${locationCoOwner} <br> ${locationVal} <br> Property Type: ${propertyType}</div><div class="justZoomBtn"><button type="button" class="btn btn-primary btn-sm justRemove" title="Remove from Search List"><calcite-icon icon="minus-circle" scale="s"/>Remove</button></div>`;
+            listItemHTML = ` <div class="listText">UID: ${locationUniqueId}  &nbsp;<br>MBL: ${locationMBL} <br> ${locationOwner} ${locationCoOwner} <br> ${locationVal} <br> Property Type: ${propertyType} <br><a target="_blank" class='pdf-links' rel="noopener noreferrer" href=https://publicweb-gis.s3.amazonaws.com/PDFs/${configVars.parcelMapUrl}/Quick_Maps/QM_${locationUniqueId}.pdf>PDF Map</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a target="_blank" class='pdf-links' rel="noopener noreferrer" href=${configVars.propertyCard}&amp;uniqueid=${locationUniqueId}>Property Card</a></div><div class="justZoomBtn"><button type="button" class="btn btn-primary btn-sm justRemove" title="Remove from Search List"><calcite-icon icon="minus-circle" scale="s"/>Remove</button></div>`;
           } else {
-            listItemHTML = ` <div class="listText">UID: ${locationUniqueId}  &nbsp;<br>MBL: ${locationMBL} <br> ${locationOwner} ${locationCoOwner} <br> ${locationVal} <br> Property Type: ${propertyType}</div><div class="justZoomBtn"><button type="button" class="btn btn-primary btn-sm justZoom" title="Zoom to Parcel"><calcite-icon icon="magnifying-glass-plus" scale="s"/>Zoom</button><button type="button" class="btn btn-primary btn-sm justRemove" title="Remove from Search List"><calcite-icon icon="minus-circle" scale="s"/>Remove</button></div>`;
+            listItemHTML = ` <div class="listText">UID: ${locationUniqueId}  &nbsp;<br>MBL: ${locationMBL} <br> ${locationOwner} ${locationCoOwner} <br> ${locationVal} <br> Property Type: ${propertyType} <br><a target="_blank" class='pdf-links' rel="noopener noreferrer" href=https://publicweb-gis.s3.amazonaws.com/PDFs/${configVars.parcelMapUrl}/Quick_Maps/QM_${locationUniqueId}.pdf>PDF Map</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a target="_blank" class='pdf-links' rel="noopener noreferrer" href=${configVars.propertyCard}&amp;uniqueid=${locationUniqueId}>Property Card</a></div><div class="justZoomBtn"><button type="button" class="btn btn-primary btn-sm justZoom" title="Zoom to Parcel"><calcite-icon icon="magnifying-glass-plus" scale="s"/>Zoom</button><button type="button" class="btn btn-primary btn-sm justRemove" title="Remove from Search List"><calcite-icon icon="minus-circle" scale="s"/>Remove</button></div>`;
           }
 
           // Append the new list item to the list
@@ -1792,6 +2214,7 @@ require([
         $("#layerListDiv").hide();
         $("#result-btns").hide();
         $("#details-btns").hide();
+        $("#abut-mail").hide();
         $("#featureWid").show();
         $("#detail-content").empty();
         $("#dropdown").toggleClass("expanded");
@@ -1806,12 +2229,13 @@ require([
         $("#WelcomeBox").hide();
         // $("#results-div").css("height", "200px");
 
-        if (uniqueArray.length < 1) {
-          $("#exportSearch").hide();
-        } else {
-          $("#exportSearch").show();
-        }
-        $("#results-div").css("height", "200px");
+        // if (uniqueArray.length <= 1) {
+        //   $("#exportSearch").hide();
+        $("#csvExportResults").hide();
+        // } else {
+        $("#exportSearch").show();
+        // }
+        $("#results-div").css("height", "300px");
         $("#exportButtons").show();
         $("#exportResults").hide();
         $("#csvExportSearch").show();
@@ -1821,7 +2245,8 @@ require([
         listGroup.addEventListener("click", function (event) {
           if (
             event.target.closest(".justZoom") ||
-            event.target.closest(".justZoomBtn")
+            event.target.closest(".justZoomBtn") ||
+            event.target.closest(".pdf-links")
           ) {
             return; // Exit the handler early if a button was clicked
           }
@@ -1855,6 +2280,7 @@ require([
           $("#ResultDiv").hide();
           $("#abutters-content").hide();
           $("#details-btns").show();
+          $("#abut-mail").show();
           $("#detailBox").show();
           $("#backButton").show();
           $("#detailsButton").hide();
@@ -1865,7 +2291,7 @@ require([
           $("#exportResults").hide();
           $("#csvExportResults").hide();
           $("#csvExportSearch").hide();
-          $("#results-div").css("height", "150px");
+          $("#results-div").css("height", "300px");
           $("#backButton-div").css("padding-top", "0px");
           $(".center-container").hide();
           $("#abutters-attributes").prop("disabled", false);
@@ -1974,7 +2400,7 @@ require([
           });
         }
 
-        if (e) {
+        if (e && e != undefined) {
           pointGraphic = features[0].attributes.OBJECTID;
           pointLocation = features[0].attributes.Location;
           pointGisLink = features[0].attributes.GIS_LINK;
@@ -2086,16 +2512,11 @@ require([
               (g) => g.id === bufferGraphicId
             );
 
-            // const graphicIndex2 = polygonGraphics2.findIndex(
-            //   (g) => g.id === bufferGraphicId
-            // );
             if (polygonGraphics.length === 1) {
               polygonGraphics.splice(0, 1);
             } else {
               polygonGraphics.splice(graphicIndex, 1);
             }
-
-            // polygonGraphics2.splice(graphicIndex, 1);
 
             if (polygonGraphics.length === 0) {
               if (!DetailsHandle) {
@@ -2109,7 +2530,7 @@ require([
             }
 
             // will zoom to extent of adding and deselecting
-            // view.goTo(polygonGraphics);
+            view.goTo(polygonGraphics);
           } else {
             graphicsLayer.addMany(polygonGraphics2);
           }
@@ -2160,7 +2581,7 @@ require([
               graphicsLayer.addMany(polygonGraphics2);
             }
 
-            view.goTo(polygonGraphics);
+            view.goTo(polygonGraphics2);
           }
         }
 
@@ -2518,7 +2939,7 @@ require([
           runQuerySearchTerm = e.target.value.toUpperCase();
         });
 
-      function queryRelatedRecords(searchTerm, urlSearch) {
+      function queryRelatedRecords(searchTerm, urlSearch, filterQuery) {
         if (sessionStorage.getItem("condos") === "no") {
           noCondosLayer.visible = true;
         } else {
@@ -2527,7 +2948,13 @@ require([
 
         $(".spinner-container").show();
         const tableSearch = true;
-        let whereClause = `
+
+        let whereClause;
+
+        // if (filterQuery) {
+        //   whereClause = filterQuery;
+        // } else {
+        whereClause = `
           Street_Name LIKE '%${searchTerm}%' OR 
           MBL LIKE '%${searchTerm}%' OR 
           Location LIKE '%${searchTerm}%' OR 
@@ -2536,23 +2963,36 @@ require([
           Owner LIKE '%${searchTerm}%' OR 
           GIS_LINK LIKE '%${searchTerm}%'
       `;
+        // }
+
+        let query;
+
+        if (filterQuery) {
+          query = filterQuery;
+        } else {
+          query = CondosTable.createQuery();
+          query.where = whereClause;
+          query.returnGeometry = false;
+          query.returnHiddenFields = true; // Adjust based on your needs
+          query.outFields = ["*"];
+        }
 
         let GISLINK;
 
-        let query = noCondosLayer.createQuery();
-        query.where = whereClause;
-        query.returnGeometry = true; // Adjust based on your needs
-        query.outFields = ["*"];
+        // let query = noCondosLayer.createQuery();
+        // query.where = whereClause;
+        // query.returnGeometry = true; // Adjust based on your needs
+        // query.outFields = ["*"];
 
-        let query2 = CondosLayer.createQuery();
-        query2.where = whereClause;
-        query2.returnGeometry = true; // Adjust based on your needs
-        query2.outFields = ["*"];
+        // let query2 = CondosLayer.createQuery();
+        // query2.where = whereClause;
+        // query2.returnGeometry = true; // Adjust based on your needs
+        // query2.outFields = ["*"];
 
         let triggerUrl;
 
         if (sessionStorage.getItem("condos") === "no") {
-          noCondosLayer.queryFeatures(query).then(function (result) {
+          noCondosLayer.queryFeatures(filterQuery).then(function (result) {
             triggerUrl = result.features;
             if (result.features.length >= 1) {
               triggerUrl = result.features;
@@ -2596,6 +3036,10 @@ require([
                 noCondosTable
                   .queryFeatures(firstQuery)
                   .then(function (result) {
+                    if (result.features.length <= 0) {
+                      clearContents();
+                      alert("Search resulted in an error, please try again.");
+                    }
                     GISLINK = result.features[0].attributes.GIS_LINK;
                   })
                   .then(function (result) {
@@ -2626,7 +3070,7 @@ require([
             }
           });
         } else {
-          CondosLayer.queryFeatures(query2).then(function (result) {
+          CondosLayer.queryFeatures(query).then(function (result) {
             triggerUrl = result.features;
             if (result.features) {
               // console.log(`condos result: ${result}`);
@@ -2635,7 +3079,6 @@ require([
               } else {
                 view.goTo({
                   target: result.features,
-                  // zoom: 15,
                 });
               }
               addPolygons(result, view.graphics);
@@ -2671,6 +3114,7 @@ require([
         $("#ResultDiv").hide();
         $("#abutters-content").hide();
         $("#details-btns").show();
+        $("#abut-mail").show();
         $("#detailBox").show();
         $("#backButton").show();
         $("#detailsButton").hide();
@@ -2678,7 +3122,7 @@ require([
         $("#selected-feature").empty();
         $("#exportSearch").hide();
         $("#exportButtons").hide();
-        $("#results-div").css("height", "150px");
+        $("#results-div").css("height", "300px");
         $("#backButton-div").css("padding-top", "0px");
         $("#abutters-attributes").prop("disabled", false);
         $("#abutters-zoom").prop("disabled", false);
@@ -2701,6 +3145,10 @@ require([
               zoomToDetail(objID, geom, item);
               clickDetailsPanel(totalResults);
             } else {
+              $("#results-div").css("height", "300px");
+              $("#backButton-div").css("padding-top", "0px");
+              $(".center-container").hide();
+              $("#layerListDiv").hide();
               $("#details-spinner").hide();
               $("#featureWid").hide();
               $("#result-btns").hide();
@@ -2708,19 +3156,20 @@ require([
               $("#ResultDiv").hide();
               $("#abutters-content").hide();
               $("#details-btns").show();
+              $("#abut-mail").show();
               $("#detailBox").show();
               $("#backButton").show();
               $("#detailsButton").hide();
               $("#detail-content").html(
                 `<h5 style="color: red;">Issue selecting Parcel. Please make another selection.</h5>`
               );
+
               $("#abutters-attributes").prop("disabled", true);
               $("#abutters-zoom").prop("disabled", true);
               $("#selected-feature").empty();
               $("#exportSearch").hide();
               $("#exportButtons").hide();
-              $("#results-div").css("height", "150px");
-              $("#backButton-div").css("padding-top", "0px");
+
               return;
             }
           });
@@ -2749,6 +3198,7 @@ require([
               $("#ResultDiv").hide();
               $("#abutters-content").hide();
               $("#details-btns").show();
+              $("#abut-mail").show();
               $("#detailBox").show();
               $("#backButton").show();
               $("#detailsButton").hide();
@@ -2760,7 +3210,7 @@ require([
               $("#selected-feature").empty();
               $("#exportSearch").hide();
               $("#exportButtons").hide();
-              $("#results-div").css("height", "150px");
+              $("#results-div").css("height", "300px");
               $("#backButton-div").css("padding-top", "0px");
 
               // alert("Error: please select parcel within town boundary");
@@ -2833,6 +3283,7 @@ require([
             $("#total-results").show();
             $("#ResultDiv").show();
             $("#details-btns").hide();
+            $("#abut-mail").hide();
             $("#detail-content").empty();
             $("#backButton").hide();
             $("#detailsButton").hide();
@@ -2844,10 +3295,11 @@ require([
             $("#csvExportSearch").show();
             $("#exportButtons").show();
             $("#exportSearch").show();
-            $("#results-div").css("height", "200px");
+            $("#results-div").css("height", "300px");
             $(".center-container").show();
             view.graphics.removeAll();
             view.graphics.addMany(polygonGraphics);
+            view.goTo(polygonGraphics);
           } else {
             $("#total-results").hide();
             $("#ResultDiv").hide();
@@ -2926,6 +3378,7 @@ require([
           $("#filterDiv").hide();
           $("#layerListDiv").hide();
           $("#details-btns").show();
+          $("#abut-mail").show();
           $("#detail-content").show();
           $("#detailBox").show();
           $("#backButton").show();
@@ -2940,7 +3393,7 @@ require([
           $("#exportButtons").hide();
           $("#abutters-title").html(`Abutting Parcels (0)`);
           $("#backButton-div").css("padding-top", "0px");
-          $("#results-div").css("height", "150px");
+          $("#results-div").css("height", "300px");
           if (DetailsHandle) {
             DetailsHandle?.remove();
             DetailsHandle = null;
@@ -2967,7 +3420,7 @@ require([
             clickHandle?.remove();
             clickHandle = null;
           }
-          $("#results-div").css("height", "200px");
+          $("#results-div").css("height", "300px");
           $("#exportButtons").show();
           $("#exportResults").show();
           $("#exportSearch").hide();
@@ -2980,6 +3433,7 @@ require([
           $("#total-results").hide();
           $("#ResultDiv").hide();
           $("#details-btns").hide();
+          $("#abut-mail").hide();
           $("#filterDiv").hide();
           $("#layerListDiv").hide();
           $("#abutters-content").show();
@@ -3006,7 +3460,7 @@ require([
             clickHandle?.remove();
             clickHandle = null;
           }
-          $("#results-div").css("height", "200px");
+          $("#results-div").css("height", "300px");
           $("#exportButtons").show();
           $("#exportResults").show();
           $("#exportButtons").show();
@@ -3020,6 +3474,7 @@ require([
           $("#total-results").hide();
           $("#ResultDiv").hide();
           $("#details-btns").hide();
+          $("#abut-mail").hide();
           $("#filterDiv").hide();
           $("#layerListDiv").hide();
           $("#abutters-content").show();
@@ -3046,6 +3501,7 @@ require([
           $("#total-results").hide();
           $("#ResultDiv").hide();
           $("#details-btns").hide();
+          $("#abut-mail").hide();
           $("#exportSearch").hide();
           $("#csvExportSearch").hide();
           $("#abutters-content").hide();
@@ -3061,7 +3517,7 @@ require([
           $("#results-div").css("left", "350px");
           $("#left-arrow-2").show();
           $("#right-arrow-2").hide();
-          $("#results-div").css("height", "200px");
+          $("#results-div").css("height", "300px");
           $("#parcel-feature").empty();
           $("#backButton").show();
           $("#backButton-div").css("padding-top", "0px");
@@ -3081,6 +3537,7 @@ require([
           $("#total-results").hide();
           $("#ResultDiv").hide();
           $("#details-btns").hide();
+          $("#abut-mail").hide();
           $("#exportSearch").hide();
           $("#csvExportResults").hide();
           $("#csvExportSearch").hide();
@@ -3098,7 +3555,7 @@ require([
           $("#results-div").css("left", "350px");
           $("#left-arrow-2").show();
           $("#right-arrow-2").hide();
-          $("#results-div").css("height", "200px");
+          $("#results-div").css("height", "300px");
           $("#layerListDiv").show();
           // $("#detailsButton").show();
           $("#parcel-feature").empty();
@@ -3132,12 +3589,12 @@ require([
             let Mail_State = feature.Mail_State;
             let Mailing_Zip = feature.Mailing_Zip;
             let Location = feature.location;
-            let uniqueid = feature.uniqueId;
+            let MBL = feature.MBL;
             const listItem = document.createElement("li");
             listItem.classList.add("export-search-list");
             let listItemHTML;
 
-            listItemHTML = ` ${owner} ${coOwner} <br> UniqueID: ${uniqueid} <br> ${mailingAddress} <br> ${Mailing_City}, ${Mail_State} ${Mailing_Zip}`;
+            listItemHTML = ` ${owner} ${coOwner} <br> MBL: ${MBL} <br> ${mailingAddress} <br> ${Mailing_City}, ${Mail_State} ${Mailing_Zip}`;
 
             listItem.innerHTML += listItemHTML;
             listItem.setAttribute("object-id", objectID);
@@ -3156,7 +3613,6 @@ require([
       $(document).ready(function () {
         $("#csvExportResults").on("click", function (e) {
           e.stopPropagation();
-
           // Initialize headers for CSV
           const headers = [
             "Owner",
@@ -3166,13 +3622,11 @@ require([
             "Mailing City",
             "Mailing State",
             "Mailing Zip",
-            "Uniqueid",
+            "MBL",
             "Location",
           ];
-
           // Create CSV content with row headers
           let csvContent = headers.join(",") + "\n";
-
           // Loop through each feature in foundLocs array
           exportCsv.forEach(function (feature) {
             let owner = feature.attributes["Owner"] || "";
@@ -3183,12 +3637,10 @@ require([
             let Mail_State = feature.attributes["Mail_State"] || "";
             let Mailing_Zip = feature.attributes["Mailing_Zip"] || "";
             let Location = feature.attributes["Location"] || "";
-            let uniqueid = feature.attributes["Uniqueid"] || "";
-
+            let MBL = feature.attributes["MBL"] || "";
             // Append data to CSV content
-            csvContent += `"${owner}","${coOwner}","${mailingAddress}","${mailingAddress2}","${Mailing_City}","${Mail_State}","${Mailing_Zip}","${uniqueid}","${Location}"\n`;
+            csvContent += `"${owner}","${coOwner}","${mailingAddress}","${mailingAddress2}","${Mailing_City}","${Mail_State}","'${Mailing_Zip}'","${MBL}","${Location}"\n`;
           });
-
           // Create blob
           const blob = new Blob([csvContent], {
             type: "text/csv;charset=utf-8;",
@@ -3220,7 +3672,7 @@ require([
             "Mailing City",
             "Mailing State",
             "Mailing Zip",
-            "Uniqueid",
+            "MBL",
             "Location",
           ];
 
@@ -3234,12 +3686,14 @@ require([
             let mailingAddress2 = feature.mailingAddress2 || "";
             let Mailing_City = feature.Mailing_City || "";
             let Mail_State = feature.Mail_State || "";
-            let Mailing_Zip = feature.Mailing_Zip || "";
+            let Mailing_Zip = feature.Mailing_Zip
+              ? `'${feature.Mailing_Zip.toString().padStart(5, "0")}'`
+              : ""; // Ensure leading zeros are preserved
             let Location = feature.location || "";
-            let uniqueid = feature.uniqueId || "";
+            let MBL = feature.MBL || "";
 
             // Append data to CSV content
-            csvContent += `"${owner}","${coOwner}","${mailingAddress}","${mailingAddress2}","${Mailing_City}","${Mail_State}","${Mailing_Zip}","${uniqueid}","${Location}"\n`;
+            csvContent += `"${owner}","${coOwner}","${mailingAddress}","${mailingAddress2}","${Mailing_City}","${Mail_State}","${Mailing_Zip}","${MBL}","${Location}"\n`;
           });
 
           // Create blob
@@ -3285,14 +3739,14 @@ require([
             let Mail_State = feature.attributes.Mail_State;
             let Mailing_Zip = feature.attributes.Mailing_Zip;
             let Location = feature.location;
-            let uniqueid = feature.attributes.Uniqueid;
+            let MBL = feature.attributes.MBL;
 
             const listItem = document.createElement("li");
             listItem.classList.add("abutters-group-list");
 
             let listItemHTML;
 
-            listItemHTML = ` ${owner} ${coOwner} <br> UniqueID: ${uniqueid} <br> ${mailingAddress} <br> ${Mailing_City}, ${Mail_State} ${Mailing_Zip}`;
+            listItemHTML = ` ${owner} ${coOwner} <br> MBL: ${MBL} <br> ${mailingAddress} <br> ${Mailing_City}, ${Mail_State} ${Mailing_Zip}`;
 
             listItem.innerHTML += listItemHTML;
             listItem.setAttribute("object-id", objectID);
@@ -3527,7 +3981,7 @@ require([
           $("#abutters-spinner").hide();
           $("#abutters-title").html(`Abutting Parcels (${totalResults})`);
         });
-        $("#results-div").css("height", "200px");
+        $("#results-div").css("height", "300px");
         $("#exportResults").show();
         $("#csvExportResults").show();
       }
@@ -3685,7 +4139,7 @@ require([
             });
           });
         }
-        $("#results-div").css("height", "200px");
+        $("#results-div").css("height", "300px");
         $("#exportResults").show();
         $("#csvExportResults").show();
       }
@@ -3720,7 +4174,6 @@ require([
         view.graphics.add(newBufferGraphic);
         view.goTo({
           target: newBufferGraphic,
-          zoom: oldZoom,
         });
       }
 
@@ -3882,43 +4335,49 @@ require([
         details.innerHTML = "";
         details.classList.add("details");
 
+        let cards = configVars.DetailLinksToInclude;
+        let allCards = configVars.DetailLinks;
+        let panels = [];
+
+        allCards.forEach((item) => {
+          let panel = item;
+          if (cards.includes(item)) {
+            let obj = {
+              [panel]: { show: "show" },
+            };
+            panels.push(obj);
+          } else {
+            let obj = {
+              [panel]: { show: "none" },
+            };
+            panels.push(obj);
+          }
+        });
+
         details.innerHTML = `
-        <p>
-        <span style="font-family:Tahoma;font-size:14px;"><strong>${Location}</strong></span> <br>
-        </p>
+      <p>
+      <span style="font-family:Tahoma;font-size:14px;"><strong>${Location}</strong></span> <br>
+      </p>
 
-        <div>
-        <img class="image" src=${configVars.imageUrl}${locationUniqueId}.jpg alt="Building Photo" width="250" height="125"><br>
-        </div>
-        <p>
-        <span style="font-family:Tahoma;font-size:12px;"><strong>${locationOwner} ${locationCoOwner}</strong></span> <br>
-        <span style="font-family:Tahoma;font-size:12px;"><strong>${mailingAddress}</strong></span> <br>
-        <span style="font-family:Tahoma;font-size:12px;"><strong>${Mailing_City} ${Mail_State} ${Mailing_Zip}</strong></span><br>
-
-        </p>
-        <p>
-        <span style="font-family:Tahoma;font-size:12px;">Unique ID: <strong>${locationUniqueId}</strong></span> <br>
-        <span style="font-family:Tahoma;font-size:12px;">MBL: <strong>${locationMBL}</strong></span> <br>
-        <span style="font-family:Tahoma;font-size:12px;">Total Acres: <strong>${Total_Acres}</strong></span> <br>
-        <span style="font-family:Tahoma;font-size:12px;">Primary Use: <strong>${Parcel_Primary_Use}</strong></span> <br>
-        <span style="font-family:Tahoma;font-size:12px;">Primary Bldg Use: <strong>${Building_Use_Code}</strong></span><br>
-
-        </p>
-        <p>
-        <span style="font-family:Tahoma;font-size:12px;"><strong>Latest Qualified Sale:</strong></span> <br>
-        <span style="font-family:Tahoma;font-size:12px;">Sold on: <strong>${Sale_Date}</strong></span> <br>
-        <span style="font-family:Tahoma;font-size:12px;">Sale Price: <strong>$${Sale_Price}</strong></span> <br>
-        <span style="font-family:Tahoma;font-size:12px;">Volume/Page: <strong>${Vol_Page}</strong></span><br>
-
-        </p>
-        <p>
-        <span style="font-family:Tahoma;font-size:12px;"><strong>Valuations:</strong></span><br>
-        <span style="font-family:Tahoma;font-size:12px;">GL Year: <strong>${Prior_Assessment_Year}</strong></span> <br>
-        <span style="font-family:Tahoma;font-size:12px;">Assessment: <strong>$${Prior_Assessed_Total}</strong></span> <br>
-        <span style="font-family:Tahoma;font-size:12px;">Appraised: <strong>$${Prior_Appraised_Total}</strong></span> <br>
-        <span style="font-family:Tahoma;font-size:12px;"></span>
-        </p>
-        <p>   
+      <div>
+      <img class="image" src=${configVars.imageUrl}${locationUniqueId}.jpg alt="Building Photo" width="250" height="125">
+      </div>
+      <p>
+      <span style="font-family:Tahoma;font-size:12px;"><strong>${locationOwner} ${locationCoOwner}</strong></span> <br>
+      <span style="font-family:Tahoma;font-size:12px;"><strong>${mailingAddress}</strong></span> <br>
+      <span style="font-family:Tahoma;font-size:12px;"><strong>${Mailing_City} ${Mail_State} ${Mailing_Zip}</strong></span><br>
+  </p>
+  <div id="accordion">
+    <div class="card" id="links" style="display:${panels[0].links.show}">
+      <div class="card-header" id="headingOne">
+          <h5 class="mb-0">
+          <button class="btn btn-link collapsed" style="width: fit-content;" data-toggle="collapse" data-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+              Property Links
+          </button>
+        </h5>
+    </div>
+    <div id="collapseOne" class="collapse" aria-labelledby="OneFour" data-parent="#accordion">
+      <div class="card-body">
         <a target="_blank" rel="noopener noreferrer" href=${configVars.propertyCard}&amp;uniqueid=${locationUniqueId}><span style="font-family:Tahoma;font-size:12px;"><strong>Property Card</strong></span></a><br>
         <a target="_blank" rel="noopener noreferrer" href=https://publicweb-gis.s3.amazonaws.com/PDFs/${configVars.parcelMapUrl}/Quick_Maps/QM_${Id}.pdf><span style="font-family:Tahoma;font-size:12px;"><strong>Parcel Map</strong></span></a><span style="font-family:Tahoma;font-size:12px;"> </span><br>
         <a target="_blank" rel="noopener noreferrer" href=${configVars.taxMap_Url}${map_pdf}.pdf><span style="font-family:Tahoma;font-size:12px;"><strong>Tax Map</strong></span></a><br>
@@ -3927,8 +4386,71 @@ require([
         <a target="_blank" rel="noopener noreferrer" href=${configVars.housingUrl}><span style="font-family:Tahoma;font-size:12px;"><strong>Housing Profile</strong></span></a><br>
         <a target="_blank" rel="noopener noreferrer" href=https://www.google.com/maps/@${Lat},${Lon},17z/@${Lat},${Lon},17z/data=!5m1!1e2><span style="font-family:Tahoma;font-size:12px;"><strong>View in Google Maps</strong></span></a><br>
         <a target="_blank" rel="noopener noreferrer" href=https://www.bing.com/maps?cp=${Lat}~${Lon}&lvl=17.0><span style="font-family:Tahoma;font-size:12px;"><strong>View in Bing Maps</strong></span></a><br>
-              
-        `;
+          </div>
+        </div>
+      </div>
+        <div class="card " id="ids" style="display:${panels[1].ids.show}">
+            <div class="card-header" id="headingTwo">
+            <h5 class="mb-0">
+                <button class="btn btn-link collapsed" style="width: fit-content;" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                Property Ids & Uses
+                </button>
+            </h5>
+            </div>
+            <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
+                <div class="card-body">
+                  <p>
+                  <span style="font-family:Tahoma;font-size:12px;">Unique ID: <strong>${locationUniqueId}</strong></span> <br>
+                  <span style="font-family:Tahoma;font-size:12px;">MBL: <strong>${locationMBL}</strong></span> <br>
+                  <span style="font-family:Tahoma;font-size:12px;">Total Acres: <strong>${Total_Acres}</strong></span> <br>
+                  <span style="font-family:Tahoma;font-size:12px;">Primary Use: <strong>${Parcel_Primary_Use}</strong></span> <br>
+                  <span style="font-family:Tahoma;font-size:12px;">Primary Bldg Use: <strong>${Building_Use_Code}</strong></span><br>
+                  </p>
+                </div>
+            </div>
+        </div>
+    <div class="card" id="sales" style="display:${panels[3].sales.show}" >
+    <div class="card-header" id="headingThree">
+      <h5 class="mb-0">
+        <button class="btn btn-link collapsed" style="width: fit-content;" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+          Latest Sale / Transfer
+        </button>
+      </h5>
+    </div>
+    <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordion">
+      <div class="card-body">
+        <p>
+        <span style="font-family:Tahoma;font-size:12px;"><strong>Latest Qualified Sale:</strong></span> <br>
+        <span style="font-family:Tahoma;font-size:12px;">Sold on: <strong>${Sale_Date}</strong></span> <br>
+        <span style="font-family:Tahoma;font-size:12px;">Sale Price: <strong>$${Sale_Price}</strong></span> <br>
+        <span style="font-family:Tahoma;font-size:12px;">Volume/Page: <strong>${Vol_Page}</strong></span><br>
+        </p>
+      </div>
+    </div>
+  </div>
+  <div class="card" id="vals" style="display:${panels[2].vals.show}">
+    <div class="card-header" id="headingFour">
+        <h5 class="mb-0">
+          <button class="btn btn-link collapsed" style="width: fit-content;" data-toggle="collapse" data-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+            Valuations
+          </button>
+        </h5>
+      </div>
+      <div id="collapseFour" class="collapse" aria-labelledby="headingFour" data-parent="#accordion">
+        <div class="card-body">
+            <p>
+            <span style="font-family:Tahoma;font-size:12px;"><strong>Valuations:</strong></span><br>
+            <span style="font-family:Tahoma;font-size:12px;">GL Year: <strong>${Prior_Assessment_Year}</strong></span> <br>
+            <span style="font-family:Tahoma;font-size:12px;">Assessment: <strong>$${Prior_Assessed_Total}</strong></span> <br>
+            <span style="font-family:Tahoma;font-size:12px;">Appraised: <strong>$${Prior_Appraised_Total}</strong></span> <br>
+            <span style="font-family:Tahoma;font-size:12px;"></span>
+            </p>
+        </div>
+    </div>
+  </div>
+</div>
+    `;
+
         $("#details-spinner").hide();
         detailsDiv.appendChild(details);
       }
@@ -4064,6 +4586,8 @@ require([
           matchedObject.Total_Acres === undefined
             ? ""
             : matchedObject.Total_Acres;
+
+        let AcreCheck = Number(Total_Acres);
         let Parcel_Primary_Use =
           matchedObject.Parcel_Primary_Use === undefined
             ? ""
@@ -4150,19 +4674,6 @@ require([
           Id = locationGIS_LINK;
         }
 
-        if (
-          !locationGeom ||
-          locationGeom == "" ||
-          locationGeom == undefined ||
-          locationGeom === null
-        ) {
-          $("#abutters-attributes").prop("disabled", true);
-          $("#abutters-zoom").prop("disabled", true);
-        } else {
-          $("#abutters-attributes").prop("disabled", false);
-          $("#abutters-zoom").prop("disabled", false);
-        }
-
         // zoomToItemId = locationUniqueId;
         zoomToObjectID = objectID2;
 
@@ -4173,132 +4684,126 @@ require([
         details.innerHTML = "";
         details.classList.add("details");
 
+        let cards = configVars.DetailLinksToInclude;
+        let allCards = configVars.DetailLinks;
+        let panels = [];
+
+        allCards.forEach((item) => {
+          let panel = item;
+          if (cards.includes(item)) {
+            let obj = {
+              [panel]: { show: "show" },
+            };
+            panels.push(obj);
+          } else {
+            let obj = {
+              [panel]: { show: "none" },
+            };
+            panels.push(obj);
+          }
+        });
+
+        console.log(panels);
+
         details.innerHTML = `
-    <p>
-    <span style="font-family:Tahoma;font-size:14px;"><strong>${Location}</strong></span> <br>
-    </p>
+      <p>
+      <span style="font-family:Tahoma;font-size:14px;"><strong>${Location}</strong></span> <br>
+      </p>
 
-    <div>
-    <img class="image" src=${configVars.imageUrl}${locationUniqueId}.jpg alt="Building Photo" width="250" height="125"><br>
+      <div>
+      <img class="image" src=${configVars.imageUrl}${locationUniqueId}.jpg alt="Building Photo" width="250" height="125">
+      </div>
+      <p>
+      <span style="font-family:Tahoma;font-size:12px;"><strong>${locationOwner} ${locationCoOwner}</strong></span> <br>
+      <span style="font-family:Tahoma;font-size:12px;"><strong>${mailingAddress}</strong></span> <br>
+      <span style="font-family:Tahoma;font-size:12px;"><strong>${Mailing_City} ${Mail_State} ${Mailing_Zip}</strong></span><br>
+  </p>
+  <div id="accordion">
+    <div class="card" id="links" style="display:${panels[0].links.show}">
+      <div class="card-header" id="headingOne">
+          <h5 class="mb-0">
+          <button class="btn btn-link collapsed" style="width: fit-content;" data-toggle="collapse" data-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+              Property Links
+          </button>
+        </h5>
     </div>
-    <p>
-    <span style="font-family:Tahoma;font-size:12px;"><strong>${locationOwner} ${locationCoOwner}</strong></span> <br>
-    <span style="font-family:Tahoma;font-size:12px;"><strong>${mailingAddress}</strong></span> <br>
-    <span style="font-family:Tahoma;font-size:12px;"><strong>${Mailing_City} ${Mail_State} ${Mailing_Zip}</strong></span><br>
-
-    </p>
-    <p>
-    <span style="font-family:Tahoma;font-size:12px;">Unique ID: <strong>${locationUniqueId}</strong></span> <br>
-    <span style="font-family:Tahoma;font-size:12px;">MBL: <strong>${locationMBL}</strong></span> <br>
-    <span style="font-family:Tahoma;font-size:12px;">Total Acres: <strong>${Total_Acres}</strong></span> <br>
-    <span style="font-family:Tahoma;font-size:12px;">Primary Use: <strong>${Parcel_Primary_Use}</strong></span> <br>
-    <span style="font-family:Tahoma;font-size:12px;">Primary Bldg Use: <strong>${Building_Use_Code}</strong></span><br>
-
-    </p>
-    <p>
-    <span style="font-family:Tahoma;font-size:12px;"><strong>Latest Qualified Sale:</strong></span> <br>
-    <span style="font-family:Tahoma;font-size:12px;">Sold on: <strong>${Sale_Date}</strong></span> <br>
-    <span style="font-family:Tahoma;font-size:12px;">Sale Price: <strong>$${Sale_Price}</strong></span> <br>
-    <span style="font-family:Tahoma;font-size:12px;">Volume/Page: <strong>${Vol_Page}</strong></span><br>
-
-    </p>
-    <p>
-    <span style="font-family:Tahoma;font-size:12px;"><strong>Valuations:</strong></span><br>
-    <span style="font-family:Tahoma;font-size:12px;">GL Year: <strong>${Prior_Assessment_Year}</strong></span> <br>
-    <span style="font-family:Tahoma;font-size:12px;">Assessment: <strong>$${Prior_Assessed_Total}</strong></span> <br>
-    <span style="font-family:Tahoma;font-size:12px;">Appraised: <strong>$${Prior_Appraised_Total}</strong></span> <br>
-    <span style="font-family:Tahoma;font-size:12px;"></span>
-    </p>
-    <p>
-    <a target="_blank" rel="noopener noreferrer" href=${configVars.propertyCard}&amp;uniqueid=${locationUniqueId}><span style="font-family:Tahoma;font-size:12px;"><strong>Property Card</strong></span></a><br>
-    <a target="_blank" rel="noopener noreferrer" href=https://publicweb-gis.s3.amazonaws.com/PDFs/${configVars.parcelMapUrl}/Quick_Maps/QM_${Id}.pdf><span style="font-family:Tahoma;font-size:12px;"><strong>Parcel Map</strong></span></a><span style="font-family:Tahoma;font-size:12px;"> </span><br>
-    <a target="_blank" rel="noopener noreferrer" href=${configVars.taxMap_Url}${map_pdf}.pdf><span style="font-family:Tahoma;font-size:12px;"><strong>Tax Map</strong></span></a><br>
-    <a target="_blank" rel="noopener noreferrer" href=${configVars.tax_bill}&amp;uniqueId=${locationUniqueId}><span style="font-family:Tahoma;font-size:12px;"><strong>Tax Bills</strong></span></a><br>
-    <a target="_blank" rel="noopener noreferrer" href=${configVars.pdf_demo}><span style="font-family:Tahoma;font-size:12px;"><strong>Demographics Profile</strong></span></a><br>
-    <a target="_blank" rel="noopener noreferrer" href=${configVars.housingUrl}><span style="font-family:Tahoma;font-size:12px;"><strong>Housing Profile</strong></span></a><br>
-    <a target="_blank" rel="noopener noreferrer" href=https://www.google.com/maps/@${Lat},${Lon},17z/@${Lat},${Lon},17z/data=!5m1!1e2><span style="font-family:Tahoma;font-size:12px;"><strong>View in Google Maps</strong></span></a><br>
-    <a target="_blank" rel="noopener noreferrer" href=https://www.bing.com/maps?cp=${Lat}~${Lon}&lvl=17.0><span style="font-family:Tahoma;font-size:12px;"><strong>View in Bing Maps</strong></span></a><br>
-          
+    <div id="collapseOne" class="collapse" aria-labelledby="OneFour" data-parent="#accordion">
+      <div class="card-body">
+        <a target="_blank" rel="noopener noreferrer" href=${configVars.propertyCard}&amp;uniqueid=${locationUniqueId}><span style="font-family:Tahoma;font-size:12px;"><strong>Property Card</strong></span></a><br>
+        <a target="_blank" rel="noopener noreferrer" href=https://publicweb-gis.s3.amazonaws.com/PDFs/${configVars.parcelMapUrl}/Quick_Maps/QM_${Id}.pdf><span style="font-family:Tahoma;font-size:12px;"><strong>Parcel Map</strong></span></a><span style="font-family:Tahoma;font-size:12px;"> </span><br>
+        <a target="_blank" rel="noopener noreferrer" href=${configVars.taxMap_Url}${map_pdf}.pdf><span style="font-family:Tahoma;font-size:12px;"><strong>Tax Map</strong></span></a><br>
+        <a target="_blank" rel="noopener noreferrer" href=${configVars.tax_bill}&amp;uniqueId=${locationUniqueId}><span style="font-family:Tahoma;font-size:12px;"><strong>Tax Bills</strong></span></a><br>
+        <a target="_blank" rel="noopener noreferrer" href=${configVars.pdf_demo}><span style="font-family:Tahoma;font-size:12px;"><strong>Demographics Profile</strong></span></a><br>
+        <a target="_blank" rel="noopener noreferrer" href=${configVars.housingUrl}><span style="font-family:Tahoma;font-size:12px;"><strong>Housing Profile</strong></span></a><br>
+        <a target="_blank" rel="noopener noreferrer" href=https://www.google.com/maps/@${Lat},${Lon},17z/@${Lat},${Lon},17z/data=!5m1!1e2><span style="font-family:Tahoma;font-size:12px;"><strong>View in Google Maps</strong></span></a><br>
+        <a target="_blank" rel="noopener noreferrer" href=https://www.bing.com/maps?cp=${Lat}~${Lon}&lvl=17.0><span style="font-family:Tahoma;font-size:12px;"><strong>View in Bing Maps</strong></span></a><br>
+          </div>
+        </div>
+      </div>
+        <div class="card " id="ids" style="display:${panels[1].ids.show}">
+            <div class="card-header" id="headingTwo">
+            <h5 class="mb-0">
+                <button class="btn btn-link collapsed" style="width: fit-content;" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                Property Ids & Uses
+                </button>
+            </h5>
+            </div>
+            <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
+                <div class="card-body">
+                  <p>
+                  <span style="font-family:Tahoma;font-size:12px;">Unique ID: <strong>${locationUniqueId}</strong></span> <br>
+                  <span style="font-family:Tahoma;font-size:12px;">MBL: <strong>${locationMBL}</strong></span> <br>
+                  <span style="font-family:Tahoma;font-size:12px;">Total Acres: <strong>${Total_Acres}</strong></span> <br>
+                  <span style="font-family:Tahoma;font-size:12px;">Primary Use: <strong>${Parcel_Primary_Use}</strong></span> <br>
+                  <span style="font-family:Tahoma;font-size:12px;">Primary Bldg Use: <strong>${Building_Use_Code}</strong></span><br>
+                  </p>
+                </div>
+            </div>
+        </div>
+    <div class="card" id="sales" style="display:${panels[3].sales.show}" >
+    <div class="card-header" id="headingThree">
+      <h5 class="mb-0">
+        <button class="btn btn-link collapsed" style="width: fit-content;" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+          Latest Sale / Transfer
+        </button>
+      </h5>
+    </div>
+    <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordion">
+      <div class="card-body">
+        <p>
+        <span style="font-family:Tahoma;font-size:12px;"><strong>Latest Qualified Sale:</strong></span> <br>
+        <span style="font-family:Tahoma;font-size:12px;">Sold on: <strong>${Sale_Date}</strong></span> <br>
+        <span style="font-family:Tahoma;font-size:12px;">Sale Price: <strong>$${Sale_Price}</strong></span> <br>
+        <span style="font-family:Tahoma;font-size:12px;">Volume/Page: <strong>${Vol_Page}</strong></span><br>
+        </p>
+      </div>
+    </div>
+  </div>
+  <div class="card" id="vals" style="display:${panels[2].vals.show}">
+    <div class="card-header" id="headingFour">
+        <h5 class="mb-0">
+          <button class="btn btn-link collapsed" style="width: fit-content;" data-toggle="collapse" data-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+            Valuations
+          </button>
+        </h5>
+      </div>
+      <div id="collapseFour" class="collapse" aria-labelledby="headingFour" data-parent="#accordion">
+        <div class="card-body">
+            <p>
+            <span style="font-family:Tahoma;font-size:12px;"><strong>Valuations:</strong></span><br>
+            <span style="font-family:Tahoma;font-size:12px;">GL Year: <strong>${Prior_Assessment_Year}</strong></span> <br>
+            <span style="font-family:Tahoma;font-size:12px;">Assessment: <strong>$${Prior_Assessed_Total}</strong></span> <br>
+            <span style="font-family:Tahoma;font-size:12px;">Appraised: <strong>$${Prior_Appraised_Total}</strong></span> <br>
+            <span style="font-family:Tahoma;font-size:12px;"></span>
+            </p>
+        </div>
+    </div>
+  </div>
+</div>
     `;
 
         $("#details-spinner").hide();
         detailsDiv.appendChild(details);
-
-        // $(document).ready(function () {
-        //   // Add click event listener to the dynamically generated buttons with class 'justZoom'
-        //   $(document).on("click", ".abutters-zoom", function (event) {
-        //     event.stopPropagation();
-        //     event.preventDefault();
-
-        //     // let targetElement = event.target.closest("li");
-        //     let itemId = locationUniqueId;
-        //     let objectID = objectID2;
-
-        //     console.log(itemId);
-        //     console.log(objectID);
-
-        //     if (sessionStorage.getItem(key) === "no") {
-        //       // If the key doesn't exist, set it to "none"
-        //       let whereClause = `OBJECTID = ${objectID}`;
-        //       let query = noCondosLayer.createQuery();
-        //       query.where = whereClause;
-        //       query.returnGeometry = true;
-        //       query.returnHiddenFields = true; // Adjust based on your needs
-        //       query.outFields = ["*"];
-
-        //       noCondosLayer.queryFeatures(query).then((response) => {
-        //         let feature = response;
-        //         let geometry = feature.features[0].geometry;
-
-        //         // Get the extent of the geometry
-        //         const geometryExtent = geometry.extent;
-
-        //         // Calculate the center of the geometry
-        //         const center = geometryExtent.center;
-
-        //         // Calculate a new extent with a slightly zoomed-out level
-        //         const zoomOutFactor = 3.0; // Adjust as needed
-        //         const newExtent = geometryExtent.expand(zoomOutFactor);
-
-        //         // Set the view to the new extent
-        //         view.goTo({
-        //           target: center, // Center the view on the center of the geometry
-        //           extent: newExtent, // Set the extent to the new adjusted extent
-        //         });
-        //       });
-        //     } else {
-        //       let whereClause = `OBJECTID = ${objectID}`;
-        //       // let whereClause = `GIS_LINK = '${matchingObject[0].GIS_LINK}'`;
-        //       let query = CondosLayer.createQuery();
-        //       query.where = whereClause;
-        //       query.returnGeometry = true;
-        //       query.returnHiddenFields = true; // Adjust based on your needs
-        //       query.outFields = ["*"];
-
-        //       CondosLayer.queryFeatures(query).then((response) => {
-        //         let feature = response;
-        //         let geometry = feature.features[0].geometry;
-
-        //         // Get the extent of the geometry
-        //         const geometryExtent = geometry.extent;
-
-        //         // Calculate the center of the geometry
-        //         const center = geometryExtent.center;
-
-        //         // Calculate a new extent with a slightly zoomed-out level
-        //         const zoomOutFactor = 3.0; // Adjust as needed
-        //         const newExtent = geometryExtent.expand(zoomOutFactor);
-
-        //         // Set the view to the new extent
-        //         view.goTo({
-        //           target: center, // Center the view on the center of the geometry
-        //           extent: newExtent, // Set the extent to the new adjusted extent
-        //         });
-        //       });
-        //       // You can perform any actions you want here, such as zooming to a location
-        //     }
-        //   });
-        // });
       }
 
       function zoomToDetail(objectid, geom, item) {
@@ -4334,26 +4839,8 @@ require([
         view.graphics.addMany([polygonGraphic]);
         view.goTo({
           target: polygonGraphic,
-          zoom: oldZoom,
-          // zoom: 15,
         });
-
-        // buildZoomToFeature(polygonGraphic);
-        // }
-        // } else {
-        // }
       }
-
-      // document
-      //   .getElementsByClassName("justZoom")
-      //   .addEventListener("click", function (e) {
-      //     let targetElement = event.target.closest("li");
-
-      //     let itemId = targetElement.getAttribute("data-id");
-      //     let objectID = targetElement.getAttribute("object-id");
-      //     // buildZoomToFeature(objectID, polygonGraphics, itemId);
-      //     zoomToParcel(objectID, polygonGraphics, itemId);
-      //   });
 
       function zoomToParcel(gisLink) {
         let whereClause = `GIS_LINK = '${gisLink}'`;
@@ -4371,7 +4858,6 @@ require([
 
           view.goTo({
             target: geometry,
-            zoom: oldZoom,
           });
         });
       }
@@ -4424,7 +4910,6 @@ require([
             view.graphics.addMany([polygonGraphic]);
             view.goTo({
               target: polygonGraphic,
-              zoom: oldZoom,
             });
           } else {
             let whereClause = `GIS_LINK = '${gisLink}'`;
@@ -4439,10 +4924,10 @@ require([
               let geometry = feature.features[0].geometry;
 
               targetExtent = geometry;
+              detailsGeometry = geometry;
 
               view.goTo({
                 target: geometry,
-                zoom: oldZoom,
               });
 
               const fillSymbol = {
@@ -4455,7 +4940,7 @@ require([
               };
 
               const polygonGraphic = new Graphic({
-                geometry: targetExtent,
+                geometry: detailsGeometry,
                 symbol: fillSymbol,
                 id: bufferGraphicId,
               });
@@ -4479,7 +4964,6 @@ require([
 
               view.goTo({
                 target: detailsGeometry,
-                zoom: oldZoom,
               });
 
               const fillSymbol = {
@@ -4510,11 +4994,10 @@ require([
                 let feature = response;
                 let geometry = feature.features[0].geometry;
 
-                targetExtent = geometry;
+                detailsGeometry = geometry;
 
                 view.goTo({
                   target: geometry,
-                  zoom: oldZoom,
                 });
 
                 const fillSymbol = {
@@ -4527,7 +5010,7 @@ require([
                 };
 
                 const polygonGraphic = new Graphic({
-                  geometry: targetExtent,
+                  geometry: detailsGeometry,
                   symbol: fillSymbol,
                   id: bufferGraphicId,
                 });
@@ -4657,7 +5140,7 @@ require([
 
       // LOGIC FOR SEARCH OF FEATURE LAYERS AND RELATED RECORDS
 
-      const runQuery = (e) => {
+      const runQuery = (e, filterQuery) => {
         firstList = [];
 
         // Check if the key exists in sessionStorage
@@ -4680,12 +5163,16 @@ require([
 
         let searchTerm = runQuerySearchTerm;
 
-        if (searchTerm.length < 3 || !searchTerm) {
+        if (
+          (searchTerm?.length < 3 && !filterQuery) ||
+          (!searchTerm && !filterQuery)
+        ) {
           clearContents();
           return;
         } else {
           $("#dropdown").toggleClass("expanded");
           $("#details-btns").hide();
+          $("#abut-mail").hide();
           $("#result-btns").hide();
           $("#backButton").hide();
           $("#detailsButton").hide();
@@ -4694,24 +5181,45 @@ require([
           $("#csvExportResults").hide();
           $("#exportButtons").hide();
 
-          let whereClause = `
-              Street_Name LIKE '%${searchTerm}%' OR 
-              MBL LIKE '%${searchTerm}%' OR 
-              Location LIKE '%${searchTerm}%' OR 
-              Co_Owner LIKE '%${searchTerm}%' OR 
-              Uniqueid LIKE '%${searchTerm}%' OR 
-              Owner LIKE '%${searchTerm}%' OR
-              GIS_LINK LIKE '%${searchTerm}%'
-          `;
+          let whereClause;
 
-          let query = noCondosTable.createQuery();
-          query.where = whereClause;
-          query.returnGeometry = false;
-          query.returnHiddenFields = true; // Adjust based on your needs
-          query.outFields = ["*"];
+          // if (filterQuery) {
+          //   whereClause = filterQuery;
+          // } else {
 
-          noCondosTable
-            .queryFeatures(query)
+          whereClause = `
+          Street_Name LIKE '%${searchTerm}%' OR 
+          MBL LIKE '%${searchTerm}%' OR 
+          Location LIKE '%${searchTerm}%' OR 
+          Co_Owner LIKE '%${searchTerm}%' OR 
+          Uniqueid LIKE '%${searchTerm}%' OR 
+          Owner LIKE '%${searchTerm}%' OR 
+          GIS_LINK LIKE '%${searchTerm}%'
+      `;
+
+          // let whereClause = `
+          //     Street_Name LIKE '%${searchTerm}%' OR
+          //     MBL LIKE '%${searchTerm}%' OR
+          //     Location LIKE '%${searchTerm}%' OR
+          //     Co_Owner LIKE '%${searchTerm}%' OR
+          //     Uniqueid LIKE '%${searchTerm}%' OR
+          //     Owner LIKE '%${searchTerm}%' OR
+          //     GIS_LINK LIKE '%${searchTerm}%'
+          // `;
+
+          let query;
+
+          if (filterQuery) {
+            query = filterQuery;
+          } else {
+            query = CondosTable.createQuery();
+            query.where = whereClause;
+            query.returnGeometry = false;
+            query.returnHiddenFields = true; // Adjust based on your needs
+            query.outFields = ["*"];
+          }
+
+          CondosTable.queryFeatures(query)
             .then((response) => {
               if (response.features.length > 0) {
                 features = response.features;
@@ -4809,7 +5317,31 @@ require([
                     );
                   }
                 });
-                queryRelatedRecords(runQuerySearchTerm);
+
+                let query2;
+
+                if (sessionStorage.getItem("condos") === "no") {
+                  query2 = noCondosLayer.createQuery();
+                  query2.where = query.where;
+                  query2.returnDistinctValues = false;
+                  query2.returnGeometry = true;
+                  query2.outFields = ["*"];
+                } else {
+                  query2 = CondosLayer.createQuery();
+                  query2.where = query.where;
+                  query2.returnDistinctValues = false;
+                  query2.returnGeometry = true;
+                  query2.outFields = ["*"];
+                }
+
+                // if ('yes') {
+                //   let query = noCondosTable.createQuery();
+                //   query.where = queryString;
+                //   query.returnDistinctValues = false;
+                //   query.returnGeometry = true;
+                //   query.outFields = ["*"];
+                // }
+                queryRelatedRecords(runQuerySearchTerm, null, query2);
               }
             })
             .catch((error) => {
@@ -4821,12 +5353,19 @@ require([
       function triggerListGroup(results, searchTerm) {
         let items = results;
 
+        if (items.length <= 0) {
+          clearContents();
+          alert("Search resulted in an error, please try again.");
+        }
+
         let parcel = items.filter(
           (item) => item.attributes.Uniqueid === searchTerm
         );
 
         let itemId = parcel[0].attributes.Uniqueid;
         let objectID = parcel[0].attributes.OBJECTID;
+        let geometry = parcel[0].attributes.geometry;
+
         zoomToFeature(objectID, polygonGraphics, itemId);
         $("#details-spinner").show();
         $("#WelcomeBox").hide();
@@ -4834,6 +5373,7 @@ require([
         $("#result-btns").hide();
         $("#abutters-content").hide();
         $("#details-btns").show();
+        $("#abut-mail").show();
         $("#detailBox").show();
         $("#backButton").show();
         $("#detailsButton").hide();
@@ -4845,12 +5385,16 @@ require([
         $("#csvExportResults").hide();
         $("#csvExportSearch").hide();
         $(".center-container").hide();
-        $("#results-div").css("height", "150px");
+        $("#results-div").css("height", "300px");
         $("#backButton-div").css("padding-top", "0px");
         document.getElementById("total-results").style.display = "none";
         buildDetailsPanel(objectID, itemId);
         $("#total-results").hide();
         $("#ResultDiv").hide();
+
+        // view.goTo({
+        //   target: results,
+        // });
       }
 
       // Helper function to parse and modify URL query parameters
@@ -4899,21 +5443,21 @@ require([
         // Assuming the layer name and field name are known and static
         const layerName = "Parcel Boundaries";
         const fieldName = "UniqueId";
+        urlSearchUniqueId = true;
         let urlSearch = true;
 
-        queryRelatedRecords(uniqueId, urlSearch);
+        view
+          .when(function () {
+            // This function runs when the view is fully ready
+            console.log("The view is ready.");
+
+            // Place your function call or code here
+            queryRelatedRecords(uniqueId, urlSearch);
+          })
+          .catch(function (error) {
+            console.error("Error occurred while the view was loading: ", error);
+          });
       }
-      // });
-
-      // document
-      //   .getElementById("searchInput")
-      //   .addEventListener("change", function (e) {
-      //     var searchTerm = e.target.value.toUpperCase();
-
-      //     if (searchTerm.length === 0) {
-      //       alert("you are a fool");
-      //     }
-      //   });
 
       document
         .getElementById("searchInput")
@@ -4926,6 +5470,7 @@ require([
           $("#dropdown").hide();
           $("#result-btns").hide();
           $("#details-btns").hide();
+          $("#abut-mail").hide();
 
           var searchTerm = e.target.value.toUpperCase();
 
@@ -4961,6 +5506,7 @@ require([
           $("#dropdown").hide();
           $("#result-btns").hide();
           $("#details-btns").hide();
+          $("#abut-mail").hide();
           $("#right-arrow-2").show();
           $("#left-arrow-2").hide();
           $("#abutters-content").hide();
@@ -5125,6 +5671,7 @@ require([
         $("#detailBox").hide();
         $("#result-btns").hide();
         $("#details-btns").hide();
+        $("#abut-mail").hide();
         $("#abutters-title").html(`Abutting Parcels (0)`);
         polygonGraphics = [];
         view.graphics.removeAll();
@@ -5157,7 +5704,7 @@ require([
         });
 
       $(document).ready(function () {
-        let queryParameters = {
+        queryParameters = {
           streetName: null,
           owner: null,
           appraisedValueMin: null,
@@ -5179,6 +5726,7 @@ require([
         };
 
         function updateQuery() {
+          // console.log(queryParameters);
           let queryParts = [];
           if (
             queryParameters.streetName !== null &&
@@ -5373,242 +5921,555 @@ require([
           let queryString = queryParts.join(" AND ");
 
           if (sessionStorage.getItem("condos") === "no") {
-            let query = noCondosLayer.createQuery();
+            let query = noCondosTable.createQuery();
             query.where = queryString;
             query.returnDistinctValues = false;
             query.returnGeometry = true;
             query.outFields = ["*"];
 
-            noCondosLayer.queryFeatures(query).then(function (response) {
-              clearContents();
-              addPolygons(response, view.graphics);
-              processFeatures(response.features);
-              if (clickHandle) {
-                clickHandle?.remove();
-                clickHandle = null;
-              }
-              if (DetailsHandle) {
-                DetailsHandle?.remove();
-                DetailsHandle = null;
-              }
-              DetailsHandle = view.on("click", handleDetailsClick);
-            });
+            // console.log(query.where);
+
+            // noCondosTable.queryFeatures(query).then(function (response) {
+            clearContents();
+            runQuery(null, query);
+            // addPolygons(response, view.graphics);
+            // queryRelatedRecords("", "", query.where);
+            // addPolygons(response, view.graphics);
+            // processFeatures(response.features);
+            // if (clickHandle) {
+            //   clickHandle?.remove();
+            //   clickHandle = null;
+            // }
+            // if (DetailsHandle) {
+            //   DetailsHandle?.remove();
+            //   DetailsHandle = null;
+            // }
+            // DetailsHandle = view.on("click", handleDetailsClick);
+            // });
           } else {
-            let query = CondosLayer.createQuery();
+            let query = noCondosTable.createQuery();
             query.where = queryString;
             query.returnDistinctValues = false;
             query.returnGeometry = true;
             query.outFields = ["*"];
 
-            CondosLayer.queryFeatures(query).then(function (response) {
-              clearContents();
-              addPolygons(response, view.graphics);
-              processFeatures(response.features);
-              if (clickHandle) {
-                clickHandle?.remove();
-                clickHandle = null;
-              }
-              if (DetailsHandle) {
-                DetailsHandle?.remove();
-                DetailsHandle = null;
-              }
-              DetailsHandle = view.on("click", handleDetailsClick);
-            });
+            // noCondosTable.queryFeatures(query).then(function (response) {
+            clearContents();
+            runQuery(null, query);
+            // addPolygons(response, view.graphics);
+            // queryRelatedRecords("", "", query.where);
+            // if (clickHandle) {
+            //   clickHandle?.remove();
+            //   clickHandle = null;
+            // }
+            // if (DetailsHandle) {
+            //   DetailsHandle?.remove();
+            //   DetailsHandle = null;
+            // }
+            // DetailsHandle = view.on("click", handleDetailsClick);
+            // });
           }
 
           // Here, you can use this query string to fetch data from your feature service
         }
 
         $("#streetFilter").on("calciteComboboxChange", function (e) {
-          // value = e.target.value;
           queryParameters.streetName = e.target.value;
-          let itemsList = $("#streetFilter");
-          let selectedItems = itemsList[0].selectedItems;
-          // selectedItems.forEach((item) => {
-          //   console.log(item.value); // Assuming each item has a value attribute
-          // });
+          let debounceTimer5;
 
-          // console.log(`street filter is: ${value}`);
+          if (
+            queryParameters.streetName !== "" &&
+            queryParameters.streetName !== undefined &&
+            queryParameters.streetName !== null
+          ) {
+            triggerMultiFilter("Street_Name", e.target.value);
+            triggerMultiDates("Street_Name", e.target.value);
+          } else {
+            function throttleQuery() {
+              clearTimeout(debounceTimer5);
+              debounceTimer5 = setTimeout(() => {
+                checkVals();
+              }, 600);
+            }
+            throttleQuery();
+          }
         });
 
         $("#ownerFilter").on("calciteComboboxChange", function (e) {
           queryParameters.owner = e.target.value;
-        });
-
-        $("#app-val-slider").on("calciteSliderChange", function (e) {
-          value = e.target.value;
-          minVal = value[0];
-          maxVal = value[1];
-
-          queryParameters.appraisedValueMin = minVal;
-          $("#app-val-min").val(minVal);
-          queryParameters.appraisedValueMax = maxVal;
-          $("#app-val-max").val(maxVal);
-          // console.log(`appraised value is: ${value}`);
+          if (
+            queryParameters.owner !== "" &&
+            queryParameters.owner !== undefined &&
+            queryParameters.owner !== null
+          ) {
+            triggerMultiFilter("Owner", e.target.value);
+            triggerMultiDates("Owner", e.target.value);
+          } else {
+            let debounceTimer5;
+            function throttleQuery() {
+              clearTimeout(debounceTimer5);
+              debounceTimer5 = setTimeout(() => {
+                checkVals();
+              }, 600);
+            }
+            throttleQuery();
+          }
         });
 
         $("#app-val-min, #app-val-max").on("input", function () {
-          var minVal = parseInt($("#app-val-min").val());
-          var maxVal = parseInt($("#app-val-max").val());
+          // Get the input values as strings
+          var minValStr = $("#app-val-min").val();
+          var maxValStr = $("#app-val-max").val();
 
-          const slider1 = document.querySelector("#app-val-slider");
-          slider1.value = [minVal, maxVal];
-        });
+          // Remove the dollar sign and any commas
+          minValStr = minValStr.replace(/^\$/, "").replace(/,/g, "");
+          maxValStr = maxValStr.replace(/^\$/, "").replace(/,/g, "");
 
-        $("#assess-val-slider").on("calciteSliderChange", function (e) {
-          value = e.target.value;
-          minVal = value[0];
-          maxVal = value[1];
+          // Parse the values as integers
+          var minVal = parseInt(minValStr, 10);
+          var maxVal = parseInt(maxValStr, 10);
 
-          queryParameters.assessedValueMin = minVal;
-          $("#assess-val-min").val(minVal);
-          queryParameters.assessedValueMax = maxVal;
-          $("#assess-val-max").val(maxVal);
+          // Check if the parsed values are valid numbers
+          if (!isNaN(minVal) && !isNaN(maxVal)) {
+            // Format the parsed values with commas for display
+            var formattedMinVal = minVal.toLocaleString();
+            var formattedMaxVal = maxVal.toLocaleString();
+
+            // Update the input fields with the formatted values and dollar signs
+            $("#app-val-min").val("$" + formattedMinVal);
+            $("#app-val-max").val("$" + formattedMaxVal);
+
+            // Update queryParameters with the numerical values
+            queryParameters.appraisedValueMin = minVal;
+            queryParameters.appraisedValueMax = maxVal;
+          }
+
+          // Check if the values are valid numbers, minVal is less than or equal to maxVal, and the lengths are at least 1
+          if (
+            !isNaN(minVal) &&
+            !isNaN(maxVal) &&
+            minVal <= maxVal &&
+            minValStr.length >= 6 &&
+            maxValStr.length >= 6
+          ) {
+            // Update query parameters
+            queryParameters.appraisedValueMin = minVal;
+            queryParameters.appraisedValueMax = maxVal;
+
+            // Trigger the functions
+            triggerMultiFilter("Appraised_Total", minVal, maxVal);
+            triggerMultiDates("Appraised_Total", minVal, maxVal);
+          } else {
+            // console.log("Invalid input values: ", minVal, maxVal);
+          }
         });
 
         $("#assess-val-min, #assess-val-max").on("input", function () {
-          var minVal = parseInt($("#assess-val-min").val());
-          var maxVal = parseInt($("#assess-val-max").val());
+          var minValStr = $("#assess-val-min").val();
+          var maxValStr = $("#assess-val-max").val();
 
-          const slider2 = document.querySelector("#assess-val-slider");
-          slider2.value = [minVal, maxVal];
+          // Remove the dollar sign and any commas
+          minValStr = minValStr.replace(/^\$/, "").replace(/,/g, "");
+          maxValStr = maxValStr.replace(/^\$/, "").replace(/,/g, "");
+
+          // Parse the values as integers
+          var minVal = parseInt(minValStr, 10);
+          var maxVal = parseInt(maxValStr, 10);
+
+          // Check if the parsed values are valid numbers
+          if (!isNaN(minVal) && !isNaN(maxVal)) {
+            // Format the parsed values with commas for display
+            var formattedMinVal = minVal.toLocaleString();
+            var formattedMaxVal = maxVal.toLocaleString();
+
+            // Update the input fields with the formatted values and dollar signs
+            $("#assess-val-min").val("$" + formattedMinVal);
+            $("#assess-val-max").val("$" + formattedMaxVal);
+
+            queryParameters.assessedValueMin = minVal;
+            queryParameters.assessedValueMax = maxVal;
+          } else {
+            // If the values are not valid numbers, handle accordingly (e.g., set to NaN)
+            // console.log("Invalid input");
+          }
+
+          // Check if the values are valid numbers, minVal is less than or equal to maxVal, and the lengths are at least 1
+          if (
+            !isNaN(minVal) &&
+            !isNaN(maxVal) &&
+            minVal <= maxVal &&
+            minValStr.length >= 6 &&
+            maxValStr.length >= 6
+          ) {
+            // Update query parameters
+            queryParameters.assessedValueMin = minVal;
+            queryParameters.assessedValueMax = maxVal;
+
+            // Trigger the functions
+            triggerMultiFilter("Assessed_Total", minVal, maxVal);
+            triggerMultiDates("Assessed_Total", minVal, maxVal);
+          } else {
+            console.log("Invalid input values: ", minVal, maxVal);
+          }
         });
 
         $("#propertyFilter").on("calciteComboboxChange", function (e) {
           queryParameters.propertyType = e.target.value;
+          if (
+            e.target.value !== "" &&
+            e.target.value !== undefined &&
+            e.target.value !== null
+          ) {
+            triggerMultiFilter("Parcel_Type", e.target.value);
+            triggerMultiDates("Parcel_Type", e.target.value);
+          } else {
+            function throttleQuery() {
+              let debounceTimer5;
+              clearTimeout(debounceTimer5);
+              debounceTimer5 = setTimeout(() => {
+                checkVals();
+              }, 600);
+            }
+            throttleQuery();
+          }
         });
 
         $("#zoningFilter").on("calciteComboboxChange", function (e) {
           queryParameters.zoningType = e.target.value;
+          if (
+            e.target.value !== "" &&
+            e.target.value !== undefined &&
+            e.target.value !== null
+          ) {
+            triggerMultiFilter("Zoning", e.target.value);
+            triggerMultiDates("Zoning", e.target.value);
+          } else {
+            let debounceTimer5;
+            function throttleQuery() {
+              clearTimeout(debounceTimer5);
+              debounceTimer5 = setTimeout(() => {
+                checkVals();
+              }, 600);
+            }
+            throttleQuery();
+          }
         });
 
         $("#neighborhoodFilter").on("calciteComboboxChange", function (e) {
           queryParameters.neighborhoodType = e.target.value;
+          if (
+            e.target.value !== "" ||
+            e.target.value !== undefined ||
+            e.target.value !== null
+          ) {
+            triggerMultiFilter("Neighborhood", e.target.value);
+            triggerMultiDates("Neighborhood", e.target.value);
+          } else {
+            let debounceTimer5;
+
+            function throttleQuery() {
+              clearTimeout(debounceTimer5);
+              debounceTimer5 = setTimeout(() => {
+                checkVals();
+              }, 600);
+            }
+            throttleQuery();
+          }
         });
 
         $("#buildingFilter").on("calciteComboboxChange", function (e) {
           queryParameters.buildingType = e.target.value;
+          if (
+            e.target.value !== "" &&
+            e.target.value !== undefined &&
+            e.target.value !== null
+          ) {
+            triggerMultiFilter("Building_Type", e.target.value);
+            triggerMultiDates("Building_Type", e.target.value);
+          } else {
+            let debounceTimer5;
+            function throttleQuery() {
+              clearTimeout(debounceTimer5);
+              debounceTimer5 = setTimeout(() => {
+                checkVals();
+              }, 600);
+            }
+            throttleQuery();
+          }
         });
 
         $("#buildingUseFilter").on("calciteComboboxChange", function (e) {
           queryParameters.buildingUseType = e.target.value;
+          if (
+            e.target.value !== "" &&
+            e.target.value !== undefined &&
+            e.target.value !== null
+          ) {
+            triggerMultiFilter("Building_Use_Code", e.target.value);
+            triggerMultiDates("Building_Use_Code", e.target.value);
+          } else {
+            let debounceTimer5;
+
+            function throttleQuery() {
+              clearTimeout(debounceTimer5);
+              debounceTimer5 = setTimeout(() => {
+                checkVals();
+              }, 600);
+            }
+            throttleQuery();
+          }
         });
 
         $("#designTypeFilter").on("calciteComboboxChange", function (e) {
           queryParameters.designType = e.target.value;
-        });
+          if (
+            e.target.value !== "" &&
+            e.target.value !== undefined &&
+            e.target.value !== null
+          ) {
+            triggerMultiFilter("Design_Type", e.target.value);
+            triggerMultiDates("Design_Type", e.target.value);
+          } else {
+            let debounceTimer5;
 
-        $("#acres-val-slider").on("calciteSliderChange", function (e) {
-          value = e.target.value;
-          minVal = value[0];
-          maxVal = value[1];
-
-          queryParameters.acresValueMin = minVal;
-          $("#acres-val-min").val(minVal);
-          queryParameters.acresValueMax = maxVal;
-          $("#acres-val-max").val(maxVal);
+            function throttleQuery() {
+              clearTimeout(debounceTimer5);
+              debounceTimer5 = setTimeout(() => {
+                checkVals();
+              }, 600);
+            }
+            throttleQuery();
+          }
         });
 
         $("#acres-val-min, #acres-val-max").on("input", function () {
-          var minVal = parseInt($("#acres-val-min").val());
-          var maxVal = parseInt($("#acres-val-max").val());
+          // Get and parse the input values
+          var minVal = parseInt($("#acres-val-min").val(), 10);
+          var maxVal = parseInt($("#acres-val-max").val(), 10);
 
-          const slider3 = document.querySelector("#acres-val-slider");
-          slider3.value = [minVal, maxVal];
+          // Convert values to strings and check their lengths
+          var minValStr = $("#acres-val-min").val().trim();
+          var maxValStr = $("#acres-val-max").val().trim();
+
+          // Check if the values are valid numbers, minVal is less than or equal to maxVal, and the lengths are at least 1
+          if (
+            !isNaN(minVal) &&
+            !isNaN(maxVal) &&
+            minVal <= maxVal &&
+            minValStr.length >= 0 &&
+            maxValStr.length >= 0
+          ) {
+            // Update query parameters
+            queryParameters.acresValueMin = minVal;
+            queryParameters.acresValueMax = maxVal;
+
+            // Trigger the functions
+            triggerMultiFilter("Total_Acres", minVal, maxVal);
+            triggerMultiDates("Total_Acres", minVal, maxVal);
+          } else {
+            console.log("Invalid input values: ", minVal, maxVal);
+          }
         });
 
         $("#sold_calendar_lowest").on("calciteDatePickerChange", function () {
-          var dateValue = $("#sold_calendar_lowest").val();
-          queryParameters.soldOnMin = dateValue;
+          var dateValueMin = $("#sold_calendar_lowest").val();
+          var dateValueMax = $("#sold_calendar_highest").val();
+          queryParameters.soldOnMin = dateValueMin;
+          queryParameters.soldOnMax = dateValueMax;
+          triggerMultiFilter("Sale_Date", dateValueMin, dateValueMax);
+          triggerMultiDates("Sale_Date", dateValueMin, dateValueMax);
         });
 
         $("#sold_calendar_highest").on("calciteDatePickerChange", function () {
-          var dateValue = $("#sold_calendar_highest").val();
-          queryParameters.soldOnMax = dateValue;
+          var dateValueMin = new Date($("#sold_calendar_lowest").val());
+          var dateValueMax = new Date($("#sold_calendar_highest").val());
+
+          // Add one day to both dates
+          dateValueMin.setDate(dateValueMin.getDate() + 1);
+          dateValueMax.setDate(dateValueMax.getDate() + 1);
+
+          // Format dates to 'YYYY-MM-DD' string
+          var formattedDateValueMin = dateValueMin.toISOString().split("T")[0];
+          var formattedDateValueMax = dateValueMax.toISOString().split("T")[0];
+
+          queryParameters.soldOnMin = formattedDateValueMin;
+          queryParameters.soldOnMax = formattedDateValueMax;
+
+          triggerMultiFilter(
+            "Sale_Date",
+            formattedDateValueMin,
+            formattedDateValueMax
+          );
+          triggerMultiDates(
+            "Sale_Date",
+            formattedDateValueMin,
+            formattedDateValueMax
+          );
+          // checkVals();
         });
 
-        // $("#soldon-val-slider").on("calciteSliderChange", function (e) {
-        //   value = e.target.value;
-        //   minVal = value[0];
-        //   maxVal = value[1];
-
-        //   queryParameters.soldOnMin = minVal;
-        //   $("#sold-val-min").val(minVal);
-
-        //   queryParameters.soldOnMax = maxVal;
-        //   $("#sold-val-max").val(maxVal);
+        // $("#sold_calendar_highest").on("calciteDatePickerChange", function () {
+        //   var dateValueMin = $("#sold_calendar_lowest").val();
+        //   var dateValueMax = $("#sold_calendar_highest").val();
+        //   queryParameters.soldOnMin = dateValueMin;
+        //   queryParameters.soldOnMax = dateValueMax;
+        //   triggerMultiFilter("Sale_Date", dateValueMin, dateValueMax);
+        //   triggerMultiDates("Sale_Date", dateValueMin, dateValueMax);
+        //   // checkVals();
         // });
+        let previousState = null;
 
-        // $("#sold-val-min, #sold-val-max").on("input", function () {
-        //   var minVal = parseInt($("#sold-val-min").val());
-        //   var maxVal = parseInt($("#sold-val-max").val());
+        function checkVals() {
+          const elementIds = [
+            // "#sold_calendar_lowest",
+            // "#sold_calendar_highest",
+            // "#acres-val-min",
+            // "#acres-val-max",
+            "#designTypeFilter",
+            "#buildingUseFilter",
+            "#buildingFilter",
+            "#neighborhoodFilter",
+            "#zoningFilter",
+            "#propertyFilter",
+            // "#assess-val-min",
+            // "#assess-val-max",
+            // "#app-val-min",
+            // "#app-val-max",
+            "#ownerFilter",
+            "#streetFilter",
+            // "#saleP-val-min",
+            // "#saleP-val-max",
+          ];
 
-        //   const slider4 = document.querySelector("#soldon-val-slider");
-        //   slider4.value = [minVal, maxVal];
-        // });
+          const values = elementIds.map((id) => $(id).val());
 
-        $("#saleP-val-slider").on("calciteSliderChange", function (e) {
-          value = e.target.value;
-          minVal = value[0];
-          maxVal = value[1];
+          function isEmpty(value) {
+            return value.length === 0;
+          }
 
-          queryParameters.soldPMin = minVal;
-          $("#saleP-val-min").val(minVal);
+          const allEmpty = values.every(isEmpty);
 
-          queryParameters.soldPMax = maxVal;
-          $("#saleP-val-max").val(maxVal);
+          // Check if the state has changed
+          if (previousState !== allEmpty) {
+            onStateChange(allEmpty);
+            previousState = allEmpty;
+          }
+
+          // console.log(values); // This will log the values of all the elements
+          // console.log(allEmpty); // This will log true if all values are empty, false otherwise
+
+          return allEmpty;
+        }
+
+        function triggerReset() {
+          clearQueryParameters();
+        }
+
+        function onStateChange(newState) {
+          // console.log("State changed to:", newState);
+          // Add your code to handle the state change here
+          if (newState) {
+            // Perform actions when all values are empty
+            // console.log("All values are empty.");
+            triggerReset();
+          } else {
+            // Perform actions when there is at least one non-empty value
+            // console.log("There are some non-empty values.");
+          }
+        }
+
+        // Initialize previousState to the current state of the inputs
+        document.addEventListener("DOMContentLoaded", () => {
+          previousState = checkVals(); // Set the initial state without triggering state change actions
         });
 
         $("#saleP-val-min, #saleP-val-max").on("input", function () {
-          var minVal = parseInt($("#saleP-val-min").val());
-          var maxVal = parseInt($("#saleP-val-max").val());
+          var minValStr = $("#saleP-val-min").val();
+          var maxValStr = $("#saleP-val-max").val();
 
-          const slider5 = document.querySelector("#saleP-val-slider");
-          slider5.value = [minVal, maxVal];
+          // Remove the dollar sign and any commas
+          minValStr = minValStr.replace(/^\$/, "").replace(/,/g, "");
+          maxValStr = maxValStr.replace(/^\$/, "").replace(/,/g, "");
+
+          // Parse the values as integers
+          var minVal = parseInt(minValStr, 10);
+          var maxVal = parseInt(maxValStr, 10);
+
+          // Check if the parsed values are valid numbers
+          if (!isNaN(minVal) && !isNaN(maxVal)) {
+            // Format the parsed values with commas for display
+            var formattedMinVal = minVal.toLocaleString();
+            var formattedMaxVal = maxVal.toLocaleString();
+
+            // Update the input fields with the formatted values and dollar signs
+            $("#saleP-val-min").val("$" + formattedMinVal);
+            $("#saleP-val-max").val("$" + formattedMaxVal);
+
+            queryParameters.soldPMin = minVal;
+            queryParameters.soldPMax = maxVal;
+
+            triggerMultiFilter("Sale_Price", minVal, maxVal);
+            triggerMultiDates("Sale_Price", minVal, maxVal);
+          } else {
+            // If the values are not valid numbers, handle accordingly (e.g., set to NaN)
+            console.log("Invalid input");
+          }
         });
+
         function changeSliderValues(vals) {
           const sliderVals = [
             {
               fieldName: "Appraised_Total",
-              slider: "app-val-slider",
-              minInput: "app-val-min",
-              maxInput: "app-val-max",
+              // slider: "app-val-slider",
+              minInput: "#app-val-min",
+              maxInput: "#app-val-max",
               index: 0,
             },
             {
               fieldName: "Assessed_Total",
-              slider: "assess-val-slider",
-              minInput: "assess-val-min",
-              maxInput: "assess-val-max",
+              // slider: "assess-val-slider",
+              minInput: "#assess-val-min",
+              maxInput: "#assess-val-max",
               index: 1,
             },
 
             {
               fieldName: "Total_Acres",
-              slider: "acres-val-slider",
-              minInput: "acres-val-min",
-              maxInput: "acres-val-max",
+              // slider: "acres-val-slider",
+              minInput: "#acres-val-min",
+              maxInput: "#acres-val-max",
               index: 2,
             },
             {
               fieldName: "Sale_Date",
-              minInput: "sold_calendar_lowest",
-              maxInput: "sold_calendar_highest",
+              minInput: "#sold_calendar_lowest",
+              maxInput: "#sold_calendar_highest",
               index: 3,
             },
             {
               fieldName: "Sale_Price",
-              slider: "saleP-val-slider",
-              minInput: "saleP-val-min",
-              maxInput: "saleP-val-max",
+              // slider: "saleP-val-slider",
+              minInput: "#saleP-val-min",
+              maxInput: "#saleP-val-max",
               index: 4,
             },
           ];
 
           sliderVals.forEach(function (slider) {
             if (slider.fieldName == "Sale_Date") {
-              const sliderElLow = document.getElementById(slider.minInput);
-              const sliderElMax = document.getElementById(slider.maxInput);
+              const sliderInputMin = $(slider.minInput);
+              const sliderInputMax = $(slider.maxInput);
+
+              // const sliderInputMin = document.getElementById(slider.minInput);
+              // const sliderInputMax = document.getElementById(slider.maxInput);
+
+              showWaiting(slider.minInput);
+              showWaiting(slider.maxInput);
+
+              // var sliderInputMin = $(sliderInputMin);
+              // var sliderInputMax = $(sliderInputMax);
+              sliderInputMin.empty();
+              sliderInputMax.empty();
 
               var minstr = vals[slider.index][slider.fieldName].min;
               var maxstr = vals[slider.index][slider.fieldName].max;
@@ -5631,27 +6492,39 @@ require([
               // Format the date as yyyy-MM-dd
               let formattedDateM = `${yearM}-${monthM}-${dayM}`;
 
-              sliderElLow.value = formattedDateL;
-              sliderElMax.value = formattedDateM;
+              sliderInputMin.val(formattedDateL);
+              sliderInputMax.val(formattedDateM);
 
-              queryParameters.soldOnMin = formattedDateL;
-              queryParameters.soldOnMax = formattedDateM;
-
-              // const sliderInputMin = document.getElementById(slider.minInput);
-              // const sliderInputMax = document.getElementById(slider.maxInput);
+              hideWaiting(slider.minInput, formattedDateL);
+              hideWaiting(slider.maxInput, formattedDateM);
             } else {
-              const sliderEl = document.getElementById(slider.slider);
-              const sliderInputMin = document.getElementById(slider.minInput);
-              const sliderInputMax = document.getElementById(slider.maxInput);
+              showWaiting(slider.minInput);
+              showWaiting(slider.maxInput);
 
-              sliderEl.minValue = vals[slider.index][slider.fieldName].min;
-              sliderEl.maxValue = vals[slider.index][slider.fieldName].max;
+              const sliderInputMin = $(slider.minInput);
+              const sliderInputMax = $(slider.maxInput);
 
-              sliderEl.min = vals[slider.index][slider.fieldName].min;
-              sliderEl.max = vals[slider.index][slider.fieldName].max;
+              const minVal = (sliderInputMin.value =
+                vals[slider.index][slider.fieldName].min);
+              const maxVal = (sliderInputMax.value =
+                vals[slider.index][slider.fieldName].max);
 
-              sliderInputMin.value = vals[slider.index][slider.fieldName].min;
-              sliderInputMax.value = vals[slider.index][slider.fieldName].max;
+              let minStr;
+              let maxStr;
+
+              if (slider.fieldName !== "Total_Acres") {
+                minStr = "$" + minVal.toLocaleString();
+                maxStr = "$" + maxVal.toLocaleString();
+              } else {
+                minStr = minVal.toLocaleString();
+                maxStr = maxVal.toLocaleString();
+              }
+
+              sliderInputMin.val(minStr);
+              sliderInputMax.val(maxStr);
+
+              hideWaiting(slider.minInput, minStr);
+              hideWaiting(slider.maxInput, maxStr);
             }
           });
         }
@@ -5714,6 +6587,7 @@ require([
           }
 
           changeSliderValues(queryValues);
+          // console.log(queryValues);
         }
 
         buildQueries();
@@ -5722,7 +6596,9 @@ require([
           updateQuery();
         });
 
-        function clearQueryParameters() {
+        function resetQuery() {
+          dontTriggerMultiQuery = true;
+          previousState = null;
           $("#lasso").removeClass("btn-warning");
           // $("#select-button").removeClass("btn-warning");
           $("#searchInput ul").remove();
@@ -5739,8 +6615,148 @@ require([
           firstList = [];
           secondList = [];
 
+          multiFilterConfigurations = [
+            {
+              layer: CondosLayer,
+              field: "Appraised_Total",
+              filterSelector: "#app-val-min",
+              filterSelector2: "#app-val-max",
+            },
+            {
+              layer: CondosLayer,
+              field: "Assessed_Total",
+              filterSelector: "#assess-val-min",
+              filterSelector2: "#assess-val-max",
+            },
+            {
+              layer: CondosLayer,
+              field: "Total_Acres",
+              filterSelector: "#acres-val-min",
+              filterSelector2: "#acres-val-max",
+            },
+            {
+              layer: CondosLayer,
+              field: "Sale_Date",
+              filterSelector: "#sold_calendar_lowest",
+              filterSelector2: "#sold_calendar_highest",
+            },
+            {
+              layer: CondosLayer,
+              field: "Sale_Price",
+              filterSelector: "#saleP-val-min",
+              filterSelector2: "#saleP-val-max",
+            },
+          ];
+
+          filterConfigurations = [
+            {
+              layer: CondosLayer,
+              field: "Street_Name",
+              filterSelector: "#streetFilter",
+              alias: "Street_Name",
+              message: "Select a Street Name",
+            },
+            {
+              layer: CondosLayer,
+              field: "Owner",
+              filterSelector: "#ownerFilter",
+              message: "Select a Owner",
+            },
+            {
+              layer: CondosLayer,
+              field: "Parcel_Type",
+              filterSelector: "#propertyFilter",
+              alias: "Parcel_Type",
+              message: "Select a Property Type",
+            },
+            {
+              layer: CondosLayer,
+              field: "Building_Type",
+              filterSelector: "#buildingFilter",
+              message: "Select a Building Type",
+            },
+            {
+              layer: CondosLayer,
+              field: "Building_Use_Code",
+              filterSelector: "#buildingUseFilter",
+              message: "Select a Building Use Type",
+            },
+            {
+              layer: CondosLayer,
+              field: "Design_Type",
+              filterSelector: "#designTypeFilter",
+              message: "Select a Design Type",
+            },
+            {
+              layer: CondosLayer,
+              field: "Zoning",
+              filterSelector: "#zoningFilter",
+              message: "Select a Zone",
+            },
+            {
+              layer: CondosLayer,
+              field: "Neighborhood",
+              filterSelector: "#neighborhoodFilter",
+              message: "Select a Neighborhood",
+            },
+          ];
+
+          filterConfigs = [
+            {
+              layer: CondosLayer,
+              field: "Appraised_Total",
+              filterSelector: "#streetFilter",
+              minInput: "app-val-min",
+              maxInput: "app-val-max",
+              minValField: "appraisedValueMin",
+              maxValueField: "appraisedValueMax",
+              index: 0,
+            },
+            {
+              layer: CondosLayer,
+              field: "Assessed_Total",
+              filterSelector: "#ownerFilter",
+              minInput: "assess-val-min",
+              maxInput: "assess-val-max",
+              minValField: "assessedValueMin",
+              maxValueField: "assessedValueMax",
+              index: 1,
+            },
+            {
+              layer: CondosLayer,
+              field: "Total_Acres",
+              filterSelector: "#propertyFilter",
+              minInput: "acres-val-min",
+              maxInput: "acres-val-max",
+              minValField: "acresValueMin",
+              maxValueField: "acresValueMax",
+              index: 2,
+            },
+            {
+              layer: CondosLayer,
+              field: "Sale_Date",
+              filterSelector: "#buildingFilter",
+              minInput: "sold_calendar_lowest",
+              maxInput: "sold_calendar_highest",
+              minValField: "soldOnMin",
+              maxValueField: "soldOnMax",
+              index: 3,
+            },
+            {
+              layer: CondosLayer,
+              field: "Sale_Price",
+              filterSelector: "#buildingUseFilter",
+              minInput: "saleP-val-min",
+              maxInput: "saleP-val-max",
+              minValField: "soldPMin",
+              maxValueField: "soldPMax",
+              index: 4,
+            },
+          ];
+
           $("#result-btns").hide();
           $("#details-btns").hide();
+          $("#abut-mail").hide();
           $("#dropdown").hide();
           $("#right-arrow-2").show();
           $("#left-arrow-2").hide();
@@ -5785,86 +6801,152 @@ require([
           // put this in its own function
           // can use this for setting the values and clearing them
           // keep clearQueryParamters for just resetting other values
-          const combobox1ID = document.querySelector("#streetFilter");
-          const combobox2ID = document.querySelector("#ownerFilter");
-          const combobox3ID = document.querySelector("#propertyFilter");
-          const combobox4ID = document.querySelector("#buildingFilter");
-          const combobox5ID = document.querySelector("#buildingUseFilter");
-          const combobox6ID = document.querySelector("#designTypeFilter");
-          const combobox7ID = document.querySelector("#zoningFilter");
-          const combobox8ID = document.querySelector("#neighborhoodFilter");
-          const soldOnLowest = document.querySelector("#sold_calendar_lowest");
-          const soldOnHighest = document.querySelector(
-            "#sold_calendar_highest"
-          );
+          const combobox1ID = $("#streetFilter");
+          const combobox2ID = $("#ownerFilter");
+          const combobox3ID = $("#propertyFilter");
+          const combobox4ID = $("#buildingFilter");
+          const combobox5ID = $("#buildingUseFilter");
+          const combobox6ID = $("#designTypeFilter");
+          const combobox7ID = $("#zoningFilter");
+          const combobox8ID = $("#neighborhoodFilter");
+          const soldOnLowest = $("#sold_calendar_lowest");
+          const soldOnHighest = $("#sold_calendar_highest");
 
-          combobox1ID.selectedItems = [];
-          combobox2ID.selectedItems = [];
-          combobox3ID.selectedItems = [];
-          combobox4ID.selectedItems = [];
-          combobox5ID.selectedItems = [];
-          combobox6ID.selectedItems = [];
-          combobox7ID.selectedItems = [];
-          combobox8ID.selectedItems = [];
+          combobox1ID.empty();
+          combobox2ID.empty();
+          combobox3ID.empty();
+          combobox4ID.empty();
+          combobox5ID.empty();
+          combobox6ID.empty();
+          combobox7ID.empty();
+          combobox8ID.empty();
 
-          combobox1ID.filteredItems.forEach((item) => {
-            item.active = false;
-            item.selected = false;
-          });
+          // combobox1ID.selectedItems = [];
+          // combobox2ID.selectedItems = [];
+          // combobox3ID.selectedItems = [];
+          // combobox4ID.selectedItems = [];
+          // combobox5ID.selectedItems = [];
+          // combobox6ID.selectedItems = [];
+          // combobox7ID.selectedItems = [];
+          // combobox8ID.selectedItems = [];
 
-          combobox2ID.filteredItems.forEach((item) => {
-            item.active = false;
-            item.selected = false;
-          });
+          // combobox1ID.filteredItems.forEach((item) => {
+          //   item.active = false;
+          //   item.selected = false;
+          // });
 
-          combobox3ID.filteredItems.forEach((item) => {
-            item.active = false;
-            item.selected = false;
-          });
+          // combobox2ID.filteredItems.forEach((item) => {
+          //   item.active = false;
+          //   item.selected = false;
+          // });
 
-          combobox4ID.filteredItems.forEach((item) => {
-            item.active = false;
-            item.selected = false;
-          });
+          // combobox3ID.filteredItems.forEach((item) => {
+          //   item.active = false;
+          //   item.selected = false;
+          // });
 
-          combobox5ID.filteredItems.forEach((item) => {
-            item.active = false;
-            item.selected = false;
-          });
+          // combobox4ID.filteredItems.forEach((item) => {
+          //   item.active = false;
+          //   item.selected = false;
+          // });
 
-          combobox6ID.filteredItems.forEach((item) => {
-            item.active = false;
-            item.selected = false;
-          });
+          // combobox5ID.filteredItems.forEach((item) => {
+          //   item.active = false;
+          //   item.selected = false;
+          // });
 
-          combobox7ID.filteredItems.forEach((item) => {
-            item.active = false;
-            item.selected = false;
-          });
+          // combobox6ID.filteredItems.forEach((item) => {
+          //   item.active = false;
+          //   item.selected = false;
+          // });
 
-          combobox8ID.filteredItems.forEach((item) => {
-            item.active = false;
-            item.selected = false;
-          });
+          // combobox7ID.filteredItems.forEach((item) => {
+          //   item.active = false;
+          //   item.selected = false;
+          // });
 
-          combobox1ID.value = "";
-          combobox2ID.value = "";
-          combobox3ID.value = "";
-          combobox4ID.value = "";
-          combobox5ID.value = "";
-          combobox6ID.value = "";
-          combobox7ID.value = "";
-          combobox8ID.value = "";
+          // combobox8ID.filteredItems.forEach((item) => {
+          //   item.active = false;
+          //   item.selected = false;
+          // });
+
+          // combobox1ID.value = "";
+          // combobox2ID.value = "";
+          // combobox3ID.value = "";
+          // combobox4ID.value = "";
+          // combobox5ID.value = "";
+          // combobox6ID.value = "";
+          // combobox7ID.value = "";
+          // combobox8ID.value = "";
 
           soldOnLowest.value = "";
           soldOnHighest.value = "";
           soldOnLowest.activeDate = null;
           soldOnHighest.activeDate = null;
+          // Usage of the generalized function
+          // Usage of the generalized function
+          generateFilter(
+            CondosLayer,
+            "Street_Name",
+            "#streetFilter",
+            "Select a Street Name"
+          );
+          generateFilter(
+            CondosLayer,
+            "Owner",
+            "#ownerFilter",
+            "Select a Owner"
+          );
+          generateFilter(
+            CondosLayer,
+            "Parcel_Type",
+            "#propertyFilter",
+            "Select a Property Type"
+          );
+          generateFilter(
+            CondosLayer,
+            "Building_Type",
+            "#buildingFilter",
+            "Select a Building Type"
+          );
+          generateFilter(
+            CondosLayer,
+            "Building_Use_Code",
+            "#buildingUseFilter",
+            "Select a Building Use"
+          );
+          generateFilter(
+            CondosLayer,
+            "Design_Type",
+            "#designTypeFilter",
+            "Select a Design Type"
+          );
+          generateFilter(
+            CondosLayer,
+            "Zoning",
+            "#zoningFilter",
+            "Select a Zone"
+          );
+          generateFilter(
+            CondosLayer,
+            "Neighborhood",
+            "#neighborhoodFilter",
+            "Select a Neighborhood"
+          );
 
           buildQueries();
 
           $(".wrapper .x-button").click();
           $("#streetFilter").value = "";
+        }
+
+        let resetTimer;
+
+        function clearQueryParameters() {
+          clearTimeout(resetTimer);
+          resetTimer = setTimeout(() => {
+            resetQuery();
+          }, 600);
         }
 
         $("#clearFilter").on("click", function () {
@@ -5912,17 +6994,17 @@ require([
           $("#group-container-right").show();
         });
 
-        $("#Print-selector").on("click", function () {
-          $("#rightPanel").hide();
-          $("#BookmarksDiv").hide();
-          $("#AddDataDiv").hide();
-          $("#ContactDiv").hide();
-          $("#BasemapDiv").hide();
-          $("#Right-Btn-div").show();
-          $("#PrintDiv").show();
-          $("#LegendDiv").hide();
-          $("#group-container-right").show();
-        });
+        // $("#Print-selector").on("click", function () {
+        //   $("#rightPanel").hide();
+        //   $("#BookmarksDiv").hide();
+        //   $("#AddDataDiv").hide();
+        //   $("#ContactDiv").hide();
+        //   $("#BasemapDiv").hide();
+        //   $("#Right-Btn-div").show();
+        //   $("#PrintDiv").show();
+        //   $("#LegendDiv").hide();
+        //   $("#group-container-right").show();
+        // });
 
         $("#Contact-selector").on("click", function () {
           $("#rightPanel").hide();
@@ -5957,19 +7039,19 @@ require([
           $("#group-container-right").show();
         });
 
-        $("#Print-selector").on("click", function () {
-          $("#rightPanel").hide();
-          $("#BookmarksDiv").hide();
-          $("#BasemapDiv").hide();
-          $("#Right-Btn-div").hide();
-          $("#PrintDiv").hide();
-          $("#ContactDiv").hide();
-          $("#Right-Btn-div").show();
-          $("#AddDataDiv").hide();
-          $("#PrintDiv").show();
-          $("#LegendDiv").hide();
-          $("#group-container-right").show();
-        });
+        // $("#Print-selector").on("click", function () {
+        //   $("#rightPanel").hide();
+        //   $("#BookmarksDiv").hide();
+        //   $("#BasemapDiv").hide();
+        //   $("#Right-Btn-div").hide();
+        //   $("#PrintDiv").hide();
+        //   $("#ContactDiv").hide();
+        //   $("#Right-Btn-div").show();
+        //   $("#AddDataDiv").hide();
+        //   $("#PrintDiv").show();
+        //   $("#LegendDiv").hide();
+        //   $("#group-container-right").show();
+        // });
 
         $("#Legend-selector").on("click", function () {
           $("#rightPanel").hide();
@@ -5998,24 +7080,72 @@ require([
         });
       });
 
-      // Add event listener for scale selection
-      // const scaleDropdown2 = document.getElementsByClassName("scale-Select");
+      // Scale mapping
+      var scaleMapping = {
+        240: "1 inch = 20 feet",
+        600: "1 inch = 50 feet",
+        1200: "1 inch = 100 feet",
+        2400: "1 inch = 200 feet",
+        6000: "1 inch = 500 feet",
+        9600: "1 inch = 800 feet",
+        18000: "1 inch = 1500 feet",
+        36000: "1 inch = 3000 feet",
+        72000: "1 inch = 6000 feet",
+        144000: "1 inch = 12000 feet",
+      };
 
-      scaleDropdown = document.getElementById("scale-dropdown");
+      // Add event listener for scale selection
+      var scaleDropdown = document.getElementById("scale-dropdown");
 
-      // Add event listener for scale selection
-      // Add event listener for scale selection
       document.querySelectorAll(".scale-select").forEach(function (button) {
         button.addEventListener("click", function (event) {
-          var selectedScale = event.target.value;
+          var selectedScale = parseInt(event.target.value);
+          var selectedText = event.target.innerHTML;
+          console.log(selectedScale);
           if (selectedScale) {
             view.scale = selectedScale;
           }
+
+          $("#scale-value").val(selectedScale).html(selectedText);
         });
       });
+
       view.ui.add(scaleDropdown, {
         position: "bottom-left",
       });
+
+      // Watch for changes in the view's scale and update the dropdown
+      const handle = reactiveUtils.watch(
+        () => [view.stationary, view.scale],
+        ([stationary, scale]) => {
+          // Only print the new scale value when the view is stationary
+          if (stationary) {
+            // console.log(`Change in scale level: ${scale}`);
+            updateScaleDropdown(scale);
+          }
+        }
+      );
+
+      function updateScaleDropdown(scale) {
+        var roundedScale = Math.round(scale);
+        var scaleText = getScaleText(roundedScale);
+
+        if (scaleText) {
+          $("#scale-value").val(roundedScale).html(scaleText);
+        }
+      }
+
+      function getScaleText(scale) {
+        // Find the closest scale in the mapping
+        var closestScale = Object.keys(scaleMapping).reduce(function (
+          prev,
+          curr
+        ) {
+          return Math.abs(curr - scale) < Math.abs(prev - scale) ? curr : prev;
+        });
+
+        return scaleMapping[closestScale];
+      }
 
       // view.add(scaleDropdown, "bottom-right");
 
@@ -6063,6 +7193,18 @@ require([
 
       $(document).ready(function () {
         $("#abutters-zoom").popover({
+          trigger: "hover",
+        });
+      });
+
+      $(document).ready(function () {
+        $("#distanceButton").popover({
+          trigger: "hover",
+        });
+      });
+
+      $(document).ready(function () {
+        $("#areaButton").popover({
           trigger: "hover",
         });
       });
